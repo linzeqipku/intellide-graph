@@ -1,9 +1,8 @@
 package cn.edu.pku.sei.intellide.graph.webapp.entity;
 
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,19 +13,16 @@ public class Neo4jNode {
     private final String label;
     private final Map properties=new HashMap<>();
 
-    public static Neo4jNode get(long id, Driver driver){
+    public static Neo4jNode get(long id, GraphDatabaseService db){
         Neo4jNode node=null;
-        Session session = driver.session();
-        String stat = "match (n) where id(n)=" + id + " return id(n), labels(n)[0], n";
-        StatementResult rs = session.run(stat);
-        while (rs.hasNext()) {
-            Record item=rs.next();
-            node=new Neo4jNode(item.get("id(n)").asLong(),item.get("labels(n)[0]").asString());
-            node.properties.putAll(item.get("n").asMap());
-            node.properties.put("id",node.id);
-            node.properties.put("label",node.label);
+        try (Transaction tx=db.beginTx()) {
+            Node oNode = db.getNodeById(id);
+            node = new Neo4jNode(id, oNode.getLabels().iterator().next().name());
+            node.properties.putAll(oNode.getAllProperties());
+            node.properties.put("id", node.id);
+            node.properties.put("label", node.label);
+            tx.success();
         }
-        session.close();
         return node;
     }
 

@@ -7,15 +7,15 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Conf {
 
-    private String boltUrl;
+    private String graphDir;
     private String dataDir;
 
-    public String getBoltUrl() {
-        return boltUrl;
+    public String getGraphDir() {
+        return graphDir;
     }
 
-    public void setBoltUrl(String boltUrl) {
-        this.boltUrl = boltUrl;
+    public void setGraphDir(String graphDir) {
+        this.graphDir = graphDir;
     }
 
     public String getDataDir() {

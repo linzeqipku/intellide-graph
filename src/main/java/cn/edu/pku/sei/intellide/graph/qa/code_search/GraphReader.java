@@ -77,11 +77,4 @@ public class GraphReader {
         return result;
     }
 
-    public static void main(String[] args){
-        GraphReader graphReader = new GraphReader("F:\\testdata\\graph.db-tokens");
-        APILocater locater = new APILocater(graphReader);
-        String[] query = {"区域", "游客"};
-        MySubgraph result = locater.query(new HashSet<>(Arrays.asList(query)));
-        result.print();
-    }
 }

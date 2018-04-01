@@ -41,21 +41,26 @@ public class APILocater {
             }
         }
 
-        List<MySubgraph> optimal = new ArrayList<>();
+        List<Pair<Integer,MySubgraph>> candidateList = new ArrayList<>();
         minSize = Integer.MAX_VALUE;
         Set<MyNode> startSet = rootNodeSet.get(startSetIndex);
         for (MyNode node : startSet){
             MySubgraph subgraph = BFS(node);
             if (subgraph == null)
                 continue;
-            if (subgraph.nodes.size() <= minSize){
+            candidateList.add(new Pair<>(subgraph.nodes.size(), subgraph));
+            if (subgraph.nodes.size() < minSize){
                 minSize = subgraph.nodes.size();
-                optimal.add(subgraph);
             }
         }
-        if (optimal.size() == 0) // cannot find a subgraph
+        if (candidateList.size() == 0) // cannot find a subgraph
             return null;
-        // if size equals, return a random one
+
+        List<MySubgraph> optimal = new ArrayList<>();
+        for (Pair<Integer, MySubgraph> pair : candidateList){
+            if (pair.getKey() == minSize)
+                optimal.add(pair.getValue());
+        } // if size equals, return a random one
         return optimal.get((int)(Math.random()*optimal.size()));
     }
 

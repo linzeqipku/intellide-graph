@@ -3,10 +3,10 @@ package cn.edu.pku.sei.intellide.graph.qa.code_search;
 import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.util.*;
 
 public class CodeSearch {
 
@@ -23,6 +23,11 @@ public class CodeSearch {
     public Neo4jSubGraph search(String queryString){
         Set<String> tokens = CodeTokenizer.tokenization(queryString);
         MySubgraph subgraph = locater.query(tokens);
+        if (subgraph == null){
+            System.out.println("codesearcher find no subgraph");
+            subgraph = new MySubgraph();
+        }
+        subgraph.print();
 
         List<Long> nodes = new ArrayList<>(subgraph.nodes);
         List<Long> rels = new ArrayList<>(subgraph.edges);
@@ -30,4 +35,10 @@ public class CodeSearch {
         return new Neo4jSubGraph(nodes,rels,db);
     }
 
+     public static void main(String[] args){
+        CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
+                new File("F:\\testdata\\graph.db-tokens")));
+        String[] query = {"区域", "游客"};
+        searcher.search("区域 游客");
+    }
 }

@@ -31,7 +31,6 @@ public class CodeSearch {
 
         List<Long> nodes = new ArrayList<>(subgraph.nodes);
         List<Long> rels = new ArrayList<>(subgraph.edges);
-        nodes.add((long) 203);
         return new Neo4jSubGraph(nodes,rels,db);
     }
 

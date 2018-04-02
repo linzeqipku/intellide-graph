@@ -5,6 +5,7 @@ import cn.edu.pku.sei.intellide.graph.extraction.docx_to_neo4j.DocxGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
 import org.apache.lucene.queryparser.classic.ParseException;
+import cn.edu.pku.sei.intellide.graph.extraction.pptx_to_neo4j.PptxGraphBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,6 +16,7 @@ public class SnowGraphTest {
     private static final String SRC_DIR_PATH="E:/dc/data/";
     private static final String GIT_DIR_PATH="D:/test/lucene-solr/.git";
     private static final String DOCX_DIR_PATH="E:/dc/data/html";
+    private static final String PPTX_DIR_PATH="E:/test";
 
     @Test
     public void testCodeGraphBuilder() throws IOException {
@@ -34,6 +36,11 @@ public class SnowGraphTest {
     @Test
     public void testCodeTokenizer(){
         CodeTokenizer.process(GRAPH_DIR_PATH);
+    }
+
+    @Test
+    public void testPptxGraphBuilder() throws IOException {
+        PptxGraphBuilder.process(GRAPH_DIR_PATH,PPTX_DIR_PATH);
     }
 
 }

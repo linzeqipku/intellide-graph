@@ -15,6 +15,7 @@ public class APILocater {
     }
 
     public MySubgraph query(Set<String> queryList){
+        rootNodeSet.clear();
         for (String word: queryList){
             Set<MyNode> cur = new HashSet<>();
             for (MyNode node: graph){

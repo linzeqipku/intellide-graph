@@ -1,5 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules;
 
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphEdgeType;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphPath;
@@ -24,7 +25,7 @@ public class PathsJson {
     public static void readJson(){
         String lines = "";
         try {
-             lines = FileUtils.readFileToString(new File(LuceneIndex.dataDirPath+"\\Path23.json"));
+             lines = FileUtils.readFileToString(new File(Config.class.getResource("/").getPath()+"\\Path23.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }

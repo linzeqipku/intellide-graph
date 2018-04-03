@@ -1,5 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules;
 
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphSchema;
 import org.apache.commons.io.FileUtils;
@@ -30,7 +31,7 @@ public class SynonymJson {
     public static void readJson() throws JSONException {
         String lines = "";
         try {
-            lines = FileUtils.readFileToString(new File(LuceneIndex.dataDirPath+"\\Synonym_chinese.json"));
+            lines = FileUtils.readFileToString(new File(Config.class.getResource("/").getPath()+"\\Synonym_chinese.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }

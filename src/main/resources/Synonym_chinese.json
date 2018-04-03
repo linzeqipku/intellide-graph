@@ -1,0 +1,76 @@
+{
+  "node":
+  [
+    {
+      "nodeName" : ["Class"],
+      "similar" : ["类"]
+    },
+    {
+      "nodeName" : ["Method"],
+      "similar" : ["方法"]
+    },
+    {
+      "nodeName" : ["Field"],
+      "similar" : ["域"]
+    },
+    {
+      "nodeName" : ["Docx"],
+      "similar" : ["文档", "word"]
+    },
+    {
+      "nodeName" : ["gitCommit"],
+      "similar" : ["提交"]
+    },
+    {
+      "nodeName" : ["JiraIssue"],
+      "similar" : ["issue"]
+    }
+  ],
+  "attribute":
+  [
+    {
+      "attributeName" : ["createDate","date","createdDate","updatedDate"],
+      "similar" : ["时间","日期","时候"]
+    },
+    {
+      "attributeName" : ["crearorName"],
+      "similar" : ["谁"]
+    }
+  ,
+    {
+      "attributeName" : ["isInterface"],
+      "similar" : ["接口"]
+    }
+  ],
+  "relation":
+  [
+    {
+      "relationName" : ["methodCall"],
+      "similar" : ["调用"]
+    },
+    {
+      "relationName" : ["haveField", "haveMethod"],
+      "similar" : ["有","具有","属于"]
+    },
+    {
+      "relationName" : ["commit_change_the_class","author_of_commit"],
+      "similar" : ["change","modify"]
+    },
+    {
+      "relationName" : ["codeMention"],
+      "similar" : ["提到"]
+    },
+    {
+      "relationName" : ["extend"],
+      "similar" : ["继承"]
+    },
+    {
+      "relationName" : ["implement"],
+      "similar" : ["实现"]
+    },
+    {
+      "relationName" : ["returnType"],
+      "similar" : ["返回","返回类型"]
+    }
+  ]
+}

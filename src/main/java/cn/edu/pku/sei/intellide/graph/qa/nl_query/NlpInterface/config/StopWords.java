@@ -17,7 +17,7 @@ public class StopWords {
     static {
         List<String> lines=new ArrayList<>();
         try {
-            lines= FileUtils.readLines(new File(LuceneIndex.dataDirPath+"\\stopwords_chinese.txt"));
+            lines= FileUtils.readLines(new File(Config.class.getResource("/").getPath()+"\\stopwords_chinese.txt"));
         } catch (IOException e) {
             e.printStackTrace();
         }

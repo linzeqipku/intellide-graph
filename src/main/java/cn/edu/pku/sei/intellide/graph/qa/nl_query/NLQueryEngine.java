@@ -31,22 +31,35 @@ public class NLQueryEngine {
     }
 
     public Neo4jSubGraph search(String queryString){
+        queryString.replace("接口","接口类");
         ExtractModel.db = this.db;
         List<Long> nodes=new ArrayList<>();
         List<Long> rels=new ArrayList<>();
         List<String> cyphers = null;
-        try {
-            cyphers = NLPInterpreter.pipeline(queryString);
-            Result p = db.execute(cyphers.get(0) + " limit 30");
-            for (String s : cyphers) {
-                System.out.println(s);
-            }
+        if (queryString.matches("([0-9])*")){
+            String c = "Match (n) where id(n)="+queryString+" return n, id(n), labels(n)";
+            System.out.println(c);
+            Result p = db.execute(c + " limit 30");
             while (p.hasNext()){
                 Map m = p.next();
-                nodes.add((Long)m.get("id(n0)"));
+                nodes.add((Long)m.get("id(n)"));
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        }else {
+            cyphers = NLPInterpreter.pipeline(queryString);
+            if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
+            String c = cyphers.get(0);
+            String returnT = c.substring(c.indexOf("RETURN")+7,c.length());
+            if (!returnT.contains("labels")){
+                String nodeid = returnT.substring(0,returnT.indexOf("."));
+                c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid);
+            }
+            System.out.println(c);
+            Result p = db.execute(c + " limit 30");
+
+            while (p.hasNext()) {
+                Map m = p.next();
+                nodes.add((Long) m.get("id(n0)"));
+            }
         }
         return new Neo4jSubGraph(nodes,rels,db);
     }

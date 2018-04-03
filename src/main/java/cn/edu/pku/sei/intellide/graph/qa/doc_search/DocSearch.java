@@ -1,36 +1,163 @@
 package cn.edu.pku.sei.intellide.graph.qa.doc_search;
 
+import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
 import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
+import cn.edu.pku.sei.intellide.graph.extraction.docx_to_neo4j.DocxGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.qa.code_search.CodeSearch;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jNode;
-import org.neo4j.graphdb.GraphDatabaseService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
+import org.neo4j.graphdb.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class DocSearch {
 
     private GraphDatabaseService db;
+    private String indexDirPath;
+    private CodeSearch codeSearch;
+    private final String ID_FIELD = "id";
+    private final String CONTENT_FIELD = "content";
+    private DirectoryReader ireader;
+    private IndexSearcher isearcher;
+    private QueryParser parser;
 
-    public DocSearch(GraphDatabaseService db){
+    public DocSearch(GraphDatabaseService db, String indexDirPath, CodeSearch codeSearch){
         this.db=db;
+        this.indexDirPath=indexDirPath;
+        this.codeSearch=codeSearch;
     }
 
-    public List<Neo4jNode> search(String queryString){
-        Set<String> tokens= CodeTokenizer.tokenization(queryString);
-        List<Neo4jNode> nodes=new ArrayList<>();
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        nodes.add(Neo4jNode.get(67182,db));
-        return nodes;
+    private void createIndex() throws IOException {
+        if (new File(indexDirPath).exists())
+            return;
+        System.out.println("Creating Doc Search Index ...");
+        Analyzer analyzer = new StandardAnalyzer();
+        Directory directory = new SimpleFSDirectory(new File(indexDirPath).toPath());
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        IndexWriter iwriter = new IndexWriter(directory, config);
+        try (Transaction tx=db.beginTx()){
+            ResourceIterator<Node> nodes=db.getAllNodes().iterator();
+            while (nodes.hasNext()){
+                Node node=nodes.next();
+                String indexStr=getIndexStr(node);
+                if (indexStr==null)
+                    continue;
+                Document document=new Document();
+                document.add(new StringField(ID_FIELD, "" + node.getId(), Field.Store.YES));
+                document.add(new TextField(CONTENT_FIELD, indexStr, Field.Store.NO));
+                iwriter.addDocument(document);
+            }
+            tx.success();
+        }
+        iwriter.close();
+        System.out.println("Doc Search Index Created.");
+    }
+
+    public List<Neo4jNode> search(String queryString) throws IOException, ParseException {
+        createIndex();
+        List<Neo4jNode> r=new ArrayList<>();
+        List<Neo4jNode> codeNodes=codeSearch.search(queryString).getNodes();
+        Set<Long> nodeSet=new HashSet<>();
+        try (Transaction tx=db.beginTx()) {
+            for (Neo4jNode codeNode:codeNodes){
+                Node node=db.getNodeById(codeNode.getId());
+                Iterator<Relationship> rels=node.getRelationships(CodeMentionDetector.CODE_MENTION,Direction.OUTGOING).iterator();
+                while (rels.hasNext()){
+                    Relationship rel=rels.next();
+                    Node docNode=rel.getEndNode();
+                    Map map = new HashMap<>();
+                    map.put(DocxGraphBuilder.TITLE, getTitle(docNode));
+                    map.put(DocxGraphBuilder.HTML, getHtml(docNode));
+                    r.add(new Neo4jNode(docNode.getId(), docNode.getLabels().iterator().next().name(), map));
+                    nodeSet.add(docNode.getId());
+                }
+            }
+            tx.success();
+        }
+        Directory directory = new SimpleFSDirectory(new File(indexDirPath).toPath());
+        Analyzer analyzer = new StandardAnalyzer();
+        ireader = DirectoryReader.open(directory);
+        isearcher = new IndexSearcher(ireader);
+        parser = new QueryParser(CONTENT_FIELD, analyzer);
+        Query query = parser.parse(StringUtils.join(CodeTokenizer.tokenization(queryString)," "));
+        ScoreDoc[] hits = isearcher.search(query, 100).scoreDocs;
+        try (Transaction tx=db.beginTx()) {
+            for (int i = 0; i < hits.length; i++) {
+                Document doc = ireader.document(hits[i].doc);
+                long id=Long.parseLong(doc.getField(ID_FIELD).stringValue());
+                if (nodeSet.contains(id))
+                    continue;
+                Node node=db.getNodeById(id);
+                Map map = new HashMap<>();
+                map.put(DocxGraphBuilder.TITLE, getTitle(node));
+                map.put(DocxGraphBuilder.HTML, getHtml(node));
+                r.add(new Neo4jNode(Long.parseLong(doc.getField(ID_FIELD).stringValue()), node.getLabels().iterator().next().name(), map));
+            }
+            tx.success();
+        }
+        return r;
+    }
+
+    private String getIndexStr(Node node){
+        if (node.hasLabel(DocxGraphBuilder.DOCX))
+            return StringUtils.join(CodeTokenizer.tokenization((String) node.getProperty(DocxGraphBuilder.CONTENT))," ");
+        //TODO
+        return null;
+    }
+
+    private String getTitle(Node node){
+        if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+            String r="";
+            r+=(String) node.getProperty(DocxGraphBuilder.TITLE);
+            Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.INCOMING).iterator();
+            if (rels.hasNext()){
+                Relationship rel=rels.next();
+                r=getTitle(rel.getStartNode())+"/"+r;
+            }
+            return r;
+        }
+        //TODO
+        return null;
+    }
+
+    private String getHtml(Node node){
+        if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+            String r="";
+            r+=node.getProperty(DocxGraphBuilder.HTML);
+            Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.OUTGOING).iterator();
+            Map<Integer,String> subNodes=new HashMap<>();
+            while (rels.hasNext()){
+                Relationship rel=rels.next();
+                int num= (int) rel.getProperty(DocxGraphBuilder.SERIAL_NUMBER);
+                subNodes.put(num,getHtml(rel.getEndNode()));
+            }
+            int i=0;
+            while (subNodes.containsKey(i)){
+                r+=subNodes.get(i);
+                i++;
+            }
+            return r;
+        }
+        //TODO
+        return null;
     }
 
 }

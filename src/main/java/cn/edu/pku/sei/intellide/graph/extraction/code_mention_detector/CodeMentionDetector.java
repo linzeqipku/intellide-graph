@@ -73,9 +73,8 @@ public class CodeMentionDetector {
         DirectoryReader ireader = DirectoryReader.open(directory);
         IndexSearcher isearcher = new IndexSearcher(ireader);
         QueryParser parser = new QueryParser(CONTENT_FIELD, analyzer);
-        ResourceIterator<Node> methodNodes = null;
         try (Transaction tx = db.beginTx()) {
-            methodNodes = db.findNodes(JavaCodeGraphBuilder.METHOD);
+            ResourceIterator<Node> methodNodes = db.findNodes(JavaCodeGraphBuilder.METHOD);
             while (methodNodes.hasNext()) {
                 Node methodNode = methodNodes.next();
                 String name = (String) methodNode.getProperty(JavaCodeGraphBuilder.FULLNAME);

@@ -157,9 +157,10 @@ public class DocLinker {
         DocLinker.deleteRelationship();
         DocLinker.shutdownDB();
 
-        System.out.println("OK");
+        System.out.println("OK!");
+
+
 
     }
 }
 
-© 2018 GitHub, Inc.

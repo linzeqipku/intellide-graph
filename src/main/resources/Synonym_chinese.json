@@ -41,6 +41,11 @@
       "attributeName" : ["isInterface"],
       "similar" : ["接口"]
     }
+  ,
+    {
+      "attributeName" : ["superclass"],
+      "similar" : ["父类"]
+    }
   ],
   "relation":
   [

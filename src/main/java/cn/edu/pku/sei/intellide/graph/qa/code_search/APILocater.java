@@ -58,11 +58,13 @@ public class APILocater {
             return null;
 
         List<MySubgraph> optimal = new ArrayList<>();
-        for (Pair<Integer, MySubgraph> pair : candidateList){
+        for (Pair<Integer, MySubgraph> pair : candidateList){ // get the minSize subgraph
             if (pair.getKey() == minSize)
                 optimal.add(pair.getValue());
-        } // if size equals, return a random one
-        return optimal.get((int)(Math.random()*optimal.size()));
+        }
+        // if size equals, consider the node weight
+        optimal.sort(Comparator.comparingDouble(x->x.rootWeightSum));
+        return optimal.get(optimal.size()-1);
     }
 
     public MySubgraph BFS(MyNode start){
@@ -102,7 +104,7 @@ public class APILocater {
                 if (found){
                     selected.add(head);
                     MyNode tmp = head;
-                    while (tmp.father != null) {
+                    while (tmp.father != null) { // trace the father chain to recover the path
                         paths.add(new Pair<>(tmp, tmp.father));
                         tmp = tmp.father;
                     }
@@ -116,13 +118,16 @@ public class APILocater {
                     }
                 }
             }
-            if (!found) { // the selected cannot expand to other root, fail to construct a subgraph
+            if (!found) { // the selected roots cannot expand to other root, fail to construct a subgraph
                 return null;
             }
         }
         MySubgraph subgraph = new MySubgraph();
-        for (MyNode node : selected)
-            subgraph.nodes.add(node.id);
+        for (MyNode node : selected) {
+            subgraph.selectedRoot.add(node.id);
+            subgraph.rootWeightSum += node.weight;
+        }
+        subgraph.nodes.addAll(subgraph.selectedRoot);
         for (Pair<MyNode, MyNode> pair : paths){
             long n1 = pair.getKey().id;
             long n2 = pair.getValue().id;

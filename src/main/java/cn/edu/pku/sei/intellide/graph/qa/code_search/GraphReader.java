@@ -1,5 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
+import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -32,6 +33,7 @@ public class GraphReader {
                 String tokenString = (String)node.getProperty("tokens");
                 for (String s : tokenString.split(" "))
                     myNode.cnWordSet.add(s);
+                myNode.weight += 1.0 / myNode.cnWordSet.size();
                 graph.add(myNode);
             }
             tx.success();
@@ -44,15 +46,20 @@ public class GraphReader {
                 if (!node.hasProperty("tokens"))
                     continue;
                 MyNode myNode = id2NodeMap.get(node.getId());
+                boolean hasDocRel = false; // whether has an edge to docs
                 Iterator<Relationship> relationIter = node.getRelationships().iterator();
                 while(relationIter.hasNext()){
                     Relationship relation = relationIter.next();
+                    if (relation.isType(CodeMentionDetector.CODE_MENTION))
+                        hasDocRel = true;
                     Node otherNode = relation.getOtherNode(node);
                     if (otherNode.hasProperty("tokens")) {
                         MyNode otherMyNode = id2NodeMap.get(otherNode.getId());
                         myNode.neighbors.add(otherMyNode);
                     }
                 }
+                if (hasDocRel)
+                    myNode.weight += 1;
             }
             tx.success();
         }

@@ -34,10 +34,21 @@ public class CodeSearch {
         return new Neo4jSubGraph(nodes,rels,db);
     }
 
-     public static void main(String[] args){
+    public Neo4jSubGraph searchBaseNode(String queryString){
+        Set<String> tokens = CodeTokenizer.tokenization(queryString);
+        MySubgraph subgraph = locater.query(tokens);
+        if (subgraph == null){
+            System.out.println("codesearcher find no subgraph");
+            subgraph = new MySubgraph();
+        }
+        List<Long> nodes = new ArrayList<>(subgraph.selectedRoot);
+        return new Neo4jSubGraph(nodes, new ArrayList<>(), db);
+    }
+
+    public static void main(String[] args){
         CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
                 new File("F:\\testdata\\graph.db-tokens")));
         String[] query = {"区域", "游客"};
-        searcher.search("区域 游客");
+        searcher.search("区域");
     }
 }

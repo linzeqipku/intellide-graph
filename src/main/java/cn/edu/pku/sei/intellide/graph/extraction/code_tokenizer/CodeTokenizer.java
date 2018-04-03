@@ -44,6 +44,12 @@ public class CodeTokenizer {
         Iterable<Relationship> rels = node.getRelationships(CodeMentionDetector.CODE_MENTION, Direction.OUTGOING);
         for (Relationship rel : rels) {
             Node docxNode = rel.getEndNode();
+            int c=0;
+            Iterable<Relationship> reverseRels = docxNode.getRelationships(CodeMentionDetector.CODE_MENTION, Direction.INCOMING);
+            for (Relationship reverseRel:reverseRels)
+                c++;
+            if (c>1)
+                continue;
             if (docxNode.hasProperty(DocxGraphBuilder.CONTENT))
                 content += " " + docxNode.getProperty(DocxGraphBuilder.CONTENT);
         }

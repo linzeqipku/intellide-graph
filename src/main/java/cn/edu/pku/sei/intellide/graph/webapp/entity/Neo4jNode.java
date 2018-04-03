@@ -26,6 +26,12 @@ public class Neo4jNode {
         return node;
     }
 
+    public Neo4jNode(long id,String label, Map properties){
+        this.id=id;
+        this.label=label;
+        this.properties.putAll(properties);
+    }
+
     private Neo4jNode(long id, String label) {
         this.id = id;
         this.label = label;

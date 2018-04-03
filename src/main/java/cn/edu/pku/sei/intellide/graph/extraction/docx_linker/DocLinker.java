@@ -7,28 +7,29 @@ import java.util.*;
 
 
 public class DocLinker {
-    public static String DB_PATH = "D://graph.db-tokens";
+
 
     public static GraphDatabaseService instance;
 
-    public static GraphDatabaseService getInstance(){
+    public static GraphDatabaseService getInstance(String DB_PATH){
         if(instance == null){
             instance = new GraphDatabaseFactory().newEmbeddedDatabase(new File(DB_PATH));
         }
         return instance;
     }
 
-    public static void shutdownDB(){
+
+    public static void shutdownDB(String DB_PATH){
         GraphDatabaseService db;
-        db = DocLinker.getInstance();
+        db = DocLinker.getInstance(DB_PATH);
         db.shutdown();
     }
 
 
-    public static Map<Long,String> getNodeTitle(Label label){
+    public static Map<Long,String> getNodeTitle(String DB_PATH,Label label){
         Map<Long,String> titleMap = new LinkedHashMap<Long,String>();
         GraphDatabaseService db = null;
-        db = DocLinker.getInstance();
+        db = DocLinker.getInstance(DB_PATH);
         ResourceIterator<Node> nodes = null;
 
         try(Transaction tx = db.beginTx()){
@@ -49,10 +50,10 @@ public class DocLinker {
         return titleMap;
     }
 
-    public static void createRealtionship(List<Map<Long,Set<Long>>> nodePair){
+    public static void createRealtionship(String DB_PATH,List<Map<Long,Set<Long>>> nodePair){
 
         GraphDatabaseService db;
-        db = DocLinker.getInstance();
+        db = DocLinker.getInstance(DB_PATH);
 
         try (Transaction tx = db.beginTx()) {
 
@@ -76,9 +77,9 @@ public class DocLinker {
         }
     }
 
-    public static void deleteRelationship(){
+    public static void deleteRelationship(String DB_PATH){
         GraphDatabaseService db ;
-        db = DocLinker.getInstance();
+        db = DocLinker.getInstance(DB_PATH);
         try(Transaction tx = db.beginTx()){
             ResourceIterator<Node> docxNodes ;
             docxNodes = db.findNodes(Label.label("Docx"));
@@ -112,12 +113,12 @@ public class DocLinker {
         return 0;
     }
 
-    public static List<Map<Long,Set<Long>>> addRelationships(){
+    public static List<Map<Long,Set<Long>>> addRelationships(String DB_PATH){
         Map<Long,String> titleMap;
         Map<Long,String> titleMap2;
         List<Map<Long,Set<Long>>> nodePair = new ArrayList<>();
-        titleMap = DocLinker.getNodeTitle(Label.label("Docx"));
-        titleMap2 = DocLinker.getNodeTitle(Label.label("Docx"));
+        titleMap = DocLinker.getNodeTitle(DB_PATH,Label.label("Docx"));
+        titleMap2 = DocLinker.getNodeTitle(DB_PATH,Label.label("Docx"));
         Map<Long,Integer> cc = new HashMap<>();
         for (Map.Entry<Long, String> entry : titleMap.entrySet()){
             Long id1 = entry.getKey();
@@ -146,21 +147,19 @@ public class DocLinker {
             }
         }
         return nodePair;
-
     }
 
-    public static void main(String[] args){
+    public static void process(String DB_PATH){
+        System.out.println("START! ");
 
         List<Map<Long,Set<Long>>> nodepairs;
-        nodepairs = DocLinker.addRelationships();
-        DocLinker.createRealtionship(nodepairs);
-        DocLinker.deleteRelationship();
-        DocLinker.shutdownDB();
+        nodepairs = DocLinker.addRelationships(DB_PATH);
+        DocLinker.createRealtionship(DB_PATH,nodepairs);
+        DocLinker.deleteRelationship(DB_PATH);
+        DocLinker.shutdownDB(DB_PATH);
 
-        System.out.println("OK!");
-
-
-
+        System.out.println("OK! ");
     }
+
 }
 

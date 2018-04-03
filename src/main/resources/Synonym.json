@@ -1,0 +1,85 @@
+{
+  "node":
+  [
+    {
+      "nodeName" : ["StackOverflowUser","JiraIssueUser","StackOverflowUser","MailUser", "gitCommitAuthor","GitCommitAuthor"],
+      "similar" : ["user","person","who","author"]
+    },
+    {
+      "nodeName" : ["gitCommit","GitCommit"],
+      "similar" : ["commit"]
+    },
+    {
+      "nodeName" : ["JiraIssue"],
+      "similar" : ["issue"]
+    },
+    {
+      "nodeName" : ["StackOverflowQuestion"],
+      "similar" : ["question"]
+    },
+    {
+      "nodeName" : ["StackOverflowAnswer"],
+      "similar" : ["answer"]
+    },
+    {
+      "nodeName" : ["StackOverflowComment"],
+      "similar" : ["comment"]
+    }
+  ],
+  "attribute":
+  [
+    {
+    "attributeName" : ["createDate","date","createdDate","updatedDate"],
+    "similar" : ["when","date","time"]
+    },
+    {
+      "attributeName" : ["crearorName"],
+      "similar" : ["user","who"]
+    }
+  ],
+  "relation":
+  [
+    {
+      "relationName" : ["call_method"],
+      "similar" : ["call"]
+    },
+    {
+      "relationName" : ["have_method","have_field"],
+      "similar" : ["have","belong"]
+    },
+    {
+      "relationName" : ["mailSender"],
+      "similar" : ["send","sent"]
+    },
+    {
+      "relationName" : ["soAuthor","jira_is_assignee_of_issue","jira_is_creator_of_issue","person_is_author_of_commit"],
+      "similar" : ["author","write","written"]
+    },
+    {
+      "relationName" : ["jira_is_creator_of_issue"],
+      "similar" : ["create"]
+    },
+    {
+      "relationName" : ["jira_is_reporter_of_issue"],
+      "similar" : ["report"]
+    },
+    {
+      "relationName" : ["rt"],
+      "similar" : ["returnType","return"]
+    },
+    {
+      "relationName" : ["commit_change_the_class","author_of_commit"],
+      "similar" : ["change","modify"]
+    }
+  ,
+    {
+      "relationName" : ["apiNameMention"],
+      "similar" : ["mention"]
+    }
+  ,
+    {
+      "relationName" : ["mailInReplyTo"],
+      "similar" : ["reply"]
+    }
+  ]
+}

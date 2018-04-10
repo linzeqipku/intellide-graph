@@ -8,6 +8,7 @@ import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jNode;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jRelation;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.neo4j.cypher.export.SubGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,14 @@ public class Controller {
 
     @RequestMapping(value = "/codeSearch", method = {RequestMethod.GET,RequestMethod.POST})
     public Neo4jSubGraph codeSearch(@RequestParam(value="query", defaultValue="") String query){
+        if (nlQueryEngine==null)
+            nlQueryEngine=new NLQueryEngine(context.db,context.dataDir);
         if (codeSearch==null)
             codeSearch=new CodeSearch(context.db);
+        nlQueryEngine.createIndex();
+        Neo4jSubGraph r=nlQueryEngine.search(query);
+        if (r.getNodes().size()>0)
+            return r;
         return codeSearch.search(query);
     }
 
@@ -42,13 +49,6 @@ public class Controller {
         if (docSearch==null)
             docSearch=new DocSearch(context.db,context.dataDir+"/doc_search_index", codeSearch);
         return docSearch.search(query);
-    }
-
-    @RequestMapping(value = "/nlQuery", method = {RequestMethod.GET,RequestMethod.POST})
-    public Neo4jSubGraph nlQuery(@RequestParam(value="query", defaultValue="") String query){
-        if (nlQueryEngine==null)
-            nlQueryEngine=new NLQueryEngine(context.db,context.dataDir);
-        return nlQueryEngine.search(query);
     }
 
     @RequestMapping(value = "/relationList", method = {RequestMethod.GET,RequestMethod.POST})

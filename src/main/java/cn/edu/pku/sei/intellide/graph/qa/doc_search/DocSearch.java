@@ -73,8 +73,7 @@ public class DocSearch {
 
     public List<Neo4jNode> search(String queryString) throws IOException, ParseException {
         createIndex();
-        List<Neo4jNode> r=new ArrayList<>();
-        List<Neo4jNode> codeNodes=codeSearch.search(queryString).getNodes();
+        List<Neo4jNode> codeNodes=codeSearch.searchBaseNode(queryString).getNodes();
         Set<Long> nodeSet=new HashSet<>();
         try (Transaction tx=db.beginTx()) {
             for (Neo4jNode codeNode:codeNodes){
@@ -83,24 +82,38 @@ public class DocSearch {
                 while (rels.hasNext()){
                     Relationship rel=rels.next();
                     Node docNode=rel.getEndNode();
-                    Map map = new HashMap<>();
-                    map.put(DocxGraphBuilder.TITLE, getTitle(docNode));
-                    map.put(DocxGraphBuilder.HTML, getHtml(docNode));
-                    r.add(new Neo4jNode(docNode.getId(), docNode.getLabels().iterator().next().name(), map));
                     nodeSet.add(docNode.getId());
                 }
             }
             tx.success();
         }
+        List<Neo4jNode> r=new ArrayList<>();
         Directory directory = new SimpleFSDirectory(new File(indexDirPath).toPath());
         Analyzer analyzer = new StandardAnalyzer();
         ireader = DirectoryReader.open(directory);
         isearcher = new IndexSearcher(ireader);
         parser = new QueryParser(CONTENT_FIELD, analyzer);
         Query query = parser.parse(StringUtils.join(CodeTokenizer.tokenization(queryString)," "));
-        ScoreDoc[] hits = isearcher.search(query, 100).scoreDocs;
+        ScoreDoc[] hits = isearcher.search(query, 1000).scoreDocs;
         try (Transaction tx=db.beginTx()) {
             for (int i = 0; i < hits.length; i++) {
+                Document doc = ireader.document(hits[i].doc);
+                long id=Long.parseLong(doc.getField(ID_FIELD).stringValue());
+                if (!nodeSet.contains(id))
+                    continue;
+                Node node=db.getNodeById(id);
+                Map map = new HashMap<>();
+                map.put(DocxGraphBuilder.TITLE, getTitle(node));
+                map.put(DocxGraphBuilder.HTML, getHtml(node));
+                r.add(new Neo4jNode(Long.parseLong(doc.getField(ID_FIELD).stringValue()), node.getLabels().iterator().next().name(), map));
+            }
+            tx.success();
+        }
+        System.out.println(""+r.size()+" documents raised.");
+        try (Transaction tx=db.beginTx()) {
+            for (int i = 0; i < hits.length; i++) {
+                if (r.size()>=10)
+                    return r;
                 Document doc = ireader.document(hits[i].doc);
                 long id=Long.parseLong(doc.getField(ID_FIELD).stringValue());
                 if (nodeSet.contains(id))

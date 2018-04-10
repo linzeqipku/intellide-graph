@@ -136,7 +136,7 @@ public class TokenMapping {
                 String nn = vertex.name;
                 if (vertex.labels.equals("Method") && nn.charAt(0) >= 'A' && nn.charAt(0) <= 'Z') continue;
 
-                if (similar > threshold  && ((token.mapping == null)||(token.mapping != null /*&& similar > token.mapping.score - 0.01*/) )){
+                if (similar > 0.8  && ((token.mapping == null)||(token.mapping != null /*&& similar > token.mapping.score - 0.01*/) )){
                     NLPMapping mapping = new NLPVertexMapping(vertex,graphSchema.vertexTypes.get(vertex.labels),token, similar);
                     if (token.mapping == null){
                         token.mappingList.add(mapping);

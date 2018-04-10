@@ -85,6 +85,7 @@ public class NLPInterpreter {
             }
             return ans;
         }catch (Exception e){
+            e.printStackTrace();
             return null;
         }
 

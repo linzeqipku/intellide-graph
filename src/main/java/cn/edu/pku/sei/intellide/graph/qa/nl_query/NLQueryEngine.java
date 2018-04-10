@@ -36,7 +36,7 @@ public class NLQueryEngine {
         List<Long> nodes=new ArrayList<>();
         List<Long> rels=new ArrayList<>();
         List<String> cyphers = null;
-        if (queryString.matches("([0-9])*")){
+        if (queryString.matches("\\d+")){
             String c = "Match (n) where id(n)="+queryString+" return n, id(n), labels(n)";
             System.out.println(c);
             Result p = db.execute(c + " limit 30");
@@ -49,22 +49,24 @@ public class NLQueryEngine {
             if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
             String c = cyphers.get(0);
             String returnT = c.substring(c.indexOf("RETURN")+7,c.length());
+            String nodeid;
             if (!returnT.contains("labels")){
-                String nodeid = returnT.substring(0,returnT.indexOf("."));
+                nodeid = returnT.substring(0,returnT.indexOf("."));
                 c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid);
-            }
+            }else nodeid = returnT.substring(0,returnT.indexOf(","));
             System.out.println(c);
             Result p = db.execute(c + " limit 30");
 
             while (p.hasNext()) {
                 Map m = p.next();
-                nodes.add((Long) m.get("id(n0)"));
+                nodes.add((Long) m.get("id("+nodeid+")"));
             }
         }
         return new Neo4jSubGraph(nodes,rels,db);
     }
     public void createIndex(){
-
+        if (new File(dataDirPath+"/index").exists())
+            return;
         LuceneIndex LI = new LuceneIndex();
         try {
             LI.index();

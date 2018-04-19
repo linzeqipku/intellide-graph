@@ -456,7 +456,7 @@ public class TokenMapping {
             for (int pp = 0; pp < query.tokens.size(); pp++){
                 if (query.tokens.get(pp).mappingList.size() > 0) ppp++;
             }
-            int t = 200/(ppp*ppp);
+            int t = 200/(ppp*ppp+1);
             if (token.mappingList.size() > t){
                 token.mappingList = token.mappingList.subList(0,t);
             }

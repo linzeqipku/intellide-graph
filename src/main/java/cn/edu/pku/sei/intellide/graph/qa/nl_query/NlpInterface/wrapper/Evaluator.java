@@ -24,10 +24,7 @@ public class Evaluator {
             query.score = -1;
             return;
         }
-        double val = mappingNum() * 30 + offsetValue()  + similar()*10 + graphComplex() * 30 + (linkEntity()) * 100;
-        if (val < 46)
-            System.out.println();
-        val = mappingNum() * 30 + offsetValue()  + similar()*10+ graphComplex() * 30 + (linkEntity()) * 100;
+        double  val = mappingNum() * 30 + offsetValue()  + similar()*10+ graphComplex() * 30 + (linkEntity()) * 100;
         query.score = val;
     }
 
@@ -57,9 +54,6 @@ public class Evaluator {
             double bias = 2.0;
 
             if (r.token != null){
-                if (r.token.text.equals("called")){
-                    System.out.println();
-                }
                 if (r.direct ^ !r.token.POS.equals("VBN") ^ (start.token.offsetVal < r.token.offsetVal)){
                     bias = 1.0;
                 }
@@ -139,6 +133,7 @@ public class Evaluator {
                 }
             }
         }
+        if (nodeNum == 0) return 0;
         return nodeVal / nodeNum;
     }
 

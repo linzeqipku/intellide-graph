@@ -6,16 +6,20 @@ import java.util.*;
 
 public class APILocater {
     GraphReader graphReader;
-    List<MyNode> graph;
-    List<Set<MyNode>> rootNodeSet = new ArrayList<>();
+    List<MyNode> graph; // 只读
 
     public APILocater(GraphReader reader){
         this.graphReader = reader;
         this.graph = graphReader.getAjacentGraph();
     }
 
+    /*
+     * 对于一个query词袋，首先找到每个词对应的候选结点结合，即List<Set<MyNode>> rootNodeSet
+     * 从size最小的候选结点集合S开始，对于S中的每个结点，都生成一个包含所有query词的子图
+     * 从这些子图中，选择最优的。目前的最优条件为子图越小越好，大小相同则结点的权重之和越大越好。
+     */
     public MySubgraph query(Set<String> queryList){
-        rootNodeSet.clear();
+        List<Set<MyNode>> rootNodeSet = new ArrayList<>();
         for (String word: queryList){
             Set<MyNode> cur = new HashSet<>();
             for (MyNode node: graph){
@@ -46,7 +50,7 @@ public class APILocater {
         minSize = Integer.MAX_VALUE;
         Set<MyNode> startSet = rootNodeSet.get(startSetIndex);
         for (MyNode node : startSet){
-            MySubgraph subgraph = BFS(node);
+            MySubgraph subgraph = BFS(node, rootNodeSet);
             if (subgraph == null)
                 continue;
             candidateList.add(new Pair<>(subgraph.nodes.size(), subgraph));
@@ -67,7 +71,11 @@ public class APILocater {
         return optimal.get(optimal.size()-1);
     }
 
-    public MySubgraph BFS(MyNode start){
+    /*
+     * 从一个根节点集合中的一个结点开始，搜索一个包含所有根集的子图
+     * 最多进行 rootNodeSet.size次广搜，每次广搜没有跳数限制，最坏O(n)时间
+     */
+    public MySubgraph BFS(MyNode start, List<Set<MyNode>> rootNodeSet){
         boolean[] coveredRoot = new boolean[rootNodeSet.size()];
         int coveredCnt = 0;
         for (int i = 0; i < coveredRoot.length; ++i){ // start node may cover several roots

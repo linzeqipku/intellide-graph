@@ -7,6 +7,9 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import java.io.File;
 import java.util.*;
 
+/*
+ * 负责读取数据库的接口类
+ */
 public class GraphReader {
     GraphDatabaseService graphDb;
     public GraphReader(String path){
@@ -16,6 +19,8 @@ public class GraphReader {
     public GraphReader(GraphDatabaseService db){
         graphDb = db;
     }
+
+    // 建立邻接表
     public List<MyNode> getAjacentGraph(){
         List<MyNode> graph = new ArrayList<>();
         Map<Long, MyNode> id2NodeMap = new HashMap<>();

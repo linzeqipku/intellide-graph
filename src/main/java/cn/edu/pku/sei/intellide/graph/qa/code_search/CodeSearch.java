@@ -20,6 +20,9 @@ public class CodeSearch {
         locater = new APILocater(graphReader);
     }
 
+    /*
+     * 对于一个query，首先切词为一个词袋，然后生成一个连通的子图
+     */
     public Neo4jSubGraph search(String queryString){
         Set<String> tokens = CodeTokenizer.tokenization(queryString);
         MySubgraph subgraph = locater.query(tokens);
@@ -34,6 +37,10 @@ public class CodeSearch {
         return new Neo4jSubGraph(nodes,rels,db);
     }
 
+    /*
+     * 仅返回query中每个词所对应到的那些结点，不返回扩充的那些连接结点
+     * 便于调试使用
+     */
     public Neo4jSubGraph searchBaseNode(String queryString){
         Set<String> tokens = CodeTokenizer.tokenization(queryString);
         MySubgraph subgraph = locater.query(tokens);

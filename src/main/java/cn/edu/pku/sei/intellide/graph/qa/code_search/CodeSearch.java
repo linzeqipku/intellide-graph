@@ -1,7 +1,9 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.StopWords;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
+import javafx.scene.paint.Stop;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -24,7 +26,11 @@ public class CodeSearch {
      * 对于一个query，首先切词为一个词袋，然后生成一个连通的子图
      */
     public Neo4jSubGraph search(String queryString){
-        Set<String> tokens = CodeTokenizer.tokenization(queryString);
+        Set<String> baseTokens = CodeTokenizer.tokenization(queryString);
+        Set<String> tokens = new HashSet<>();
+        for (String token: baseTokens)
+            if (!StopWords.isStopWord(token))
+                tokens.add(token);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
             System.out.println("codesearcher find no subgraph");
@@ -42,7 +48,11 @@ public class CodeSearch {
      * 便于调试使用
      */
     public Neo4jSubGraph searchBaseNode(String queryString){
-        Set<String> tokens = CodeTokenizer.tokenization(queryString);
+        Set<String> baseTokens = CodeTokenizer.tokenization(queryString);
+        Set<String> tokens = new HashSet<>();
+        for (String token: baseTokens)
+            if (!StopWords.isStopWord(token))
+                tokens.add(token);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
             System.out.println("codesearcher find no subgraph");
@@ -55,7 +65,7 @@ public class CodeSearch {
     public static void main(String[] args){
         CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
                 new File("F:\\testdata\\graph.db-tokens")));
-        String[] query = {"区域", "游客"};
-        searcher.search("区域");
+        System.out.println(StopWords.englishStopWords);
+        searcher.search("区域 游客");
     }
 }

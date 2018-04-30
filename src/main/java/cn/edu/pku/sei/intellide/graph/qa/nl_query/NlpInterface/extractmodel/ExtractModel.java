@@ -182,7 +182,8 @@ public class ExtractModel {
 					String node_type = label.name();
 					GraphVertexType vertexType = graphSchema.vertexTypes.get(node_type);
 					for (String propertiesName : node.getAllProperties().keySet()){
-						if (vertexType == null) System.out.println(node_type);
+						if (vertexType == null)
+						    continue;
 						if (!vertexType.attrs.keySet().contains(propertiesName)){
 							vertexType.attrs.put(propertiesName,new GraphAttribute(propertiesName,vertexType));
 						}

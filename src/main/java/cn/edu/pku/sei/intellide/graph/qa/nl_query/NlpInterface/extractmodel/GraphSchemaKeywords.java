@@ -71,7 +71,8 @@ private GraphSchemaKeywords(){
     types.put("Method", new ImmutablePair<>("name","fullName"));
     types.put("Field",new ImmutablePair<>("name","fullName"));
     types.put("Docx",new ImmutablePair<>("title","title"));
-
+    types.put("GitUser",new ImmutablePair<>("name","name"));
+    types.put("Commit",new ImmutablePair<>("name","name"));
 }
     public static GraphSchemaKeywords getSingle() {
         if (single == null){

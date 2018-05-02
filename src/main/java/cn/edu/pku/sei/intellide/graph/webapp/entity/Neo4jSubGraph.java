@@ -11,6 +11,8 @@ public class Neo4jSubGraph {
 
     private final List<Neo4jRelation> relationships = new ArrayList<>();
 
+    private String cypher = "Test Cypher String...";
+
     public Neo4jSubGraph(List<Long> nodeIds, List<Long> relIds, GraphDatabaseService db){
         for (long node:nodeIds)
             nodes.add(Neo4jNode.get(node, db));
@@ -24,6 +26,14 @@ public class Neo4jSubGraph {
 
     public List<Neo4jRelation> getRelationships() {
         return relationships;
+    }
+
+    public String getCypher() {
+        return cypher;
+    }
+
+    public void setCypher(String cypher) {
+        this.cypher = cypher;
     }
 
 }

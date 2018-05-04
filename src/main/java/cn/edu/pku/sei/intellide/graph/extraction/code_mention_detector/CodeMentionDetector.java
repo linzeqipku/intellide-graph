@@ -1,5 +1,7 @@
 package cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector;
 
+import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.utils.CodeIndexes;
+import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
 import cn.edu.pku.sei.intellide.graph.extraction.docx_to_neo4j.DocxGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.git_to_neo4j.GitGraphBuilder;
@@ -19,15 +21,24 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
+import org.jsoup.Jsoup;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+/**
+ * 建立代码实体和其它类型的实体之间的关联关系
+ *     detectCodeMentionInFlossDocuments: 建立英文文档和代码之间的关联关系
+ *     detectCodeMentionInDocx: 建立中文文档和代码之间的关联关系（文档里面提到了这个代码）
+ *     detectCodeMentionInDiff: 建立commits和代码之间的关联关系（add, modify, delete）
+ *
+ * Preconditions: 已经运行过CodeTokenizer了。
+ */
 
 public class CodeMentionDetector {
 
@@ -39,6 +50,7 @@ public class CodeMentionDetector {
 
     public static void process(String graphDir) throws IOException, ParseException {
         CodeMentionDetector codeMentionDetector = new CodeMentionDetector(graphDir);
+        codeMentionDetector.detectCodeMentionInFlossDocuments();
         codeMentionDetector.detectCodeMentionInDocx();
         codeMentionDetector.detectCodeMentionInDiff();
         codeMentionDetector.db.shutdown();
@@ -46,6 +58,62 @@ public class CodeMentionDetector {
 
     private CodeMentionDetector(String graphDir) {
         db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
+    }
+
+    private void detectCodeMentionInFlossDocuments() {
+        CodeIndexes codeIndexes = new CodeIndexes(db);
+        Set<Node> textNodes = new HashSet<>();
+        try (Transaction tx = db.beginTx()) {
+            for (Node node:db.getAllNodes()){
+                if (!node.hasProperty(CodeTokenizer.IS_TEXT)||!(boolean)node.getProperty(CodeTokenizer.IS_TEXT))
+                    continue;
+                if (node.hasLabel(JavaCodeGraphBuilder.CLASS)||node.hasLabel(JavaCodeGraphBuilder.METHOD)||node.hasLabel(JavaCodeGraphBuilder.FIELD))
+                    continue;
+                textNodes.add(node);
+            }
+            for (Node srcNode : textNodes) {
+                String text = (String) srcNode.getProperty(CodeTokenizer.TITLE);
+                text += " " + srcNode.getProperty(CodeTokenizer.TEXT);
+                String content = Jsoup.parse(text).text();
+                Set<String> lexes = new HashSet<>();
+                Collections.addAll(lexes, content.toLowerCase().split("\\W+"));
+                Set<Node> resultNodes = new HashSet<>();
+                //类/接口
+                for (String typeShortName : codeIndexes.typeShortNameMap.keySet())
+                    if (lexes.contains(typeShortName.toLowerCase()))
+                        for (long id : codeIndexes.typeShortNameMap.get(typeShortName))
+                            resultNodes.add(db.getNodeById(id));
+
+                for (String methodShortName : codeIndexes.methodShortNameMap.keySet()) {
+                    //后接小括号，不要构造函数
+                    if (methodShortName.charAt(0) < 'a' || methodShortName.charAt(0) > 'z' || !(lexes.contains(methodShortName.toLowerCase()) && content.contains(methodShortName + "(")))
+                        continue;
+                    boolean flag = false;
+                    //无歧义
+                    if (codeIndexes.methodShortNameMap.get(methodShortName).size() == 1) {
+                        for (long id : codeIndexes.methodShortNameMap.get(methodShortName))
+                            resultNodes.add(db.getNodeById(id));
+                        flag = true;
+                    }
+                    //主类在
+                    for (long methodNodeId : codeIndexes.methodShortNameMap.get(methodShortName)) {
+                        Node methodNode = db.getNodeById(methodNodeId);
+                        if (resultNodes.contains(methodNode.getRelationships(JavaCodeGraphBuilder.HAVE_METHOD, Direction.INCOMING).iterator().next().getStartNode())) {
+                            resultNodes.add(methodNode);
+                            flag = true;
+                        }
+                    }
+                    //歧义不多
+                    if (!flag && codeIndexes.methodShortNameMap.get(methodShortName).size() <= 5)
+                        for (long id : codeIndexes.methodShortNameMap.get(methodShortName))
+                            resultNodes.add(db.getNodeById(id));
+                }
+                for (Node rNode : resultNodes)
+                    srcNode.createRelationshipTo(rNode, CODE_MENTION);
+
+            }
+            tx.success();
+        }
     }
 
     private void detectCodeMentionInDocx() throws IOException, ParseException {

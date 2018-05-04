@@ -16,6 +16,28 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * 解析java源代码，抽取出代码实体以及这些代码实体之间的静态依赖关系，并将它们存储到neo4j图数据库中。
+ *
+ * Class实体示例：
+ *     name: UnixStat
+ *     fullName: zstorg.apache.tools.zip.UnixStat
+ *     content, comment, isAbstract, isFinal, isInterface, visibility
+ *
+ * Method实体示例：
+ *     name: error
+ *     fullName: cn.edu.pku.sei.tsr.service.ras.util.ZipGenerator.error( String msg, boolean quit )
+ *     paramType: String msg, boolean quit
+ *     returnType: void
+ *     content, comment, isAbstract, isConstructor, isFinal, isStatic, isSynchronized, visibility
+ *
+ *  Field实体示例：
+ *      name: STRATEGY_ASSIGN
+ *      fullName: cn.edu.pku.sei.tsr.entity.ConfigurationItem.STRATEGY_ASSIGN
+ *      isFinal, isStatic, type, visibility
+ *
+ */
+
 public class JavaCodeGraphBuilder {
 
     public static final Label CLASS = Label.label("Class");

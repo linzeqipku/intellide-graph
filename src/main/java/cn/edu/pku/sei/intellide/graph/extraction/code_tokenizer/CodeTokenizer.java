@@ -1,7 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer;
 
-import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
-import cn.edu.pku.sei.intellide.graph.extraction.docx_to_neo4j.DocxGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.extraction.git_to_neo4j.GitGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraphBuilder;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
@@ -17,48 +16,89 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Precondition: 全部的数据解析工作已经做完了。
+ * 对于开源软件数据，识别出需要当成文本来处理的结点，给它们添加属性isText=true，用"_title"来统一表示它们的标题，用"_text"来统一表示它们的文本内容；
+ * 此外，对于代码结点，对它们的名字进行驼峰切词，把切词结果放到codeTokens属性里面去。
+ */
+
 public class CodeTokenizer {
 
-    public static final String TOKENS="tokens";
+    public static final String IS_TEXT="isText";
+    public static final String TITLE="_title";
+    public static final String TEXT="_text";
+    public static final String CODE_TOKENS ="codeTokens";
 
     public static void process(String graphDir) {
         GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
         try (Transaction tx = db.beginTx()) {
             ResourceIterator<Node> nodes = db.findNodes(JavaCodeGraphBuilder.CLASS);
-            nodes.stream().forEach(node->wordExtraction(node));
+            nodes.stream().forEach(node->codeTokenExtraction(node));
             nodes = db.findNodes(JavaCodeGraphBuilder.METHOD);
-            nodes.stream().forEach(node->wordExtraction(node));
+            nodes.stream().forEach(node->codeTokenExtraction(node));
             nodes = db.findNodes(JavaCodeGraphBuilder.FIELD);
-            nodes.stream().forEach(node->wordExtraction(node));
+            nodes.stream().forEach(node->codeTokenExtraction(node));
             tx.success();
         }
+
+        List<List<Node>> nodeSegs = new ArrayList<>();
+
+        try (Transaction tx = db.beginTx()) {
+            ResourceIterator<Node> nodes = db.getAllNodes().iterator();
+            List<Node> list=new ArrayList<>();
+            while (nodes.hasNext()){
+                Node node=nodes.next();
+                if (list.size()<1000)
+                    list.add(node);
+                else {
+                    nodeSegs.add(list);
+                    list=new ArrayList<>();
+                }
+            }
+            if (list.size()>0)
+                nodeSegs.add(list);
+            tx.success();
+        }
+        for (List<Node> list:nodeSegs)
+            try (Transaction tx = db.beginTx()) {
+                for (Node node:list)
+                    flossTextExtraction(node);
+                tx.success();
+            }
+
         db.shutdown();
     }
 
-    private static void wordExtraction(Node node) {
+    private static void flossTextExtraction(Node node) {
+        if (node.hasProperty(TITLE))
+            node.removeProperty(TITLE);
+        if (node.hasProperty(TEXT))
+            node.removeProperty(TEXT);
+        if (node.hasProperty(IS_TEXT))
+            node.removeProperty(IS_TEXT);
+
+        if (node.hasLabel(JavaCodeGraphBuilder.CLASS)||node.hasLabel(JavaCodeGraphBuilder.METHOD)) {
+            node.setProperty(TITLE, node.getProperty(JavaCodeGraphBuilder.FULLNAME));
+            node.setProperty(TEXT, node.getProperty(JavaCodeGraphBuilder.CONTENT));
+            node.setProperty(IS_TEXT, true);
+        }
+
+        if (node.hasLabel(GitGraphBuilder.COMMIT)){
+            node.setProperty(TITLE, GitGraphBuilder.NAME);
+            node.setProperty(TEXT, node.getProperty(GitGraphBuilder.MESSAGE));
+            node.setProperty(IS_TEXT, true);
+        }
+
+        //TODO: ISSUE, EMAIL,STACKOVERFLOW
+
+    }
+
+    private static void codeTokenExtraction(Node node) {
         String content = "";
-        /*
-        if (node.hasProperty(JavaCodeGraphBuilder.COMMENT))
-            content += (String) node.getProperty(JavaCodeGraphBuilder.COMMENT);
-            */
         if (node.hasProperty(JavaCodeGraphBuilder.FULLNAME))
             content += (String) node.getProperty(JavaCodeGraphBuilder.NAME);
-        /*
-        Iterable<Relationship> rels = node.getRelationships(CodeMentionDetector.CODE_MENTION, Direction.OUTGOING);
-        for (Relationship rel : rels) {
-            Node docxNode = rel.getEndNode();
-            int c=0;
-            Iterable<Relationship> reverseRels = docxNode.getRelationships(CodeMentionDetector.CODE_MENTION, Direction.INCOMING);
-            for (Relationship reverseRel:reverseRels)
-                c++;
-            if (c>1)
-                continue;
-            if (docxNode.hasProperty(DocxGraphBuilder.CONTENT))
-                content += " " + docxNode.getProperty(DocxGraphBuilder.CONTENT);
-        }
-        */
         Set<String> tokens=tokenization(content);
-        node.setProperty(TOKENS, StringUtils.join(tokens," "));
+        node.setProperty(CODE_TOKENS, StringUtils.join(tokens," "));
     }
 
     public static Set<String> tokenization(String content) {

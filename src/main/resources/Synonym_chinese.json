@@ -54,7 +54,7 @@
       "similar" : ["有","具有","属于"]
     },
     {
-      "relationName" : ["modify","creator","add"],
+      "relationName" : ["modify","add"],
       "similar" : ["修改","编辑"]
     },
     {

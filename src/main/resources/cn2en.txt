@@ -1,0 +1,23 @@
+获取 得到 get obtain
+编辑 修改 设置 更新 edit change set update
+删除 delete remove
+数据库 database dao
+判断 is check
+保存 save
+路径 文件 文件夹 path dir file
+生成 generate
+打包 压缩包 package packager
+服务 service
+资源 resource
+可信 trustworthiness trust
+等级 level
+链接 连接 link connect connection
+统计 statistics stat
+状态 state
+过滤 filter
+登陆 login
+邮件 邮箱 email mail
+发送 send sender
+日期 day date
+图表 chart diagram
+编号 数量 num number

@@ -37,10 +37,13 @@ public class CodeTokenizer {
 
     private static void wordExtraction(Node node) {
         String content = "";
+        /*
         if (node.hasProperty(JavaCodeGraphBuilder.COMMENT))
             content += (String) node.getProperty(JavaCodeGraphBuilder.COMMENT);
+            */
         if (node.hasProperty(JavaCodeGraphBuilder.FULLNAME))
-            content += (String) node.getProperty(JavaCodeGraphBuilder.FULLNAME);
+            content += (String) node.getProperty(JavaCodeGraphBuilder.NAME);
+        /*
         Iterable<Relationship> rels = node.getRelationships(CodeMentionDetector.CODE_MENTION, Direction.OUTGOING);
         for (Relationship rel : rels) {
             Node docxNode = rel.getEndNode();
@@ -53,6 +56,7 @@ public class CodeTokenizer {
             if (docxNode.hasProperty(DocxGraphBuilder.CONTENT))
                 content += " " + docxNode.getProperty(DocxGraphBuilder.CONTENT);
         }
+        */
         Set<String> tokens=tokenization(content);
         node.setProperty(TOKENS, StringUtils.join(tokens," "));
     }

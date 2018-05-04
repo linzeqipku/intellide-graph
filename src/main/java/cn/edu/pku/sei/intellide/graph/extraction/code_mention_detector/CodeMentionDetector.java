@@ -78,20 +78,33 @@ public class CodeMentionDetector {
             while (methodNodes.hasNext()) {
                 Node methodNode = methodNodes.next();
                 String name = (String) methodNode.getProperty(JavaCodeGraphBuilder.FULLNAME);
-                String[] eles=name.substring(0, name.indexOf("(")).toLowerCase().split("\\.");
-                String q = eles[eles.length-1]+" AND "+eles[eles.length-2];
-                if (eles.length>2){
-                    q+=" AND ( ";
-                    for (int i=0;i<eles.length-2;i++)
-                        q+=eles[i]+" ";
-                    q+=")";
-                }
+                String[] eles=name.substring(0, name.indexOf("(")).split("\\.");
+                if (eles[eles.length-1].equals(eles[eles.length-2]))
+                    continue;
+                String q = eles[eles.length-1].toLowerCase()+" AND "+eles[eles.length-2].toLowerCase();
                 Query query = parser.parse(q);
                 ScoreDoc[] hits = isearcher.search(query, 10000).scoreDocs;
                 if (hits.length > 0 && hits.length<20) {
                     for (ScoreDoc hit:hits) {
                         Node docxNode = db.getNodeById(Long.parseLong(ireader.document(hit.doc).get(ID_FIELD)));
                         methodNode.createRelationshipTo(docxNode,CODE_MENTION);
+                    }
+                }
+            }
+            tx.success();
+        }
+        try (Transaction tx = db.beginTx()) {
+            ResourceIterator<Node> classNodes = db.findNodes(JavaCodeGraphBuilder.CLASS);
+            while (classNodes.hasNext()) {
+                Node classNode = classNodes.next();
+                String name = (String) classNode.getProperty(JavaCodeGraphBuilder.NAME);
+                String q = name.toLowerCase();
+                Query query = parser.parse(q);
+                ScoreDoc[] hits = isearcher.search(query, 10000).scoreDocs;
+                if (hits.length > 0 && hits.length<20) {
+                    for (ScoreDoc hit:hits) {
+                        Node docxNode = db.getNodeById(Long.parseLong(ireader.document(hit.doc).get(ID_FIELD)));
+                        classNode.createRelationshipTo(docxNode,CODE_MENTION);
                     }
                 }
             }

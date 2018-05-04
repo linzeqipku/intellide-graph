@@ -5,6 +5,7 @@ import javafx.util.Pair;
 import java.util.*;
 
 public class APILocater {
+
     GraphReader graphReader;
     List<MyNode> graph; // 只读
 
@@ -23,8 +24,11 @@ public class APILocater {
         for (String word: queryList){
             Set<MyNode> cur = new HashSet<>();
             for (MyNode node: graph){
-                if (node.cnWordSet.contains(word))
-                    cur.add(node);
+                for (String nodeWord:node.cnWordSet)
+                    if (CnToEnDirectory.matches(word,nodeWord)) {
+                        cur.add(node);
+                        break;
+                    }
             }
             if (cur.size() > 0) {
                 rootNodeSet.add(cur);

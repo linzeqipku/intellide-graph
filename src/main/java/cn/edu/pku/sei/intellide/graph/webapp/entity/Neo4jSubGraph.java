@@ -11,7 +11,7 @@ public class Neo4jSubGraph {
 
     private final List<Neo4jRelation> relationships = new ArrayList<>();
 
-    private String cypher = "Test Cypher String...";
+    private String cypher = "";
 
     public Neo4jSubGraph(List<Long> nodeIds, List<Long> relIds, GraphDatabaseService db){
         for (long node:nodeIds)

@@ -99,6 +99,11 @@ public class NLQueryEngine {
         }
         Neo4jSubGraph ppp =  new Neo4jSubGraph(nodes,rels,db);
         ppp.setCypher(cypherret);
+        if (!cypherret.toLowerCase().contains("where")){
+            ppp.getNodes().clear();
+            ppp.getRelationships().clear();
+            ppp.setCypher("");
+        }
         return ppp;
     }
 //    public Neo4jSubGraph search(String queryString){

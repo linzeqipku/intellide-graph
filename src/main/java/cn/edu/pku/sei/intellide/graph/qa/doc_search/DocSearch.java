@@ -79,11 +79,14 @@ public class DocSearch {
             for (Neo4jNode codeNode:codeNodes){
                 Node node=db.getNodeById(codeNode.getId());
                 Iterator<Relationship> rels=node.getRelationships(CodeMentionDetector.CODE_MENTION,Direction.OUTGOING).iterator();
+                Set<Long> tmpSet=new HashSet<>();
                 while (rels.hasNext()){
                     Relationship rel=rels.next();
                     Node docNode=rel.getEndNode();
-                    nodeSet.add(docNode.getId());
+                    tmpSet.add(docNode.getId());
                 }
+                if (tmpSet.size()<=5)
+                    nodeSet.addAll(tmpSet);
             }
             tx.success();
         }

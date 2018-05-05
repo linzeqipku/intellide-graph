@@ -12,6 +12,11 @@ import java.util.*;
  */
 public class DocLinker {
 
+    public static final Label DOCX = Label.label("Docx");
+    public static final String TITLE = "title";
+
+    public static final RelationshipType RELATEDOCXSEC = RelationshipType.withName("relatedDocxSec");
+
 
     public static GraphDatabaseService instance;
 
@@ -40,7 +45,7 @@ public class DocLinker {
             while(nodes.hasNext()){
                 Node node = nodes.next();
                 long id = node.getId();
-                String title = (String)node.getProperty("title");
+                String title = (String)node.getProperty(TITLE);
                 if(!title.equals("")){
                     titleMap.put(id,title);
                 }
@@ -68,7 +73,7 @@ public class DocLinker {
                     Set<Long> nodeset = entry.getValue();
                     for(long id2 : nodeset){
                         Node node2 = db.getNodeById(id2);
-                        node1.createRelationshipTo(node2, RelationshipType.withName("relatedDocxSec"));
+                        node1.createRelationshipTo(node2, RELATEDOCXSEC);
                         cnt++;
                         if(cnt % 1000 == 0 ) System.out.println(cnt);
                     }
@@ -85,11 +90,11 @@ public class DocLinker {
         db = DocLinker.getInstance(DB_PATH);
         try(Transaction tx = db.beginTx()){
             ResourceIterator<Node> docxNodes ;
-            docxNodes = db.findNodes(Label.label("Docx"));
+            docxNodes = db.findNodes(DOCX);
             while(docxNodes.hasNext()){
                 Node node = docxNodes.next();
-                if(node.getDegree(RelationshipType.withName("relatedDocxSec")) > 10){
-                    Iterable<Relationship> relationships = node.getRelationships(RelationshipType.withName("relatedDocxSec"));
+                if(node.getDegree(RELATEDOCXSEC) > 10){
+                    Iterable<Relationship> relationships = node.getRelationships(RELATEDOCXSEC);
                     while(relationships.iterator().hasNext())
                     {
                         Relationship relationship = relationships.iterator().next();
@@ -120,8 +125,8 @@ public class DocLinker {
         Map<Long,String> titleMap;
         Map<Long,String> titleMap2;
         List<Map<Long,Set<Long>>> nodePair = new ArrayList<>();
-        titleMap = getNodeTitle(DB_PATH,Label.label("Docx"));
-        titleMap2 = getNodeTitle(DB_PATH,Label.label("Docx"));
+        titleMap = getNodeTitle(DB_PATH,DOCX);
+        titleMap2 = getNodeTitle(DB_PATH,DOCX);
         Map<Long,Integer> cc = new HashMap<>();
         for (Map.Entry<Long, String> entry : titleMap.entrySet()){
             Long id1 = entry.getKey();

@@ -4,6 +4,7 @@ import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.entity.IssueComme
 import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.entity.IssueInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.entity.IssueUserInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.entity.PatchInfo;
+import cn.edu.pku.sei.intellide.graph.extraction.mail_to_neo4j.utils.EmailAddressDecoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

@@ -15,9 +15,11 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 public class GitGraphBuilder {
 
@@ -122,6 +124,16 @@ public class GitGraphBuilder {
             inserter.createRelationship(commitNodeId, personNodeId, COMMITTER, new HashMap<>());
         } else
             inserter.createRelationship(commitNodeId, personMap.get(personStr), COMMITTER, new HashMap<>());
+    }
+
+    public  static void main(String[] args){
+        try{
+            GitGraphBuilder.process("F://graph-tsr4","F://TSR2/git/TSR/.git");
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
+        System.out.println("OK");
+
     }
 
 }

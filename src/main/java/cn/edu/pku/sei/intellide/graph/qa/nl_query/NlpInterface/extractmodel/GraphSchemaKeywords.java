@@ -29,8 +29,8 @@ public class GraphSchemaKeywords {
 //        types.put(JiraGraphBuilder.ISSUEUSER, new ImmutablePair<>(JiraGraphBuilder.ISSUEUSER_NAME,JiraGraphBuilder.ISSUEUSER_EMAIL_ADDRESS));
 //        types.put(JiraGraphBuilder.PATCH, new ImmutablePair<>(JiraGraphBuilder.PATCH_ID,JiraGraphBuilder.PATCH_NAME));
 //
-//        types.put(MailListExtractor.MAIL, new ImmutablePair<>(MailListExtractor.MAIL_ID,MailListExtractor.MAIL_SUBJECT));
-//        types.put(MailListExtractor.MAILUSER, new ImmutablePair<>(MailListExtractor.MAILUSER_NAMES,MailListExtractor.MAILUSER_MAIL));
+//        types.put(MailGraphBuilder.MAIL, new ImmutablePair<>(MailGraphBuilder.MAIL_ID,MailGraphBuilder.MAIL_SUBJECT));
+//        types.put(MailGraphBuilder.MAILUSER, new ImmutablePair<>(MailGraphBuilder.MAILUSER_NAMES,MailGraphBuilder.MAILUSER_MAIL));
 //
 //        types.put(StackOverflowGraphBuilder.QUESTION, new ImmutablePair<>(StackOverflowGraphBuilder.QUESTION_ID,StackOverflowGraphBuilder.QUESTION_TITLE));
 //        types.put(StackOverflowGraphBuilder.ANSWER, new ImmutablePair<>(StackOverflowGraphBuilder.ANSWER_ID,StackOverflowGraphBuilder.ANSWER_BODY));
@@ -58,8 +58,8 @@ public class GraphSchemaKeywords {
 //        types.put(JiraGraphBuilder.ISSUEUSER, new ImmutablePair<>(JiraGraphBuilder.ISSUEUSER_NAME,JiraGraphBuilder.ISSUEUSER_EMAIL_ADDRESS));
 //        types.put(JiraGraphBuilder.PATCH, new ImmutablePair<>(JiraGraphBuilder.PATCH_ID,JiraGraphBuilder.PATCH_NAME));
 //
-//        types.put(MailListExtractor.MAIL, new ImmutablePair<>(MailListExtractor.MAIL_ID,MailListExtractor.MAIL_SUBJECT));
-//        types.put(MailListExtractor.MAILUSER, new ImmutablePair<>(MailListExtractor.MAILUSER_NAMES,MailListExtractor.MAILUSER_MAIL));
+//        types.put(MailGraphBuilder.MAIL, new ImmutablePair<>(MailGraphBuilder.MAIL_ID,MailGraphBuilder.MAIL_SUBJECT));
+//        types.put(MailGraphBuilder.MAILUSER, new ImmutablePair<>(MailGraphBuilder.MAILUSER_NAMES,MailGraphBuilder.MAILUSER_MAIL));
 //
 //        types.put(StackOverflowGraphBuilder.QUESTION, new ImmutablePair<>(StackOverflowGraphBuilder.QUESTION_ID,StackOverflowGraphBuilder.QUESTION_TITLE));
 //        types.put(StackOverflowGraphBuilder.ANSWER, new ImmutablePair<>(StackOverflowGraphBuilder.ANSWER_ID,StackOverflowGraphBuilder.ANSWER_BODY));

@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Node;
 class JiraUtils {
 
     public static void createIssueNode(IssueInfo issueInfo, Node node) {
-        node.addLabel(Label.label(JiraGraphBuilder.ISSUE));
+        node.addLabel(JiraGraphBuilder.ISSUE);
         node.setProperty(JiraGraphBuilder.ISSUE_ID, issueInfo.getIssueId());
         node.setProperty(JiraGraphBuilder.ISSUE_NAME, issueInfo.getIssueName());
         node.setProperty(JiraGraphBuilder.ISSUE_SUMMARY, issueInfo.getSummary());
@@ -32,7 +32,7 @@ class JiraUtils {
     }
 
     public static void createPatchNode(PatchInfo patchInfo, Node node) {
-        node.addLabel(Label.label(JiraGraphBuilder.PATCH));
+        node.addLabel(JiraGraphBuilder.PATCH);
         node.setProperty(JiraGraphBuilder.PATCH_ISSUE_ID, patchInfo.getIssueId());
         node.setProperty(JiraGraphBuilder.PATCH_ID, patchInfo.getPatchId());
         node.setProperty(JiraGraphBuilder.PATCH_NAME, patchInfo.getPatchName());
@@ -42,7 +42,7 @@ class JiraUtils {
     }
 
     public static void createIssueCommentNode(IssueCommentInfo issueCommentInfo, Node node) {
-        node.addLabel(Label.label(JiraGraphBuilder.ISSUECOMMENT));
+        node.addLabel(JiraGraphBuilder.ISSUECOMMENT);
         node.setProperty(JiraGraphBuilder.ISSUECOMMENT_ID, issueCommentInfo.getCommentId());
         node.setProperty(JiraGraphBuilder.ISSUECOMMENT_BODY, issueCommentInfo.getBody());
         node.setProperty(JiraGraphBuilder.ISSUECOMMENT_CREATOR_NAME, issueCommentInfo.getCreatorName());
@@ -52,7 +52,7 @@ class JiraUtils {
     }
 
     public static void createIssueUserNode(IssueUserInfo issueUserInfo, Node node) {
-        node.addLabel(Label.label(JiraGraphBuilder.ISSUEUSER));
+        node.addLabel(JiraGraphBuilder.ISSUEUSER);
         node.setProperty(JiraGraphBuilder.ISSUEUSER_NAME, issueUserInfo.getName());
         node.setProperty(JiraGraphBuilder.ISSUEUSER_EMAIL_ADDRESS, issueUserInfo.getName());
         node.setProperty(JiraGraphBuilder.ISSUEUSER_DISPLAY_NAME, issueUserInfo.getName());

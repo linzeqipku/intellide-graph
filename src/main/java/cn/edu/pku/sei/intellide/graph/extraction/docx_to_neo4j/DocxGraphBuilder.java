@@ -96,4 +96,15 @@ public class DocxGraphBuilder {
 
     }
 
+    public static void main(String[] args){
+        try{
+            process("F://graph-tsr4","F://TSR2/htmlSet2");
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        System.out.println("OK");
+    }
+
 }

@@ -24,18 +24,18 @@ public class GraphSchemaKeywords {
 //        types.put(GitExtractor.MUTATEDCONTENT, new ImmutablePair<>(GitExtractor.MUTATEDCONTENT_COMMIT_UUID,GitExtractor.MUTATEDCONTENT_CONTENT));
 //        types.put("GitCommitAuthor", new ImmutablePair<>(GitExtractor.COMMITAUTHOR_NAME,GitExtractor.COMMITAUTHOR_NAME));
 //
-//        types.put(JiraExtractor.ISSUE, new ImmutablePair<>(JiraExtractor.ISSUE_ID,JiraExtractor.ISSUE_NAME));
-//        types.put(JiraExtractor.ISSUECOMMENT, new ImmutablePair<>(JiraExtractor.ISSUECOMMENT_ID,JiraExtractor.ISSUECOMMENT_BODY));
-//        types.put(JiraExtractor.ISSUEUSER, new ImmutablePair<>(JiraExtractor.ISSUEUSER_NAME,JiraExtractor.ISSUEUSER_EMAIL_ADDRESS));
-//        types.put(JiraExtractor.PATCH, new ImmutablePair<>(JiraExtractor.PATCH_ID,JiraExtractor.PATCH_NAME));
+//        types.put(JiraGraphBuilder.ISSUE, new ImmutablePair<>(JiraGraphBuilder.ISSUE_ID,JiraGraphBuilder.ISSUE_NAME));
+//        types.put(JiraGraphBuilder.ISSUECOMMENT, new ImmutablePair<>(JiraGraphBuilder.ISSUECOMMENT_ID,JiraGraphBuilder.ISSUECOMMENT_BODY));
+//        types.put(JiraGraphBuilder.ISSUEUSER, new ImmutablePair<>(JiraGraphBuilder.ISSUEUSER_NAME,JiraGraphBuilder.ISSUEUSER_EMAIL_ADDRESS));
+//        types.put(JiraGraphBuilder.PATCH, new ImmutablePair<>(JiraGraphBuilder.PATCH_ID,JiraGraphBuilder.PATCH_NAME));
 //
 //        types.put(MailListExtractor.MAIL, new ImmutablePair<>(MailListExtractor.MAIL_ID,MailListExtractor.MAIL_SUBJECT));
 //        types.put(MailListExtractor.MAILUSER, new ImmutablePair<>(MailListExtractor.MAILUSER_NAMES,MailListExtractor.MAILUSER_MAIL));
 //
-//        types.put(StackOverflowExtractor.QUESTION, new ImmutablePair<>(StackOverflowExtractor.QUESTION_ID,StackOverflowExtractor.QUESTION_TITLE));
-//        types.put(StackOverflowExtractor.ANSWER, new ImmutablePair<>(StackOverflowExtractor.ANSWER_ID,StackOverflowExtractor.ANSWER_BODY));
-//        types.put(StackOverflowExtractor.COMMENT, new ImmutablePair<>(StackOverflowExtractor.COMMENT_ID,StackOverflowExtractor.COMMENT_TEXT));
-//        types.put(StackOverflowExtractor.USER, new ImmutablePair<>(StackOverflowExtractor.USER_ID,StackOverflowExtractor.USER_DISPLAY_NAME));
+//        types.put(StackOverflowGraphBuilder.QUESTION, new ImmutablePair<>(StackOverflowGraphBuilder.QUESTION_ID,StackOverflowGraphBuilder.QUESTION_TITLE));
+//        types.put(StackOverflowGraphBuilder.ANSWER, new ImmutablePair<>(StackOverflowGraphBuilder.ANSWER_ID,StackOverflowGraphBuilder.ANSWER_BODY));
+//        types.put(StackOverflowGraphBuilder.COMMENT, new ImmutablePair<>(StackOverflowGraphBuilder.COMMENT_ID,StackOverflowGraphBuilder.COMMENT_TEXT));
+//        types.put(StackOverflowGraphBuilder.USER, new ImmutablePair<>(StackOverflowGraphBuilder.USER_ID,StackOverflowGraphBuilder.USER_DISPLAY_NAME));
 //    }
 
 //    private GraphSchemaKeywords(){
@@ -53,18 +53,18 @@ public class GraphSchemaKeywords {
 //        types.put(GitExtractor.MUTATEDCONTENT, new ImmutablePair<>(GitExtractor.MUTATEDCONTENT_COMMIT_UUID,GitExtractor.MUTATEDCONTENT_CONTENT));
 //        types.put(GitExtractor.COMMITAUTHOR, new ImmutablePair<>(GitExtractor.COMMITAUTHOR_NAME,GitExtractor.COMMITAUTHOR_NAME));
 //
-//        types.put(JiraExtractor.ISSUE, new ImmutablePair<>(JiraExtractor.ISSUE_ID,JiraExtractor.ISSUE_NAME));
-//        types.put(JiraExtractor.ISSUECOMMENT, new ImmutablePair<>(JiraExtractor.ISSUECOMMENT_ID,JiraExtractor.ISSUECOMMENT_BODY));
-//        types.put(JiraExtractor.ISSUEUSER, new ImmutablePair<>(JiraExtractor.ISSUEUSER_NAME,JiraExtractor.ISSUEUSER_EMAIL_ADDRESS));
-//        types.put(JiraExtractor.PATCH, new ImmutablePair<>(JiraExtractor.PATCH_ID,JiraExtractor.PATCH_NAME));
+//        types.put(JiraGraphBuilder.ISSUE, new ImmutablePair<>(JiraGraphBuilder.ISSUE_ID,JiraGraphBuilder.ISSUE_NAME));
+//        types.put(JiraGraphBuilder.ISSUECOMMENT, new ImmutablePair<>(JiraGraphBuilder.ISSUECOMMENT_ID,JiraGraphBuilder.ISSUECOMMENT_BODY));
+//        types.put(JiraGraphBuilder.ISSUEUSER, new ImmutablePair<>(JiraGraphBuilder.ISSUEUSER_NAME,JiraGraphBuilder.ISSUEUSER_EMAIL_ADDRESS));
+//        types.put(JiraGraphBuilder.PATCH, new ImmutablePair<>(JiraGraphBuilder.PATCH_ID,JiraGraphBuilder.PATCH_NAME));
 //
 //        types.put(MailListExtractor.MAIL, new ImmutablePair<>(MailListExtractor.MAIL_ID,MailListExtractor.MAIL_SUBJECT));
 //        types.put(MailListExtractor.MAILUSER, new ImmutablePair<>(MailListExtractor.MAILUSER_NAMES,MailListExtractor.MAILUSER_MAIL));
 //
-//        types.put(StackOverflowExtractor.QUESTION, new ImmutablePair<>(StackOverflowExtractor.QUESTION_ID,StackOverflowExtractor.QUESTION_TITLE));
-//        types.put(StackOverflowExtractor.ANSWER, new ImmutablePair<>(StackOverflowExtractor.ANSWER_ID,StackOverflowExtractor.ANSWER_BODY));
-//        types.put(StackOverflowExtractor.COMMENT, new ImmutablePair<>(StackOverflowExtractor.COMMENT_ID,StackOverflowExtractor.COMMENT_TEXT));
-//        types.put(StackOverflowExtractor.USER, new ImmutablePair<>(StackOverflowExtractor.USER_ID,StackOverflowExtractor.USER_DISPLAY_NAME));
+//        types.put(StackOverflowGraphBuilder.QUESTION, new ImmutablePair<>(StackOverflowGraphBuilder.QUESTION_ID,StackOverflowGraphBuilder.QUESTION_TITLE));
+//        types.put(StackOverflowGraphBuilder.ANSWER, new ImmutablePair<>(StackOverflowGraphBuilder.ANSWER_ID,StackOverflowGraphBuilder.ANSWER_BODY));
+//        types.put(StackOverflowGraphBuilder.COMMENT, new ImmutablePair<>(StackOverflowGraphBuilder.COMMENT_ID,StackOverflowGraphBuilder.COMMENT_TEXT));
+//        types.put(StackOverflowGraphBuilder.USER, new ImmutablePair<>(StackOverflowGraphBuilder.USER_ID,StackOverflowGraphBuilder.USER_DISPLAY_NAME));
 //    }
 private GraphSchemaKeywords(){
     types.put("Class", new ImmutablePair<>("name","fullName"));

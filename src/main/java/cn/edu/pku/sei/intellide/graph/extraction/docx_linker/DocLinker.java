@@ -22,7 +22,6 @@ public class DocLinker {
         return instance;
     }
 
-
     public  void shutdownDB(String DB_PATH){
         GraphDatabaseService db;
         db = DocLinker.getInstance(DB_PATH);

@@ -57,4 +57,19 @@ public class JavaClassInfo {
         return inserter.createNode(map, JavaCodeGraphBuilder.CLASS);
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getSuperClassType() {
+        return superClassType;
+    }
+
+    public String getSuperInterfaceTypes() {
+        return superInterfaceTypes;
+    }
+
+    public long getNodeId() {
+        return nodeId;
+    }
 }

@@ -92,10 +92,10 @@ public class StackOverflowGraphBuilder {
 
         GraphDatabaseService db=new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDirPath));
 
-        this.questionXmlPath = folderPath + "/Questions.xml";
-        this.answerXmlPath = folderPath + "/Answers.xml";
-        this.commentXmlPath = folderPath + "/Comments.xml";
-        this.userXmlPath = folderPath + "/Users.xml";
+        this.questionXmlPath = folderPath + "/questions.xml";
+        this.answerXmlPath = folderPath + "/answers.xml";
+        this.commentXmlPath = folderPath + "/comments.xml";
+        this.userXmlPath = folderPath + "/users.xml";
         this.postLinkXmlPath = folderPath + "/PostLinks.xml";
 
         SAXParser qParser = null;
@@ -214,6 +214,9 @@ public class StackOverflowGraphBuilder {
 
         db.shutdown();
 
+    }
+    public static void main(String[] args){
+        StackOverflowGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\stackoverflow");
     }
 
 }
@@ -390,4 +393,6 @@ class PostLinkHandler extends DefaultHandler {
         dupLinkList.add(Pair.of(postId, relatedPostId));
 //		System.out.printf("Duplicate from %d-->%d.\n",postId,relatedPostId);
     }
+
+
 }

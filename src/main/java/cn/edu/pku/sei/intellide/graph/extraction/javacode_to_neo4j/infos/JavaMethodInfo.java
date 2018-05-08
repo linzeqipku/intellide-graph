@@ -93,4 +93,43 @@ public class JavaMethodInfo {
         return inserter.createNode(map, JavaCodeGraphBuilder.METHOD);
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public IMethodBinding getMethodBinding() {
+        return methodBinding;
+    }
+
+    public String getBelongTo() {
+        return belongTo;
+    }
+
+    public long getNodeId() {
+        return nodeId;
+    }
+
+    public String getFullParams() {
+        return fullParams;
+    }
+
+    public String getFullReturnType() {
+        return fullReturnType;
+    }
+
+    public String getThrowTypes() {
+        return throwTypes;
+    }
+
+    public String getFullVariables() {
+        return fullVariables;
+    }
+
+    public Set<IMethodBinding> getMethodCalls() {
+        return methodCalls;
+    }
+
+    public String getFieldAccesses() {
+        return fieldAccesses;
+    }
 }

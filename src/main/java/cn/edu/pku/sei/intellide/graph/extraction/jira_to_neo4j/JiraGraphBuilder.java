@@ -8,6 +8,7 @@ import cn.edu.pku.sei.intellide.graph.extraction.mail_to_neo4j.utils.EmailAddres
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -93,38 +94,64 @@ public class JiraGraphBuilder {
         File issuesFolder = new File(issueFolderPath);
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
+            //System.out.println(oneIssueFolder);
             for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
-                String fileName = issueFileOrPatchesFolder.getName();
-                if (fileName.endsWith(".json")) {
-                    try (Transaction tx = db.beginTx()) {
-                        jsonHandler(issueFileOrPatchesFolder);
-                        tx.success();
+                //System.out.println(issueFileOrPatchesFolder);
+                //String fileName = issueFileOrPatchesFolder.getName();
+                //System.out.println(fileName);
+                if(issueFileOrPatchesFolder.isDirectory()){
+                    for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                        String fileName = issueFileOrPatchesFolder2.getName();
+                        //System.out.println(fileName);
+                        if (fileName.endsWith(".json")) {
+                            try (Transaction tx = db.beginTx()) {
+                                jsonHandler(issueFileOrPatchesFolder2);
+                                tx.success();
+                            }
+                        }
                     }
                 }
+
+
             }
         }
         //System.out.println("json文件处理完毕.");
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
             for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
-                String fileName = issueFileOrPatchesFolder.getName();
-                if (fileName.equals("patches")) {
-                    for (File onePatchFolder : issueFileOrPatchesFolder.listFiles()) {
-                        String patchId = onePatchFolder.getName();
-                        for (File patchFile : onePatchFolder.listFiles()) {
-                            if (patchNodeMap.containsKey(patchId))
-                                try {
-                                    try (Transaction tx = db.beginTx()) {
-                                        patchNodeMap.get(patchId).setProperty(JiraGraphBuilder.PATCH_CONTENT, FileUtils.readFileToString(patchFile));
-                                        tx.success();
-                                    }
-                                } catch (IOException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
+                //String fileName = issueFileOrPatchesFolder.getName();
+                //System.out.println(fileName);
+                if(issueFileOrPatchesFolder.isDirectory()){
+                    for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                        String fileName = issueFileOrPatchesFolder2.getName();
+                        //System.out.println(fileName);
+                        if (fileName.equals("Patchs")) {
+                            for (File onePatchFolder : issueFileOrPatchesFolder2.listFiles()) {
+                                String onePatchFolderName = onePatchFolder.getName();
+                                if(onePatchFolderName.endsWith(".patch")){
+                                    String patchId = onePatchFolder.getName();
+                                    //System.out.println(patchId);
+                                    //for (File patchFile : onePatchFolder.listFiles()) {
+                                    //   System.out.println(fileName);
+                                    if (patchNodeMap.containsKey(patchId))
+                                        try {
+                                            try (Transaction tx = db.beginTx()) {
+                                                patchNodeMap.get(patchId).setProperty(JiraGraphBuilder.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder));
+                                                tx.success();
+                                            }
+                                        } catch (IOException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        }
+                                    //}
                                 }
+
+                            }
                         }
+                        //System.out.println(filename);
                     }
                 }
+
             }
         }
         //System.out.println("patch文件处理完毕.");
@@ -148,11 +175,13 @@ public class JiraGraphBuilder {
         String jsonContent = null;
         try {
             jsonContent = FileUtils.readFileToString(issueFile);
+            //System.out.println(jsonContent);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         if (jsonContent == null) {
+            System.out.println("json is empty");
             return;
         }
 
@@ -163,106 +192,109 @@ public class JiraGraphBuilder {
         JiraUtils.createIssueNode(issueInfo, node);
 
         // 建立用户实体
-        JSONObject fields = new JSONObject(jsonContent).getJSONObject("fields");
-        Pair<String, Node> assignee = createUserNode(fields, "assignee");
-        Pair<String, Node> creator = createUserNode(fields, "creator");
-        Pair<String, Node> reporter = createUserNode(fields, "reporter");
-        // 建立用户实体与Issue实体之间的关联
-        if (assignee != null) {
-            node.setProperty(JiraGraphBuilder.ISSUE_ASSIGNEE_NAME, assignee.getLeft());
-            assignee.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_ASSIGNEE_OF_ISSUE);
-        }
-        if (creator != null) {
-            node.setProperty(JiraGraphBuilder.ISSUE_CREATOR_NAME, creator.getLeft());
-            creator.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_CREATOR_OF_ISSUE);
-        }
-        if (reporter != null) {
-            node.setProperty(JiraGraphBuilder.ISSUE_REPORTER_NAME, reporter.getLeft());
-            reporter.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_REPORTER_OF_ISSUE);
-        }
-
-        // 记录DUPLICATE关系
-        JSONArray jsonIssueLinks = fields.getJSONArray("issuelinks");
-        int issueLinkNum = jsonIssueLinks.length();
-        for (int i = 0; i < issueLinkNum; i++) {
-            JSONObject jsonIssueLink = jsonIssueLinks.getJSONObject(i);
-            if (jsonIssueLink.has("inwardIssue")) {
-                String linkIssueId = jsonIssueLink.getJSONObject("inwardIssue").getString("id");
-                duplicateList.add(linkIssueId + " " + issueInfo.getIssueId());
+        if(!TextUtils.isEmpty(jsonContent)){
+            JSONObject fields = new JSONObject(jsonContent).getJSONObject("fields");
+            Pair<String, Node> assignee = createUserNode(fields, "assignee");
+            Pair<String, Node> creator = createUserNode(fields, "creator");
+            Pair<String, Node> reporter = createUserNode(fields, "reporter");
+            // 建立用户实体与Issue实体之间的关联
+            if (assignee != null) {
+                node.setProperty(JiraGraphBuilder.ISSUE_ASSIGNEE_NAME, assignee.getLeft());
+                assignee.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_ASSIGNEE_OF_ISSUE);
             }
-        }
+            if (creator != null) {
+                node.setProperty(JiraGraphBuilder.ISSUE_CREATOR_NAME, creator.getLeft());
+                creator.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_CREATOR_OF_ISSUE);
+            }
+            if (reporter != null) {
+                node.setProperty(JiraGraphBuilder.ISSUE_REPORTER_NAME, reporter.getLeft());
+                reporter.getRight().createRelationshipTo(node, JiraGraphBuilder.IS_REPORTER_OF_ISSUE);
+            }
 
-        // 建立评论实体并关联到ISSUE
-        JSONArray jsonCommentArr;
-        if (!fields.isNull("comment")) {
-            jsonCommentArr = fields.getJSONObject("comment").optJSONArray("comments");
-            if (jsonCommentArr != null) {
-                int len = jsonCommentArr.length();
-                for (int i = 0; i < len; i++) {
-                    JSONObject jsonComment = jsonCommentArr.getJSONObject(i);
-                    String id = jsonComment.optString("id");
-                    String body = jsonComment.optString("body");
-                    Pair<String, Node> author = createUserNode(jsonComment, "author");
-                    Pair<String, Node> updateAuthor = createUserNode(jsonComment, "updateAuthor");
-                    String createdDate = jsonComment.optString("created");
-                    String updatedDate = jsonComment.optString("updated");
-                    if (author==null)
-                        continue;
-                    IssueCommentInfo comment = new IssueCommentInfo(id, body, author.getLeft(), updateAuthor.getLeft(), createdDate, updatedDate);
-                    Node commentNode = db.createNode();
-                    JiraUtils.createIssueCommentNode(comment, commentNode);
-                    node.createRelationshipTo(commentNode, JiraGraphBuilder.HAVE_ISSUE_COMMENT);
-                    commentNode.setProperty(JiraGraphBuilder.ISSUECOMMENT_CREATOR_NAME, author.getLeft());
-                    author.getRight().createRelationshipTo(commentNode, JiraGraphBuilder.IS_CREATOR_OF_ISSUECOMMENT);
-                    if (updateAuthor != null) {
-                        commentNode.setProperty(JiraGraphBuilder.ISSUECOMMENT_UPDATER_NAME, updateAuthor.getLeft());
-                        updateAuthor.getRight().createRelationshipTo(commentNode, JiraGraphBuilder.IS_UPDATER_OF_ISSUECOMMENT);
-                    }
+            // 记录DUPLICATE关系
+            JSONArray jsonIssueLinks = fields.getJSONArray("issuelinks");
+            int issueLinkNum = jsonIssueLinks.length();
+            for (int i = 0; i < issueLinkNum; i++) {
+                JSONObject jsonIssueLink = jsonIssueLinks.getJSONObject(i);
+                if (jsonIssueLink.has("inwardIssue")) {
+                    String linkIssueId = jsonIssueLink.getJSONObject("inwardIssue").getString("id");
+                    duplicateList.add(linkIssueId + " " + issueInfo.getIssueId());
                 }
             }
-        }
 
-        // 建立补丁实体并关联到ISSUE
-        JSONArray jsonHistoryArr;
-        JSONObject root = new JSONObject(jsonContent);
-        if (!root.isNull("changelog")) {
-            jsonHistoryArr = root.getJSONObject("changelog").optJSONArray("histories");
-            if (jsonHistoryArr != null) {
-                int hisNum = jsonHistoryArr.length();
-                for (int i = 0; i < hisNum; i++) {
-                    JSONObject history = jsonHistoryArr.getJSONObject(i);
-                    JSONArray items = history.optJSONArray("items");
-                    if (items == null)
-                        continue;
-                    int itemNum = items.length();
-                    for (int j = 0; j < itemNum; j++) {
-                        JSONObject item = items.getJSONObject(j);
-                        String to = item.optString("to");
-                        String toString = item.optString("toString");
-                        // not a patch
-                        if (!to.matches("^\\d{1,19}$") || !toString.endsWith(".patch")) {
+            // 建立评论实体并关联到ISSUE
+            JSONArray jsonCommentArr;
+            if (!fields.isNull("comment")) {
+                jsonCommentArr = fields.getJSONObject("comment").optJSONArray("comments");
+                if (jsonCommentArr != null) {
+                    int len = jsonCommentArr.length();
+                    for (int i = 0; i < len; i++) {
+                        JSONObject jsonComment = jsonCommentArr.getJSONObject(i);
+                        String id = jsonComment.optString("id");
+                        String body = jsonComment.optString("body");
+                        Pair<String, Node> author = createUserNode(jsonComment, "author");
+                        Pair<String, Node> updateAuthor = createUserNode(jsonComment, "updateAuthor");
+                        String createdDate = jsonComment.optString("created");
+                        String updatedDate = jsonComment.optString("updated");
+                        if (author==null)
                             continue;
+                        IssueCommentInfo comment = new IssueCommentInfo(id, body, author.getLeft(), updateAuthor.getLeft(), createdDate, updatedDate);
+                        Node commentNode = db.createNode();
+                        JiraUtils.createIssueCommentNode(comment, commentNode);
+                        node.createRelationshipTo(commentNode, JiraGraphBuilder.HAVE_ISSUE_COMMENT);
+                        commentNode.setProperty(JiraGraphBuilder.ISSUECOMMENT_CREATOR_NAME, author.getLeft());
+                        author.getRight().createRelationshipTo(commentNode, JiraGraphBuilder.IS_CREATOR_OF_ISSUECOMMENT);
+                        if (updateAuthor != null) {
+                            commentNode.setProperty(JiraGraphBuilder.ISSUECOMMENT_UPDATER_NAME, updateAuthor.getLeft());
+                            updateAuthor.getRight().createRelationshipTo(commentNode, JiraGraphBuilder.IS_UPDATER_OF_ISSUECOMMENT);
                         }
-                        String patchName;
-                        patchName = toString;
-                        Pair<String, Node> author = createUserNode(history, "author");
-                        String createdDate = history.optString("created");
-                        if (createdDate == null)
-                            createdDate = "";
+                    }
+                }
+            }
 
-                        PatchInfo patchInfo = new PatchInfo(to, patchName, "", createdDate);
-                        Node patchNode = db.createNode();
-                        patchNodeMap.put(to, patchNode);
-                        JiraUtils.createPatchNode(patchInfo, patchNode);
-                        node.createRelationshipTo(patchNode, JiraGraphBuilder.HAVE_PATCH);
-                        if (author != null) {
-                            patchNode.setProperty(JiraGraphBuilder.PATCH_CREATOR_NAME, author.getLeft());
-                            author.getRight().createRelationshipTo(patchNode, IS_CREATOR_OF_PATCH);
+            // 建立补丁实体并关联到ISSUE
+            JSONArray jsonHistoryArr;
+            JSONObject root = new JSONObject(jsonContent);
+            if (!root.isNull("changelog")) {
+                jsonHistoryArr = root.getJSONObject("changelog").optJSONArray("histories");
+                if (jsonHistoryArr != null) {
+                    int hisNum = jsonHistoryArr.length();
+                    for (int i = 0; i < hisNum; i++) {
+                        JSONObject history = jsonHistoryArr.getJSONObject(i);
+                        JSONArray items = history.optJSONArray("items");
+                        if (items == null)
+                            continue;
+                        int itemNum = items.length();
+                        for (int j = 0; j < itemNum; j++) {
+                            JSONObject item = items.getJSONObject(j);
+                            String to = item.optString("to");
+                            String toString = item.optString("toString");
+                            // not a patch
+                            if (!to.matches("^\\d{1,19}$") || !toString.endsWith(".patch")) {
+                                continue;
+                            }
+                            String patchName;
+                            patchName = toString;
+                            Pair<String, Node> author = createUserNode(history, "author");
+                            String createdDate = history.optString("created");
+                            if (createdDate == null)
+                                createdDate = "";
+
+                            PatchInfo patchInfo = new PatchInfo(to, patchName, "", createdDate);
+                            Node patchNode = db.createNode();
+                            patchNodeMap.put(to, patchNode);
+                            JiraUtils.createPatchNode(patchInfo, patchNode);
+                            node.createRelationshipTo(patchNode, JiraGraphBuilder.HAVE_PATCH);
+                            if (author != null) {
+                                patchNode.setProperty(JiraGraphBuilder.PATCH_CREATOR_NAME, author.getLeft());
+                                author.getRight().createRelationshipTo(patchNode, IS_CREATOR_OF_PATCH);
+                            }
                         }
                     }
                 }
             }
         }
+
     }
 
     /**
@@ -272,85 +304,89 @@ public class JiraGraphBuilder {
     private IssueInfo getIssueInfo(String jsonContent) throws JSONException {
 
         IssueInfo issueInfo = new IssueInfo();
+        if(!TextUtils.isEmpty(jsonContent))
+        {
+            JSONObject root = new JSONObject(jsonContent);
+            String issueId = root.getString("id");
+            String issueName = root.getString("key");
 
-        JSONObject root = new JSONObject(jsonContent);
-        String issueId = root.getString("id");
-        String issueName = root.getString("key");
+            JSONObject fields = root.getJSONObject("fields");
 
-        JSONObject fields = root.getJSONObject("fields");
+            String type = "";
+            if (!fields.isNull("issuetype")) {
+                type = fields.getJSONObject("issuetype").optString("name");
+            }
 
-        String type = "";
-        if (!fields.isNull("issuetype")) {
-            type = fields.getJSONObject("issuetype").optString("name");
-        }
+            String fixVersions = getVersions(fields, "fixVersions");
+            String versions = getVersions(fields, "versions");
+            String resolution = "";
+            if (!fields.isNull("resolution")) {
+                resolution = fields.getJSONObject("resolution").optString("name");
+            }
 
-        String fixVersions = getVersions(fields, "fixVersions");
-        String versions = getVersions(fields, "versions");
-        String resolution = "";
-        if (!fields.isNull("resolution")) {
-            resolution = fields.getJSONObject("resolution").optString("name");
-        }
+            String priority = "";
+            if (!fields.isNull("priority")) {
+                priority = fields.getJSONObject("priority").optString("name");
+            }
 
-        String priority = "";
-        if (!fields.isNull("priority")) {
-            priority = fields.getJSONObject("priority").optString("name");
-        }
+            String status = "";
+            if (!fields.isNull("status")) {
+                status = fields.getJSONObject("status").optString("name");
+            }
 
-        String status = "";
-        if (!fields.isNull("status")) {
-            status = fields.getJSONObject("status").optString("name");
-        }
+            String description = fields.optString("description");
+            String summary = fields.optString("summary");
 
-        String description = fields.optString("description");
-        String summary = fields.optString("summary");
+            String resolutionDate = fields.optString("resolutiondate");
+            String createDate = fields.optString("created");
+            String updateDate = fields.optString("updated");
 
-        String resolutionDate = fields.optString("resolutiondate");
-        String createDate = fields.optString("created");
-        String updateDate = fields.optString("updated");
-
-        // labels
-        String labels = "";
-        JSONArray jsonLabels = fields.optJSONArray("labels");
-        if (jsonLabels != null) {
-            int len = jsonLabels.length();
-            for (int i = 0; i < len; i++) {
-                String label = jsonLabels.optString(i);
-                labels += label;
-                if (i != len - 1) {
-                    labels += ",";
+            // labels
+            String labels = "";
+            JSONArray jsonLabels = fields.optJSONArray("labels");
+            if (jsonLabels != null) {
+                int len = jsonLabels.length();
+                for (int i = 0; i < len; i++) {
+                    String label = jsonLabels.optString(i);
+                    labels += label;
+                    if (i != len - 1) {
+                        labels += ",";
+                    }
                 }
             }
-        }
 
-        // components
-        String components = "";
-        JSONArray jsonComponents = fields.optJSONArray("components");
-        if (jsonComponents != null) {
-            int len = jsonComponents.length();
-            for (int i = 0; i < len; i++) {
-                String component = jsonComponents.getJSONObject(i).optString("name");
-                components += component;
-                if (i != len - 1) {
-                    components += ",";
+            // components
+            String components = "";
+            JSONArray jsonComponents = fields.optJSONArray("components");
+            if (jsonComponents != null) {
+                int len = jsonComponents.length();
+                for (int i = 0; i < len; i++) {
+                    String component = jsonComponents.getJSONObject(i).optString("name");
+                    components += component;
+                    if (i != len - 1) {
+                        components += ",";
+                    }
                 }
             }
+
+            issueInfo.setIssueId(issueId);
+            issueInfo.setIssueName(issueName);
+            issueInfo.setType(type);
+            issueInfo.setFixVersions(fixVersions);
+            issueInfo.setResolution(resolution);
+            issueInfo.setResolutionDate(resolutionDate);
+            issueInfo.setPriority(priority);
+            issueInfo.setLabels(labels);
+            issueInfo.setVersions(versions);
+            issueInfo.setStatus(status);
+            issueInfo.setComponents(components);
+            issueInfo.setDescription(description);
+            issueInfo.setSummary(summary);
+            issueInfo.setCreatedDate(createDate);
+            issueInfo.setUpdatedDate(updateDate);
         }
 
-        issueInfo.setIssueId(issueId);
-        issueInfo.setIssueName(issueName);
-        issueInfo.setType(type);
-        issueInfo.setFixVersions(fixVersions);
-        issueInfo.setResolution(resolution);
-        issueInfo.setResolutionDate(resolutionDate);
-        issueInfo.setPriority(priority);
-        issueInfo.setLabels(labels);
-        issueInfo.setVersions(versions);
-        issueInfo.setStatus(status);
-        issueInfo.setComponents(components);
-        issueInfo.setDescription(description);
-        issueInfo.setSummary(summary);
-        issueInfo.setCreatedDate(createDate);
-        issueInfo.setUpdatedDate(updateDate);
+
         return issueInfo;
     }
 
@@ -392,6 +428,10 @@ public class JiraGraphBuilder {
         JiraUtils.createIssueUserNode(user, node);
         userNodeMap.put(name, node);
         return new ImmutablePair<>(name, userNodeMap.get(name));
+    }
+
+    public  static void main(String[] args) throws JSONException {
+        JiraGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\bug report");
     }
 
 }

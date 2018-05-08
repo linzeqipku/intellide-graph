@@ -54,4 +54,19 @@ public class JavaFieldInfo {
         return inserter.createNode(map, JavaCodeGraphBuilder.FIELD);
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getBelongTo() {
+        return belongTo;
+    }
+
+    public String getFullType() {
+        return fullType;
+    }
+
+    public long getNodeId() {
+        return nodeId;
+    }
 }

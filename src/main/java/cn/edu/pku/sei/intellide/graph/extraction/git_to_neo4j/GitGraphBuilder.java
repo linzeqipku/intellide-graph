@@ -126,12 +126,11 @@ public class GitGraphBuilder {
             inserter.createRelationship(commitNodeId, personMap.get(personStr), COMMITTER, new HashMap<>());
     }
 
-    public  static void main(String[] args){
-        try{
-            GitGraphBuilder.process("F://graph-tsr4","F://TSR2/git/TSR/.git");
-        }catch (Exception ex){
-            ex.printStackTrace();
-        }
+    public  static void main(String[] args) throws IOException, GitAPIException {
+
+        GitGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\gitData\\isis\\.git");
+
+
         System.out.println("OK");
 
     }

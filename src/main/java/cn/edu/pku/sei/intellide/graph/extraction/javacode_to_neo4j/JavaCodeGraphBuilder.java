@@ -87,6 +87,7 @@ public class JavaCodeGraphBuilder {
         Set<String> srcFolderSet = new HashSet<>();
         for (File javaFile : javaFiles) {
             String srcPath = javaFile.getAbsolutePath();
+            //System.out.println(srcPath);
             String srcFolderPath = javaFile.getParentFile().getAbsolutePath();
             srcPathSet.add(srcPath);
             srcFolderSet.add(srcFolderPath);
@@ -106,6 +107,7 @@ public class JavaCodeGraphBuilder {
         options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
         parser.setCompilerOptions(options);
         parser.setBindingsRecovery(true);
+        //System.out.println(srcPaths[1]);
         parser.createASTs(srcPaths, null, new String[]{}, new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit javaUnit) {
@@ -120,4 +122,10 @@ public class JavaCodeGraphBuilder {
         inserter.shutdown();
     }
 
+    public static void main(String[] args) throws IOException {
+        JavaCodeGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\source code\\core");
+    }
+
 }
+
+

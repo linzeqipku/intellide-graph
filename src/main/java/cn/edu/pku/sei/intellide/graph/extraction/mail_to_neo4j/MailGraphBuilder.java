@@ -61,7 +61,7 @@ public class MailGraphBuilder {
     private final static CharsetDecoder DECODER = charset.newDecoder();
 
 
-    public void process(String graphPath, String mailFolderPath) {
+    public static void process(String graphPath, String mailFolderPath) {
         new MailGraphBuilder().run(graphPath, mailFolderPath);
     }
 
@@ -127,6 +127,10 @@ public class MailGraphBuilder {
         } catch (MimeException | IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args){
+        MailGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\email");
     }
 
 }

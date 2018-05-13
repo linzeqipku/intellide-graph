@@ -209,5 +209,8 @@ public class CodeMentionDetector {
             tx.success();
         }
     }
+    public static void main(String[] args) throws IOException, ParseException {
+        CodeMentionDetector.process("F:\\graphData\\graph-hama");
+    }
 
 }

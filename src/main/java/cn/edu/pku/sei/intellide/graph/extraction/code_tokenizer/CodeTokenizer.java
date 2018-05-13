@@ -149,5 +149,8 @@ public class CodeTokenizer {
         }
         return r;
     }
+    public static void main(String[] args){
+        CodeTokenizer.process("F:\\graphData\\graph-isis12");
+    }
 
 }

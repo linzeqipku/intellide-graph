@@ -128,7 +128,7 @@ public class GitGraphBuilder {
 
     public  static void main(String[] args) throws IOException, GitAPIException {
 
-        GitGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\gitData\\isis\\.git");
+        GitGraphBuilder.process("F:\\graphData\\graph-isis14","F:\\gitData\\isis");
 
 
         System.out.println("OK");

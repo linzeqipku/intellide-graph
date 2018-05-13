@@ -35,9 +35,14 @@ public class CodeIndexes {
                 if (codeNode.hasLabel(JavaCodeGraphBuilder.CLASS))
                     name = (String) codeNode.getProperty(JavaCodeGraphBuilder.FULLNAME);
                 if (codeNode.hasLabel(JavaCodeGraphBuilder.METHOD)){
-                    name = codeNode.getRelationships(JavaCodeGraphBuilder.HAVE_METHOD, Direction.INCOMING).iterator().next().getStartNode().getProperty(JavaCodeGraphBuilder.FULLNAME)
-                            + "." + codeNode.getProperty(JavaCodeGraphBuilder.NAME);
-                    type = false;
+                    //System.out.println(codeNode.getProperty("fullName"));
+                    //TODO:存在重复节点没有任何边关系，出现异常需解决
+                    if(codeNode.hasRelationship(JavaCodeGraphBuilder.HAVE_METHOD, Direction.INCOMING)){
+                        name = codeNode.getRelationships(JavaCodeGraphBuilder.HAVE_METHOD, Direction.INCOMING).iterator().next().getStartNode().getProperty(JavaCodeGraphBuilder.FULLNAME)
+                                + "." + codeNode.getProperty(JavaCodeGraphBuilder.NAME);
+                        type = false;
+                    }
+
                 }
                 if (name.contains("$"))
                     continue;

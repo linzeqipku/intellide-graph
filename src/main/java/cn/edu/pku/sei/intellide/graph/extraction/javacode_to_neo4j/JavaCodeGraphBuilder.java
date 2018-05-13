@@ -123,7 +123,7 @@ public class JavaCodeGraphBuilder {
     }
 
     public static void main(String[] args) throws IOException {
-        JavaCodeGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\source code\\core");
+        JavaCodeGraphBuilder.process("F:\\graphData\\graph-test","F:\\apache data\\cassandra\\source code");
     }
 
 }

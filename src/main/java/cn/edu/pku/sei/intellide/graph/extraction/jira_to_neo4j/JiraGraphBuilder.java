@@ -431,7 +431,7 @@ public class JiraGraphBuilder {
     }
 
     public  static void main(String[] args) throws JSONException {
-        JiraGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\bug report");
+        JiraGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\bug report");
     }
 
 }

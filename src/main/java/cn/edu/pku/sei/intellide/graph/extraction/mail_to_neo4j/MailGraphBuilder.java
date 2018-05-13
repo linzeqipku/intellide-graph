@@ -130,7 +130,7 @@ public class MailGraphBuilder {
     }
 
     public static void main(String[] args){
-        MailGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\email");
+        MailGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\email");
     }
 
 }

@@ -216,7 +216,7 @@ public class StackOverflowGraphBuilder {
 
     }
     public static void main(String[] args){
-        StackOverflowGraphBuilder.process("F:\\graphData\\graph-isis11","F:\\apache data\\isis\\stackoverflow");
+        StackOverflowGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\stackoverflow");
     }
 
 }

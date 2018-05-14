@@ -7,6 +7,7 @@ import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraph
 import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.JiraGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.mail_to_neo4j.MailGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.stackoverflow_to_neo4j.StackOverflowGraphBuilder;
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -126,37 +127,61 @@ public class AllDataGraphBuilder {
 
         AllDataGraphBuilder test = new AllDataGraphBuilder();
         ArrayList<ArrayList<String>> list;
-        list = test.xlsx_reader("projectPaths2.xlsx",0,1,2,3,4);
+        list = test.xlsx_reader("projectPaths.xlsx",0,1,2,3,4);
         for(int i=1;i<list.size();i++){
             ArrayList<String> row = list.get(i);
 
-            String GraphPath = GraphDataBaseRoot + row.get(0);
-            System.out.println(GraphPath);
+            String GraphPath = GraphDataBaseRoot + "Graph-" + row.get(0);
+            //System.out.println(GraphPath);
+
 
             String codePath = SourceDirRoot + "cn.edu.pku.EOSCN.crawler.GitCrawler\\" + row.get(3)+"\\" + row.get(2) + "\\zip";
-            System.out.println(codePath);
-            //JavaCodeGraphBuilder.process(GraphPath,codePath);
-
             String jirePath = SourceDirRoot + "cn.edu.pku.EOSCN.crawler.JiraIssueCrawler\\" + row.get(4);
-            System.out.println(jirePath);
-            //JiraGraphBuilder.process(GraphPath,jirePath);
-
             String mailPath = SourceDirRoot + "cn.edu.pku.EOSCN.crawler.MboxCrawler\\" + row.get(2);
-            System.out.println(mailPath);
-            //MailGraphBuilder.process(GraphPath,mailPath);
-
             String gitPath = SourceDirRoot + "cn.edu.pku.EOSCN.crawler.GitCrawler\\" + row.get(3) + "\\" + row.get(2) + "\\" + row.get(2)+"GIT"+"\\.git";
-            System.out.println(gitPath);
-            //GitGraphBuilder.process(GraphPath,gitPath);
-
             String stackoverflowPath = SourceDirRoot + "cn.edu.pku.EOSCN.crawler.StackOverflow\\" + row.get(1);
+            System.out.println(codePath);
+            System.out.println(jirePath);
+            System.out.println(mailPath);
+            System.out.println(gitPath);
             System.out.println(stackoverflowPath);
-            //StackOverflowGraphBuilder.process(GraphPath,stackoverflowPath);
 
-            //CodeTokenizer.process(GraphPath);
-            //CodeMentionDetector.process(GraphPath);
+            if(codePath.contains("---")){
+                GraphPath = GraphPath + "-srcmiss";
+            }
+            if(jirePath.contains("---")){
+                GraphPath = GraphPath + "-jiremiss";
+            }
+            if(mailPath.contains("---")){
+                GraphPath = GraphPath + "-mailmiss";
+            }
+            if(gitPath.contains("---")){
+                GraphPath = GraphPath + "-gitmiss";
+            }
+            if(stackoverflowPath.contains("---")){
+                GraphPath = GraphPath +"-sofmiss";
+            }
+            System.out.println(GraphPath);
 
-
+            if(!codePath.contains("---")){
+                //JavaCodeGraphBuilder.process(GraphPath,codePath);
+            }
+            if(!jirePath.contains("---")){
+                //JiraGraphBuilder.process(GraphPath,jirePath);
+            }
+            if(!mailPath.contains("---")){
+                //MailGraphBuilder.process(GraphPath,mailPath);
+            }
+            if(!gitPath.contains("---")){
+                //GitGraphBuilder.process(GraphPath,gitPath);
+            }
+            if(!stackoverflowPath.contains("---")){
+                //StackOverflowGraphBuilder.process(GraphPath,stackoverflowPath);
+            }
+            if(!GraphPath.contains("miss")){
+                //CodeTokenizer.process(GraphPath);
+                //CodeMentionDetector.process(GraphPath);
+            }
 
             System.out.println(i);
         }

@@ -32,9 +32,9 @@ public class ExtractModel {
 		graph = pipeline();
 		floyd();
 		addPreDefined();
-		System.out.println("nodes  " +  graph.vertexes.size());
-		System.out.println("edges  "+ graphSchema.vertexTypes.size());
-		System.out.println("edges  "+ graphSchema.edgeTypes.size());
+		//System.out.println("nodes  " +  graph.vertexes.size());
+		//System.out.println("edges  "+ graphSchema.vertexTypes.size());
+		//System.out.println("edges  "+ graphSchema.edgeTypes.size());
 		//for (Vertex vertex:graph.getAllVertexes()) System.out.println(vertex.name);
 	}
 
@@ -79,7 +79,7 @@ public class ExtractModel {
 			}
 		}
 		for (int i = 0; i < n; i++){
-			for (int j = 0; j < n; j++){
+			for (int j = 0; j < n; j++)if (dis[i][j] < 10000){
 				getPath(i,j);
 			}
 		}
@@ -192,16 +192,6 @@ public class ExtractModel {
 				}
 			}
 			tx.success();
-		}
-		return graph;
-	}
-
-	private Graph longNameFilter(Graph graph){
-		for (Vertex vertex:graph.getAllVertexes()){
-			String longName = vertex.longName.toLowerCase();
-			if (longName.contains("codec")||longName.contains("util")||longName.contains("test")||longName.contains("exception")
-					||longName.contains("comparator")||longName.contains("attribute"))
-				graph.remove(vertex);
 		}
 		return graph;
 	}

@@ -32,13 +32,13 @@ public class APILocater {
             }
             if (cur.size() > 0) {
                 rootNodeSet.add(cur);
-                System.out.println(word + " node set size: " + cur.size());
+                //System.out.println(word + " node set size: " + cur.size());
             } else {
-                System.out.println(word + " has relevant no node");
+                //System.out.println(word + " has relevant no node");
             }
         }
         if (rootNodeSet.size() == 0){
-            System.out.println("no matched nodes found");
+            //System.out.println("no matched nodes found");
             return null;
         }
         int minSize = Integer.MAX_VALUE;

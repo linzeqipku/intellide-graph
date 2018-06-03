@@ -2,11 +2,11 @@
   "node":
   [
     {
-      "nodeName" : ["StackOverflowUser","JiraIssueUser","StackOverflowUser","MailUser", "gitCommitAuthor","GitCommitAuthor"],
+      "nodeName" : ["StackOverflowUser","JiraIssueUser","StackOverflowUser","MailUser", "GitUser"],
       "similar" : ["user","person","who","author"]
     },
     {
-      "nodeName" : ["gitCommit","GitCommit"],
+      "nodeName" : ["Commit"],
       "similar" : ["commit"]
     },
     {
@@ -33,23 +33,27 @@
     "similar" : ["when","date","time"]
     },
     {
-      "attributeName" : ["crearorName"],
+      "attributeName" : ["crearorName","creatorName"],
       "similar" : ["user","who"]
     }
   ],
   "relation":
   [
     {
-      "relationName" : ["call_method"],
+      "relationName" : ["methodCall"],
       "similar" : ["call"]
     },
     {
-      "relationName" : ["have_method","have_field"],
+      "relationName" : ["haveMethod","haveField"],
       "similar" : ["have","belong"]
     },
     {
       "relationName" : ["mailSender"],
       "similar" : ["send","sent"]
+    },
+    {
+      "relationName" : ["committer","delete","add","modify"],
+      "similar" : ["change","modify"]
     },
     {
       "relationName" : ["soAuthor","jira_is_assignee_of_issue","jira_is_creator_of_issue","person_is_author_of_commit"],
@@ -64,19 +68,13 @@
       "similar" : ["report"]
     },
     {
-      "relationName" : ["rt"],
-      "similar" : ["returnType","return"]
+      "relationName" : ["returnType"],
+      "similar" : ["returnType"]
     },
     {
-      "relationName" : ["commit_change_the_class","author_of_commit"],
-      "similar" : ["change","modify"]
-    }
-  ,
-    {
-      "relationName" : ["apiNameMention"],
+      "relationName" : ["codeMention"],
       "similar" : ["mention"]
-    }
-  ,
+    },
     {
       "relationName" : ["mailInReplyTo"],
       "similar" : ["reply"]

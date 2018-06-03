@@ -75,7 +75,7 @@ public class DocLinker {
                         Node node2 = db.getNodeById(id2);
                         node1.createRelationshipTo(node2, RELATEDOCXSEC);
                         cnt++;
-                        if(cnt % 1000 == 0 ) System.out.println(cnt);
+                        //if(cnt % 1000 == 0 ) System.out.println(cnt);
                     }
                 }
             }
@@ -158,7 +158,7 @@ public class DocLinker {
     }
 
     public static void process(String DB_PATH){
-        System.out.println("START! ");
+        //System.out.println("START! ");
         DocLinker doclinker = new DocLinker();
 
         List<Map<Long,Set<Long>>> nodepairs;
@@ -167,7 +167,7 @@ public class DocLinker {
         doclinker.deleteRelationship(DB_PATH);
         doclinker.shutdownDB(DB_PATH);
 
-        System.out.println("OK! ");
+        //System.out.println("OK! ");
     }
 
     public static void main(String args[]){

@@ -2,6 +2,9 @@ package cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer;
 
 import cn.edu.pku.sei.intellide.graph.extraction.git_to_neo4j.GitGraphBuilder;
 import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.extraction.jira_to_neo4j.JiraGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.extraction.mail_to_neo4j.MailGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.extraction.stackoverflow_to_neo4j.StackOverflowGraphBuilder;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
 import org.apache.commons.lang3.StringUtils;
@@ -84,12 +87,41 @@ public class CodeTokenizer {
         }
 
         if (node.hasLabel(GitGraphBuilder.COMMIT)){
-            node.setProperty(TITLE, GitGraphBuilder.NAME);
+            node.setProperty(TITLE, node.getProperty(GitGraphBuilder.NAME));
             node.setProperty(TEXT, node.getProperty(GitGraphBuilder.MESSAGE));
             node.setProperty(IS_TEXT, true);
         }
 
         //TODO: ISSUE, EMAIL,STACKOVERFLOW
+
+        //增加了ISSUE数据的ISSUE和ISSUECOMMENT的文本信息
+        if (node.hasLabel(JiraGraphBuilder.ISSUE)){
+            node.setProperty(TITLE, node.getProperty(JiraGraphBuilder.ISSUE_NAME));
+            node.setProperty(TEXT, node.getProperty(JiraGraphBuilder.ISSUE_DESCRIPTION));
+            node.setProperty(IS_TEXT, true);
+        }
+        if (node.hasLabel(JiraGraphBuilder.ISSUECOMMENT)){
+            node.setProperty(TITLE, node.getProperty(JiraGraphBuilder.ISSUECOMMENT_CREATOR_NAME));
+            node.setProperty(TEXT, node.getProperty(JiraGraphBuilder.ISSUECOMMENT_BODY));
+            node.setProperty(IS_TEXT, true);
+        }
+        //增加了MAIL数据的文本信息
+        if (node.hasLabel(MailGraphBuilder.MAIL)){
+            node.setProperty(TITLE, node.getProperty(MailGraphBuilder.MAIL_SUBJECT));
+            node.setProperty(TEXT, node.getProperty(MailGraphBuilder.MAIL_BODY));
+            node.setProperty(IS_TEXT, true);
+        }
+        //增加SO数据的文本信息
+        if (node.hasLabel(StackOverflowGraphBuilder.QUESTION)){
+            node.setProperty(TITLE, node.getProperty(StackOverflowGraphBuilder.QUESTION_TITLE));
+            node.setProperty(TEXT, node.getProperty(StackOverflowGraphBuilder.QUESTION_BODY));
+            node.setProperty(IS_TEXT, true);
+        }
+        if (node.hasLabel(StackOverflowGraphBuilder.ANSWER)){
+            node.setProperty(TITLE, node.getProperty(StackOverflowGraphBuilder.ANSWER_BODY));
+            node.setProperty(TEXT, node.getProperty(StackOverflowGraphBuilder.ANSWER_BODY));
+            node.setProperty(IS_TEXT, true);
+        }
 
     }
 
@@ -150,7 +182,7 @@ public class CodeTokenizer {
         return r;
     }
     public static void main(String[] args){
-        CodeTokenizer.process("F:\\graphData\\graph-isis12");
+        CodeTokenizer.process("F://graph-isis");
     }
 
 }

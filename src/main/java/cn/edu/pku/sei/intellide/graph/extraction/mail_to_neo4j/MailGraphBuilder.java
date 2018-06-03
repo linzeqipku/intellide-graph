@@ -63,6 +63,7 @@ public class MailGraphBuilder {
 
     public static void process(String graphPath, String mailFolderPath) {
         new MailGraphBuilder().run(graphPath, mailFolderPath);
+        System.out.println("mail ok !");
     }
 
     public void run(String graphPath, String mailFolderPath) {
@@ -130,7 +131,7 @@ public class MailGraphBuilder {
     }
 
     public static void main(String[] args){
-        MailGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\email");
+        MailGraphBuilder.process("F:\\graph-isis","F:\\apache data\\isis\\email");
     }
 
 }

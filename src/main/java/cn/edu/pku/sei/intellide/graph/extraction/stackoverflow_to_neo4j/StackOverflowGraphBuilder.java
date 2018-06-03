@@ -86,17 +86,19 @@ public class StackOverflowGraphBuilder {
 
     public static void process(String graphDirPath, String folderPath){
         new StackOverflowGraphBuilder().run(graphDirPath,folderPath);
+        System.out.println("so ok");
     }
 
     private void run(String graphDirPath, String folderPath) {
 
         GraphDatabaseService db=new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDirPath));
 
-        this.questionXmlPath = folderPath + "/questions.xml";
-        this.answerXmlPath = folderPath + "/answers.xml";
-        this.commentXmlPath = folderPath + "/comments.xml";
-        this.userXmlPath = folderPath + "/users.xml";
-        this.postLinkXmlPath = folderPath + "/PostLinks.xml";
+        this.questionXmlPath = folderPath + "/Questions.xml";
+        this.answerXmlPath = folderPath + "/Answers.xml";
+        this.commentXmlPath = folderPath + "/Comments.xml";
+        this.userXmlPath = folderPath + "/Users.xml";
+        //this.postLinkXmlPath = folderPath+"/PostLinks.xml";
+        this.postLinkXmlPath = "J:\\Apache\\cn.edu.pku.EOSCN.crawler.StackOverflow\\PostLinks.xml";
 
         SAXParser qParser = null;
         SAXParser aParser = null;
@@ -216,7 +218,8 @@ public class StackOverflowGraphBuilder {
 
     }
     public static void main(String[] args){
-        StackOverflowGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\stackoverflow");
+        StackOverflowGraphBuilder.process("F:\\graph-isis","F:\\apache data\\isis\\stackoverflow");
+
     }
 
 }

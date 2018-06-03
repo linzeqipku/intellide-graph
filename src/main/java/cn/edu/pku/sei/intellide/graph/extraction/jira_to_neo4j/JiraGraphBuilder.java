@@ -87,6 +87,7 @@ public class JiraGraphBuilder {
 
     public static void process(String graphPath, String issueFolderPath) throws JSONException {
         new JiraGraphBuilder().run(graphPath, issueFolderPath);
+        System.out.println("jira ok!");
     }
 
     public void run(String graphPath, String issueFolderPath) throws JSONException {
@@ -95,64 +96,68 @@ public class JiraGraphBuilder {
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
             //System.out.println(oneIssueFolder);
-            for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
-                //System.out.println(issueFileOrPatchesFolder);
-                //String fileName = issueFileOrPatchesFolder.getName();
-                //System.out.println(fileName);
-                if(issueFileOrPatchesFolder.isDirectory()){
-                    for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
-                        String fileName = issueFileOrPatchesFolder2.getName();
-                        //System.out.println(fileName);
-                        if (fileName.endsWith(".json")) {
-                            try (Transaction tx = db.beginTx()) {
-                                jsonHandler(issueFileOrPatchesFolder2);
-                                tx.success();
+            if(oneIssueFolder.isDirectory()){
+                for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
+                    //System.out.println(issueFileOrPatchesFolder);
+                    //String fileName = issueFileOrPatchesFolder.getName();
+                    //System.out.println(fileName);
+                    if(issueFileOrPatchesFolder.isDirectory()){
+                        for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                            String fileName = issueFileOrPatchesFolder2.getName();
+                            //System.out.println(fileName);
+                            if (fileName.endsWith(".json")) {
+                                try (Transaction tx = db.beginTx()) {
+                                    jsonHandler(issueFileOrPatchesFolder2);
+                                    tx.success();
+                                }
                             }
                         }
                     }
                 }
-
-
             }
+
         }
         //System.out.println("json文件处理完毕.");
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
-            for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
-                //String fileName = issueFileOrPatchesFolder.getName();
-                //System.out.println(fileName);
-                if(issueFileOrPatchesFolder.isDirectory()){
-                    for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
-                        String fileName = issueFileOrPatchesFolder2.getName();
-                        //System.out.println(fileName);
-                        if (fileName.equals("Patchs")) {
-                            for (File onePatchFolder : issueFileOrPatchesFolder2.listFiles()) {
-                                String onePatchFolderName = onePatchFolder.getName();
-                                if(onePatchFolderName.endsWith(".patch")){
-                                    String patchId = onePatchFolder.getName();
-                                    //System.out.println(patchId);
-                                    //for (File patchFile : onePatchFolder.listFiles()) {
-                                    //   System.out.println(fileName);
-                                    if (patchNodeMap.containsKey(patchId))
-                                        try {
-                                            try (Transaction tx = db.beginTx()) {
-                                                patchNodeMap.get(patchId).setProperty(JiraGraphBuilder.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder));
-                                                tx.success();
+            if(oneIssueFolder.isDirectory()){
+                for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
+                    //String fileName = issueFileOrPatchesFolder.getName();
+                    //System.out.println(fileName);
+                    if(issueFileOrPatchesFolder.isDirectory()){
+                        for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                            String fileName = issueFileOrPatchesFolder2.getName();
+                            //System.out.println(fileName);
+                            if (fileName.equals("Patchs")) {
+                                for (File onePatchFolder : issueFileOrPatchesFolder2.listFiles()) {
+                                    String onePatchFolderName = onePatchFolder.getName();
+                                    if(onePatchFolderName.endsWith(".patch")){
+                                        String patchId = onePatchFolder.getName();
+                                        //System.out.println(patchId);
+                                        //for (File patchFile : onePatchFolder.listFiles()) {
+                                        //   System.out.println(fileName);
+                                        if (patchNodeMap.containsKey(patchId))
+                                            try {
+                                                try (Transaction tx = db.beginTx()) {
+                                                    patchNodeMap.get(patchId).setProperty(JiraGraphBuilder.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder));
+                                                    tx.success();
+                                                }
+                                            } catch (IOException e) {
+                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
                                             }
-                                        } catch (IOException e) {
-                                            // TODO Auto-generated catch block
-                                            e.printStackTrace();
-                                        }
-                                    //}
+                                        //}
+                                    }
+
                                 }
-
                             }
+                            //System.out.println(filename);
                         }
-                        //System.out.println(filename);
                     }
-                }
 
+                }
             }
+
         }
         //System.out.println("patch文件处理完毕.");
 
@@ -181,7 +186,7 @@ public class JiraGraphBuilder {
         }
 
         if (jsonContent == null) {
-            System.out.println("json is empty");
+            //System.out.println("json is empty");
             return;
         }
 
@@ -431,7 +436,7 @@ public class JiraGraphBuilder {
     }
 
     public  static void main(String[] args) throws JSONException {
-        JiraGraphBuilder.process("F:\\graphData\\graph-isis12","F:\\apache data\\isis\\bug report");
+        JiraGraphBuilder.process("F:\\graph-isis","F:\\apache data\\isis\\bug report");
     }
 
 }

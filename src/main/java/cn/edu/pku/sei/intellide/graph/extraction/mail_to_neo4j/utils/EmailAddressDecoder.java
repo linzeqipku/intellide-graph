@@ -26,33 +26,33 @@ public class EmailAddressDecoder {
         String encodedMailAddr;
 
         encodedMailAddr = "jpountz at gmail dot com";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "deBakker_Bas at emc dot com";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "chris at die-schneider dot net";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "lpb+apache at focalpoint dot com";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "shutear at 126 dot com";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "jianbin dot wang at pku dot edu dot cn";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "jianbin dot  dot wang dot at pku dot edu dot cn";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "jianbin dot dot wang dot at pku dot edu dot cn";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "jianbin dot dot dot wang dot at pku dot edu dot cn";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
 
         encodedMailAddr = "jianbin dot dot dot dot wang dot at pku dot edu dot cn";
-        System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
+        //System.out.println(encodedMailAddr + "\t:" + decode(encodedMailAddr));
     }
 }

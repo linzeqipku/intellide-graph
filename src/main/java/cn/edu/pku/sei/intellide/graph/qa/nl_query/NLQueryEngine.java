@@ -28,6 +28,7 @@ public class NLQueryEngine {
         this.db=db;
         this.dataDirPath = dataDirPath;
         ExtractModel.db = db;
+        ExtractModel.single = null;
         LuceneIndex.dataDirPath = dataDirPath;
     }
     public Neo4jSubGraph search(String queryString){
@@ -40,7 +41,7 @@ public class NLQueryEngine {
         String cypherret = "";
         if (queryString.matches("\\d+")){
             String c = "Match (n) where id(n)="+queryString+" return n, id(n), labels(n)";
-            System.out.println(c);
+            //System.out.println(c);
             Result p = db.execute(c + " limit 30");
             while (p.hasNext()){
                 Map m = p.next();
@@ -66,7 +67,7 @@ public class NLQueryEngine {
                 nodeid = returnT.substring(0,returnT.indexOf("."));
                 c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid);
             }else nodeid = returnT.substring(0,returnT.indexOf(","));
-            System.out.println(c.replaceAll("RETURN","RETURN distinct"));
+            //System.out.println(c.replaceAll("RETURN","RETURN distinct"));
 
             Result p = db.execute(c.replaceAll("RETURN","RETURN distinct")+ " limit 10");
             cypherret = c;
@@ -78,7 +79,7 @@ public class NLQueryEngine {
                 String tmpc = "MATCH p= "+matchT.substring(5,matchT.length());
                 tmpc += whereT + " AND (id("+nodeid+")="+id+")";
                 tmpc += "return p";
-                System.out.println(tmpc);
+                //System.out.println(tmpc);
                 Result pr = db.execute(tmpc + " limit 1");
                 while (pr.hasNext()) {
                     Map m = pr.next();

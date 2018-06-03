@@ -41,7 +41,7 @@ public class NLPInterpreter {
             //generatorTupleLinks(query);
             int tot = 0;
             List<Query> answers = new ArrayList<>();
-            System.out.println(queries.size());
+            //System.out.println(queries.size());
             for (Query query1 : queries) {
                 if (query1.nodes.size() == 0) continue;
                 List<Query> listq = new ArrayList<>();
@@ -61,7 +61,7 @@ public class NLPInterpreter {
                     }
                 }
             }
-            System.out.println(answers.size());
+            //System.out.println(answers.size());
             answers.sort(Comparator.comparing(p -> p.score));
             Set<Query> anstmp = new HashSet<>();
             for (Query q : answers) {

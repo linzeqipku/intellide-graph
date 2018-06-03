@@ -73,6 +73,7 @@ public class JavaCodeGraphBuilder {
 
     public static void process(String graphDirPath,String srcDir) throws IOException {
         new JavaCodeGraphBuilder(graphDirPath,srcDir).process();
+        System.out.println("java code ok !");
     }
 
     private JavaCodeGraphBuilder(String graphDirPath, String srcDir) throws IOException {
@@ -123,7 +124,7 @@ public class JavaCodeGraphBuilder {
     }
 
     public static void main(String[] args) throws IOException {
-        JavaCodeGraphBuilder.process("F:\\graphData\\graph-test","F:\\apache data\\cassandra\\source code");
+        JavaCodeGraphBuilder.process("F:\\graph-isis","F:\\apache data\\isis\\source code\\core");
     }
 
 }

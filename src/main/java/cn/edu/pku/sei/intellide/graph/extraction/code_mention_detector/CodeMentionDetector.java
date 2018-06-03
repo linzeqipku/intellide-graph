@@ -71,6 +71,7 @@ public class CodeMentionDetector {
                     continue;
                 textNodes.add(node);
             }
+            //System.out.println(textNodes.size());
             for (Node srcNode : textNodes) {
                 String text = (String) srcNode.getProperty(CodeTokenizer.TITLE);
                 text += " " + srcNode.getProperty(CodeTokenizer.TEXT);
@@ -210,7 +211,7 @@ public class CodeMentionDetector {
         }
     }
     public static void main(String[] args) throws IOException, ParseException {
-        CodeMentionDetector.process("F:\\graphData\\graph-hama");
+        CodeMentionDetector.process("F:\\graph-isis");
     }
 
 }

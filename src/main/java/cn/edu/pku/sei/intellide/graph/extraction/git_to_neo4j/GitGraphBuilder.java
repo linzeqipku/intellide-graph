@@ -42,6 +42,7 @@ public class GitGraphBuilder {
 
     public static void process(String graphDirPath, String gitDirPath) throws IOException, GitAPIException {
         new GitGraphBuilder(graphDirPath,gitDirPath).process();
+        System.out.println("git ok !");
     }
 
     private GitGraphBuilder(String graphDirPath, String gitDirPath) throws IOException {
@@ -72,7 +73,7 @@ public class GitGraphBuilder {
     }
 
     private void parseCommit(RevCommit commit, Repository repository, Git git) throws IOException, GitAPIException {
-        System.out.println(commit.getName());
+        //System.out.println(commit.getName());
         Map<String, Object> map = new HashMap<>();
         map.put(NAME, commit.getName());
         String message = commit.getFullMessage();
@@ -128,10 +129,10 @@ public class GitGraphBuilder {
 
     public  static void main(String[] args) throws IOException, GitAPIException {
 
-        GitGraphBuilder.process("F:\\graphData\\graph-isis14","F:\\gitData\\isis");
+        GitGraphBuilder.process("F:\\graph-isis","F:\\gitData\\isis\\.git");
 
 
-        System.out.println("OK");
+        System.out.println("git OK");
 
     }
 

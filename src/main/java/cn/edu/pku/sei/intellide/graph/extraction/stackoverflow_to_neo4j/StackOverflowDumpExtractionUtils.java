@@ -70,7 +70,7 @@ class QuestionExtractor
         FileWriter bw = null;
         try
         {
-            System.out.println(postXmlPath);
+            //System.out.println(postXmlPath);
             br = new BufferedReader(new BufferedReader(new InputStreamReader(new FileInputStream(new File(postXmlPath)))));
             bw = new FileWriter(dstXmlPath);
         }
@@ -150,7 +150,7 @@ class QaUserExtractor {
                 int userId = Integer.parseInt(matcher.group(1));
                 if (userIdSet.contains(userId)) {
                     bw.write(str + "\r\n");
-                    System.out.printf("绗�%d琛�: 鐢ㄦ埛%d;\n", i, userId);
+                    //System.out.printf("绗�%d琛�: 鐢ㄦ埛%d;\n", i, userId);
                 }
                 i++;
             }
@@ -264,7 +264,7 @@ class AnswerExtractor {
                             continue;
                         int id = Integer.parseInt(matcher.group(1));
                         answerIdSet.add(id);
-                        System.out.println("ç¬¬" + i + "è¡Œ: é—®é¢˜" + parentId + "çš„ç­”æ¡ˆ" + id + "ï¼›");
+                        //System.out.println("ç¬¬" + i + "è¡Œ: é—®é¢˜" + parentId + "çš„ç­”æ¡ˆ" + id + "ï¼›");
 
                         matcher = userIdRe.matcher(str.toLowerCase());
                         if (!matcher.find()) {
@@ -272,7 +272,7 @@ class AnswerExtractor {
                         }
                         int userId = Integer.parseInt(matcher.group(1));
                         userIdSet.add(userId);
-                        System.out.println("ç¬¬" + i + "è¡Œ: ç­”æ¡ˆ" + id + "çš„ç”¨æˆ·" + userId + "ï¼›");
+                        //System.out.println("ç¬¬" + i + "è¡Œ: ç­”æ¡ˆ" + id + "çš„ç”¨æˆ·" + userId + "ï¼›");
                     }
                 }
             }
@@ -332,7 +332,7 @@ class PostLinkExtractor {
                     }
 
                     bw.write(str + "\r\n");
-                    System.out.printf("绗�%d琛�: Duplicate 鍏崇郴: postId=%d --> relatedPostId=%d;\n", i, postId, relatedPostId);
+                    //System.out.printf("绗�%d琛�: Duplicate 鍏崇郴: postId=%d --> relatedPostId=%d;\n", i, postId, relatedPostId);
                 }
                 i++;
             }

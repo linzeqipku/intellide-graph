@@ -9,9 +9,9 @@ public class MySubgraph {
     Set<Long> nodes = new HashSet<>();
     Set<Long> edges = new HashSet<>();
     public void print(){
-        System.out.println("subgraph nodes size: " + nodes.size() + "\nnodes:");
-        for (long id : nodes){
+        //System.out.println("subgraph nodes size: " + nodes.size() + "\nnodes:");
+        /*for (long id : nodes){
             System.out.println(id);
-        }
+        }*/
     }
 }

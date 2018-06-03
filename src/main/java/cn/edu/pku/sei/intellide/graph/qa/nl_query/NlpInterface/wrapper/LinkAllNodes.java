@@ -181,7 +181,7 @@ public class LinkAllNodes {
                 double max = 0;
                 if (((NLPVertexSchemaMapping) nodei.token.mapping).vertexType.name.equals("Class") &&
                         ((NLPVertexSchemaMapping) nodej.token.mapping).vertexType.name.equals("gitCommit")){
-                    System.out.println();
+                    //System.out.println();
                 }
                 GraphEdgeType edge = null;
                 for (GraphEdgeType edgeType : ((NLPVertexSchemaMapping) nodei.token.mapping).vertexType.outcomingsEdges){

@@ -68,7 +68,7 @@ public class GraphReader {
             }
             tx.success();
         }
-        System.out.println("node set size: " + graph.size());
+        //System.out.println("node set size: " + graph.size());
         return graph;
     }
 

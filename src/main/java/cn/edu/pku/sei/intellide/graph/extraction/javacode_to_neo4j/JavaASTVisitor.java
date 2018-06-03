@@ -43,7 +43,7 @@ public class JavaASTVisitor extends ASTVisitor {
             for (JavaFieldInfo javaFieldInfo : javaFieldInfos)
                 javaProjectInfo.addFieldInfo(javaFieldInfo);
         }
-        System.out.println("Class "+javaClassInfo.getFullName()+" parsed. ("+javaClassInfo.getNodeId()+").");
+        //System.out.println("Class "+javaClassInfo.getFullName()+" parsed. ("+javaClassInfo.getNodeId()+").");
         return false;
     }
 

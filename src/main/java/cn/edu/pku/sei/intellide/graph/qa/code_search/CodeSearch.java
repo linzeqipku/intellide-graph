@@ -33,7 +33,7 @@ public class CodeSearch {
                 tokens.add(token);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
-            System.out.println("codesearcher find no subgraph");
+            //System.out.println("codesearcher find no subgraph");
             subgraph = new MySubgraph();
         }
         subgraph.print();
@@ -55,7 +55,7 @@ public class CodeSearch {
                 tokens.add(token);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
-            System.out.println("codesearcher find no subgraph");
+            //System.out.println("codesearcher find no subgraph");
             subgraph = new MySubgraph();
         }
         List<Long> nodes = new ArrayList<>(subgraph.selectedRoot);
@@ -65,7 +65,7 @@ public class CodeSearch {
     public static void main(String[] args){
         CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
                 new File("F:\\testdata\\graph.db-tokens")));
-        System.out.println(StopWords.englishStopWords);
+        //System.out.println(StopWords.englishStopWords);
         searcher.search("区域 游客");
     }
 }

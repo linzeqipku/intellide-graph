@@ -53,7 +53,7 @@ public class LuceneIndex {
         int cnt = 0;
         for (Vertex vertex : graph.getAllVertexes()){
             cnt++;
-            if (cnt % 1000 == 0) System.out.println(cnt);
+            //if (cnt % 1000 == 0) System.out.println(cnt);
             GraphDatabaseService db = ExtractModel.getSingle().db;
             try (Transaction tx = db.beginTx()) {
                 Node node = db.getNodeById(vertex.id);
@@ -66,7 +66,7 @@ public class LuceneIndex {
                     document.add(new StoredField("vertex_type", vertex.labels));
                     document.add(new StoredField("attr_type", attrTypeName));
                     document.add(new TextField("attr_val", (String)obj, Field.Store.YES));
-                    if (cnt % 10000 == 0) System.out.println(vertex.labels+" " + attrTypeName + " " + (String)obj);
+                    //if (cnt % 10000 == 0) System.out.println(vertex.labels+" " + attrTypeName + " " + (String)obj);
                     writer.addDocument(document);
                 }
                 tx.success();
@@ -108,7 +108,7 @@ public class LuceneIndex {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println(topDocs.scoreDocs.length);
+        //System.out.println(topDocs.scoreDocs.length);
         for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
             Document document = null;
             try {
@@ -122,7 +122,7 @@ public class LuceneIndex {
 //                    new Double(scoreDoc.score).doubleValue(), document.get("node_set"));
 //            r.add(result);
             LuceneSearchResult result = new LuceneSearchResult(Long.parseLong(document.get("id")) , document.get("vertex_type") , document.get("attr_type"), document.get("attr_val"));
-            System.out.println(document.get("id") + document.get("vertex_type") + document.get("attr_type") + document.get("attr_val"));
+            //System.out.println(document.get("id") + document.get("vertex_type") + document.get("attr_type") + document.get("attr_val"));
             r.add(result);
         }
         return r;

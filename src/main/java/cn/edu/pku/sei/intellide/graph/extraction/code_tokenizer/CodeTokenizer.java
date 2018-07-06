@@ -182,7 +182,7 @@ public class CodeTokenizer {
         return r;
     }
     public static void main(String[] args){
-        CodeTokenizer.process("F://graph-isis");
+        CodeTokenizer.process("F:\\Apache\\GraphDataBase\\Graph-TSR-chinese");
     }
 
 }

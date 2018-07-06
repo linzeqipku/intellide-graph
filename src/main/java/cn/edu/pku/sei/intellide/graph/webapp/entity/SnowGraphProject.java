@@ -20,10 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SnowGraphProject {
     private final String name;
@@ -46,7 +43,7 @@ public class SnowGraphProject {
     public static List<SnowGraphProject> getProjectList() throws IOException, JSONException {
         List<SnowGraphProject> projectList = new ArrayList<>();
         //File jsonFile = new File("project.json");
-        File jsonFile = ResourceUtils.getFile(Config.class.getResource("/").getPath()+"\\project-final.json");
+        File jsonFile = ResourceUtils.getFile(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"project-final.json");
         String json = FileUtils.readFileToString(jsonFile);
         JSONArray jsonArray = new JSONArray(json);
         for (int i = 0; i<jsonArray.length();i++) {
@@ -61,20 +58,20 @@ public class SnowGraphProject {
     }
 
     public  static Map<String,GraphDatabaseService> getDbMap(String graphRootDir) throws IOException, JSONException {
-        Map<String, GraphDatabaseService> dbMap1 = new HashMap<>();
-        File jsonFile = ResourceUtils.getFile(Config.class.getResource("/").getPath() + "\\project-final.json");
+        Map<String, GraphDatabaseService> dbMap1 = new LinkedHashMap<>();
+        /*File jsonFile = ResourceUtils.getFile(Config.class.getResource("/").getPath() + "\\project-final.json");
         String json = FileUtils.readFileToString(jsonFile);
         JSONArray jsonArray = new JSONArray(json);
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jobj = jsonArray.getJSONObject(i);
-            String name = jobj.getString("name");
+            String name = jobj.getString("name");*/
             //System.out.println(name);
             //System.out.println(graphRootDir+name);
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphRootDir + name));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphRootDir + "Lucene"));
 
-            dbMap1.put(name, db);
+            dbMap1.put("Lucene", db);
             //System.out.println("okm");
-        }
+        //}
 
         return dbMap1;
     }

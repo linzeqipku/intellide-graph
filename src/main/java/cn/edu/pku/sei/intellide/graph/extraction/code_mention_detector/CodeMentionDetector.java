@@ -211,7 +211,7 @@ public class CodeMentionDetector {
         }
     }
     public static void main(String[] args) throws IOException, ParseException {
-        CodeMentionDetector.process("F:\\graph-isis");
+        CodeMentionDetector.process("F:\\Apache\\GraphDataBase\\Graph-TSR-chinese");
     }
 
 }

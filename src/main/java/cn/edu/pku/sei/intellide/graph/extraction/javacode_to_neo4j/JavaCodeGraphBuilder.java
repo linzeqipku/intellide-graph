@@ -124,7 +124,7 @@ public class JavaCodeGraphBuilder {
     }
 
     public static void main(String[] args) throws IOException {
-        JavaCodeGraphBuilder.process("F:\\graph-isis","F:\\apache data\\isis\\source code\\core");
+        JavaCodeGraphBuilder.process("I:\\Graph-Lucene","I:\\lucene-3.6.2");
     }
 
 }

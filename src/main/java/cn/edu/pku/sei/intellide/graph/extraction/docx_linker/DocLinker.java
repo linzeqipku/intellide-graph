@@ -7,8 +7,7 @@ import java.util.*;
 
 /**
  * 根据标题匹配，把不同的中文文档实体关联起来
- * author: 王敏
- * TODO: lots of magic numbers!
+ * @author: 王敏
  */
 public class DocLinker {
 

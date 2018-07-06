@@ -24,10 +24,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.getDbMap;
 import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.getProjectList;
@@ -39,11 +36,11 @@ public class Controller {
     @Autowired
     private Context context;
 
-    Map<String,CodeSearch> codeSearchMap = new HashMap<>();
-    Map<String,DocSearch> docSearchMap = new HashMap<>();
-    //Map<String,NLQueryEngine> nlQueryEngineMap = new HashMap<>();
-    Map<String,NavResult> navResultMap = new HashMap<>();
-    Map<String,GraphDatabaseService> dbMap = new HashMap<>();
+    Map<String,CodeSearch> codeSearchMap = new LinkedHashMap<>();
+    Map<String,DocSearch> docSearchMap = new LinkedHashMap<>();
+    //Map<String,NLQueryEngine_en> nlQueryEngineMap = new LinkedHashMap<>();
+    Map<String,NavResult> navResultMap = new LinkedHashMap<>();
+    Map<String,GraphDatabaseService> dbMap = new LinkedHashMap<>();
 
     CodeSearch codeSearch=null;
    /* DocSearch docSearch=null;
@@ -53,9 +50,14 @@ public class Controller {
     @PostConstruct
     public void init() throws IOException, JSONException {
         dbMap = getDbMap(context.graphDir);
-        //System.out.println(dbMap.size());
-        //dbMap = context.dbMap;
-        for (Map.Entry<String, GraphDatabaseService> entry : dbMap.entrySet()) {
+        //NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get("Lucene"),context.dataDir+"Lucene");
+        //nlQueryEngineMap.put("Lucene",nlQueryEngine);
+        codeSearchMap.put("Lucene",new CodeSearch(dbMap.get("Lucene")));
+        codeSearch = codeSearchMap.get("Lucene");
+        docSearchMap.put("Lucene",new DocSearch(dbMap.get("Lucene"),context.dataDir+"Lucene"+"/doc_search_index",codeSearch));
+        navResultMap.put("Lucene",NavResult.fetch(dbMap.get("Lucene")));
+
+       /* for (Map.Entry<String, GraphDatabaseService> entry : dbMap.entrySet()) {
             //nlQueryEngineMap.put(entry.getKey(),new NLQueryEngine(entry.getValue(),context.dataDir));
             codeSearchMap.put(entry.getKey(),new CodeSearch(entry.getValue()));
             codeSearch = codeSearchMap.get(entry.getKey());
@@ -63,8 +65,8 @@ public class Controller {
             docSearchMap.put(entry.getKey(),new DocSearch(entry.getValue(),context.dataDir+entry.getKey()+"/doc_search_index",codeSearch));
             navResultMap.put(entry.getKey(),NavResult.fetch(entry.getValue()));
 
-        }
-        //System.out.println(navResultMap.size());
+        }*/
+
         /*nlQueryEngine=new NLQueryEngine(context.db,context.dataDir);
         nlQueryEngine.createIndex();
         codeSearch=new CodeSearch(context.db);
@@ -87,28 +89,48 @@ public class Controller {
         //System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxx" + query + " " + project);
         if(project.contains("chinese")){
             NLQueryEngine nlQueryEngine = new NLQueryEngine(dbMap.get(project),context.dataDir+project);
+            nlQueryEngine.createIndex();
             Neo4jSubGraph r=nlQueryEngine.search(query);
             //System.out.println("success 11");
-            if (r.getNodes().size()>0)
+            //System.out.println(r.getNodes().size());
+            if (r.getNodes().size()>0) {
                 System.out.println("success");
                 return r;
+            }
         }
-        else{
-
+        if(!project.contains("chinese")){
             NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project),context.dataDir+project);
+            nlQueryEngine.createIndex();
             Neo4jSubGraph r=nlQueryEngine.search(query);
             if (r.getNodes().size()>0){
-                //System.out.println("success");
+                System.out.println("success");
                 return r;
             }
+        }
+        if(!dbMap.containsKey(project)) {
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
+            dbMap.put(project,db);
+        }
+        if(!codeSearchMap.containsKey(project)){
+            codeSearchMap.put(project,new CodeSearch(dbMap.get(project)));
 
         }
         CodeSearch codeSearch = codeSearchMap.get(project);
+        System.out.println("success");
         return codeSearch.search(query);
     }
 
     @RequestMapping(value = "/docSearch", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public List<Neo4jNode> docSearch(String query, String project) throws IOException, ParseException {
+        if(!dbMap.containsKey(project)) {
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
+            dbMap.put(project,db);
+        }
+        if(!docSearchMap.containsKey(project)){
+            codeSearchMap.put(project,new CodeSearch(dbMap.get(project)));
+            codeSearch = codeSearchMap.get(project);
+            docSearchMap.put(project,new DocSearch(dbMap.get(project),context.dataDir+project+"/doc_search_index",codeSearch));
+        }
 
         DocSearch docSearch = docSearchMap.get(project);
         //System.out.println(docSearch.search(query));
@@ -118,18 +140,34 @@ public class Controller {
     @RequestMapping(value = "/nav", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public NavResult nav(String project) {
         //System.out.println(project);
+        if(!dbMap.containsKey(project)) {
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
+            dbMap.put(project,db);
+        }
+        if(!navResultMap.containsKey(project)){
+            navResultMap.put(project,NavResult.fetch(dbMap.get(project)));
+        }
+        //System.out.println();
         NavResult navResult = navResultMap.get(project);
+        //System.out.println(navResult.toString());
         return navResult;
     }
 
     @RequestMapping(value = "/relationList", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public List<Neo4jRelation> relationList(long id, String project){
-
+        if(!dbMap.containsKey(project)){
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
+            dbMap.put(project,db);
+        }
         return Neo4jRelation.getNeo4jRelationList(id,dbMap.get(project));
     }
 
     @RequestMapping(value = "/node", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public Neo4jNode node(long id, String project){
+        if(!dbMap.containsKey(project)){
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
+            dbMap.put(project,db);
+        }
         return Neo4jNode.get(id,dbMap.get(project));
     }
 

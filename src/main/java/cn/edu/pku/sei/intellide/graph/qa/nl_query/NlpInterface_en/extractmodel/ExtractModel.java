@@ -18,7 +18,7 @@ public class ExtractModel {
 	GraphEdgeType edgePath[][] = new GraphEdgeType[100][100];
 	Map<Integer,String> id2str = new HashMap<>();
 	Map<String,Integer> str2id = new HashMap<>();
-	public static ExtractModel getSingle(){
+	public static synchronized ExtractModel getSingle(){
 		if (single != null) return single;
 		single = new ExtractModel();
 		//single = new ExtractModel("F:\\0319NJN1");

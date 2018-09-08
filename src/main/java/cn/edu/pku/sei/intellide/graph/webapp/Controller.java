@@ -38,7 +38,7 @@ public class Controller {
 
     Map<String,CodeSearch> codeSearchMap = new LinkedHashMap<>();
     Map<String,DocSearch> docSearchMap = new LinkedHashMap<>();
-    //Map<String,NLQueryEngine_en> nlQueryEngineMap = new LinkedHashMap<>();
+    Map<String,NLQueryEngine_en> nlQueryEngineMap = new LinkedHashMap<>();
     Map<String,NavResult> navResultMap = new LinkedHashMap<>();
     Map<String,GraphDatabaseService> dbMap = new LinkedHashMap<>();
 
@@ -50,8 +50,9 @@ public class Controller {
     @PostConstruct
     public void init() throws IOException, JSONException {
         dbMap = getDbMap(context.graphDir);
-        //NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get("Lucene"),context.dataDir+"Lucene");
-        //nlQueryEngineMap.put("Lucene",nlQueryEngine);
+        NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get("Lucene"),context.dataDir+"Lucene");
+        nlQueryEngine.createIndex();
+        nlQueryEngineMap.put("Lucene",nlQueryEngine);
         codeSearchMap.put("Lucene",new CodeSearch(dbMap.get("Lucene")));
         codeSearch = codeSearchMap.get("Lucene");
         docSearchMap.put("Lucene",new DocSearch(dbMap.get("Lucene"),context.dataDir+"Lucene"+"/doc_search_index",codeSearch));
@@ -86,27 +87,33 @@ public class Controller {
 
     @RequestMapping(value = "/codeSearch", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public Neo4jSubGraph codeSearch(String query, String project){
-        //System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxx" + query + " " + project);
+
         if(project.contains("chinese")){
             NLQueryEngine nlQueryEngine = new NLQueryEngine(dbMap.get(project),context.dataDir+project);
             nlQueryEngine.createIndex();
             Neo4jSubGraph r=nlQueryEngine.search(query);
-            //System.out.println("success 11");
-            //System.out.println(r.getNodes().size());
+
             if (r.getNodes().size()>0) {
                 System.out.println("success");
                 return r;
             }
         }
-        if(!project.contains("chinese")){
-            NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project),context.dataDir+project);
-            nlQueryEngine.createIndex();
-            Neo4jSubGraph r=nlQueryEngine.search(query);
-            if (r.getNodes().size()>0){
-                System.out.println("success");
-                return r;
+        if(query.contains("Who")||query.contains("what")||query.contains("when")||query.contains("which")||query.contains("list")){
+            if(!project.contains("chinese")){
+                if(!nlQueryEngineMap.containsKey(project)){
+                    NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project),context.dataDir+project);
+                    nlQueryEngine.createIndex();
+                }
+                NLQueryEngine_en nlQueryEngine = nlQueryEngineMap.get(project);
+                Neo4jSubGraph r=nlQueryEngine.search(query);
+                System.out.println(r.getNodes().size());
+                if (r.getNodes().size()>0){
+                    System.out.println("success ni");
+                    return r;
+                }
             }
         }
+
         if(!dbMap.containsKey(project)) {
             GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(context.graphDir + project));
             dbMap.put(project,db);
@@ -116,7 +123,7 @@ public class Controller {
 
         }
         CodeSearch codeSearch = codeSearchMap.get(project);
-        System.out.println("success");
+        System.out.println("success ling");
         return codeSearch.search(query);
     }
 

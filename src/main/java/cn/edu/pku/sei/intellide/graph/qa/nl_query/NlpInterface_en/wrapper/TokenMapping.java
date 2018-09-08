@@ -557,9 +557,10 @@ public class TokenMapping {
     }
     public static double subSimilar (String str1, String str2){
 
+        if (str1.equals(str2)) return 1;
         str1 = str1.toLowerCase();
         str2 = str2.toLowerCase();
-        if (str1.equals(str2)) return 1;
+        if (str1.equals(str2)) return 0.8;
         str1 = str1.replaceAll("_","");
         str2 = str2.replaceAll("_","");
         if (str1.contains(str2) && (2 * str2.length() >  str1.length())) return ((double)str2.length()) / str1.length() * 0.8;

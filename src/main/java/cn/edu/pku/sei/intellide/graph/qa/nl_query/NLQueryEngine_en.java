@@ -47,6 +47,8 @@ public class NLQueryEngine_en {
         }else {
             cyphers = NLPInterpreter.pipeline(queryString);
             if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
+            System.out.println(cyphers.size());
+            System.out.println(cyphers);
             String c = cyphers.get(0);
             String returnT;String whereT; String matchT;
             if (!c.contains("WHERE")){
@@ -61,7 +63,7 @@ public class NLQueryEngine_en {
             String nodeid;
             if (!returnT.contains("labels")){
                 nodeid = returnT.substring(0,returnT.indexOf("."));
-                c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid);
+                c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid,nodeid,nodeid);
             }else nodeid = returnT.substring(0,returnT.indexOf(","));
             //System.out.println(c.replaceAll("RETURN","RETURN distinct"));
 
@@ -72,6 +74,7 @@ public class NLQueryEngine_en {
                 Map m = p.next();
                 retnodes.add((Long) m.get("id("+nodeid+")"));
             }
+            System.out.println(retnodes.size());
             for (Long id : retnodes){
                 String tmpc = "MATCH p= "+matchT.substring(5,matchT.length());
                 tmpc += whereT + " AND (id("+nodeid+")="+id+")";
@@ -97,11 +100,11 @@ public class NLQueryEngine_en {
         }
         Neo4jSubGraph ppp =  new Neo4jSubGraph(nodes,rels,db);
         ppp.setCypher(cypherret);
-//        if (!cypherret.toLowerCase().contains("where")){
-//            ppp.getNodes().clear();
-//            ppp.getRelationships().clear();
-//            ppp.setCypher("");
-//        }
+        if (!cypherret.toLowerCase().contains("where")){
+            ppp.getNodes().clear();
+            ppp.getRelationships().clear();
+            ppp.setCypher("");
+        }
         return ppp;
     }
 //    public Neo4jSubGraph search(String queryString){

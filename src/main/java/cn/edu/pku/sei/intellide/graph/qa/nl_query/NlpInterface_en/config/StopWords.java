@@ -17,6 +17,7 @@ public class StopWords {
         List<String> lines=new ArrayList<>();
         try {
             lines= FileUtils.readLines(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"stopwords_lcy.txt"),"utf-8");
+            //lines= FileUtils.readLines(new File("/data/stopwords_lcy.txt"),"utf-8");
         } catch (IOException e) {
             e.printStackTrace();
         }

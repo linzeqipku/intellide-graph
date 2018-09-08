@@ -44,6 +44,7 @@ public class SnowGraphProject {
         List<SnowGraphProject> projectList = new ArrayList<>();
         //File jsonFile = new File("project.json");
         File jsonFile = ResourceUtils.getFile(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"project-final.json");
+        //File jsonFile = ResourceUtils.getFile("/data/project-final.json");
         String json = FileUtils.readFileToString(jsonFile);
         JSONArray jsonArray = new JSONArray(json);
         for (int i = 0; i<jsonArray.length();i++) {

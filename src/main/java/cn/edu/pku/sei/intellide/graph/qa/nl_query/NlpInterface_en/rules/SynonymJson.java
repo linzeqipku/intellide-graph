@@ -31,6 +31,7 @@ public class SynonymJson {
         String lines = "";
         try {
             lines = FileUtils.readFileToString(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"Synonym.json"));
+            //lines = FileUtils.readFileToString(new File("/data/Synonym.json"));
         } catch (IOException e) {
             e.printStackTrace();
         }

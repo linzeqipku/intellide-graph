@@ -97,8 +97,8 @@ public class StackOverflowGraphBuilder {
         this.answerXmlPath = folderPath + "/Answers.xml";
         this.commentXmlPath = folderPath + "/Comments.xml";
         this.userXmlPath = folderPath + "/Users.xml";
-        //this.postLinkXmlPath = folderPath+"/PostLinks.xml";
-        this.postLinkXmlPath = "J:\\Apache\\cn.edu.pku.EOSCN.crawler.StackOverflow\\PostLinks.xml";
+        this.postLinkXmlPath = folderPath+"/PostLinks.xml";
+        //this.postLinkXmlPath = "J:\\Apache\\cn.edu.pku.EOSCN.crawler.StackOverflow\\PostLinks.xml";
 
         SAXParser qParser = null;
         SAXParser aParser = null;

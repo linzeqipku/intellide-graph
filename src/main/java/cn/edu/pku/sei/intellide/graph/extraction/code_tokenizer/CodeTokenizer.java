@@ -130,6 +130,10 @@ public class CodeTokenizer {
         if (node.hasProperty(JavaCodeGraphBuilder.FULLNAME))
             content += (String) node.getProperty(JavaCodeGraphBuilder.NAME);
         Set<String> tokens=tokenization(content);
+        Set<String> commentTokens = tokenization((String) node.getProperty(JavaCodeGraphBuilder.COMMENT));
+        for (String commentToken : commentTokens)
+            if (commentToken.matches("[\\u4e00-\\u9fa5]+"))
+                tokens.add(commentToken);
         node.setProperty(CODE_TOKENS, StringUtils.join(tokens," "));
     }
 
@@ -182,7 +186,7 @@ public class CodeTokenizer {
         return r;
     }
     public static void main(String[] args){
-        CodeTokenizer.process("F:\\Apache\\GraphDataBase\\Graph-TSR-chinese");
+        CodeTokenizer.process("F:\\graph-tsr4");
     }
 
 }

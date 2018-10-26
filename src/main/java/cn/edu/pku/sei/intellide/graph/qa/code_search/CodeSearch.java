@@ -1,7 +1,7 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
-import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.StopWords;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.config.StopWords;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import javafx.scene.paint.Stop;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -31,6 +31,7 @@ public class CodeSearch {
         for (String token: baseTokens)
             if (!StopWords.isStopWord(token))
                 tokens.add(token);
+        //System.out.println("切词结果：" + tokens);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
             //System.out.println("codesearcher find no subgraph");

@@ -31,7 +31,7 @@ public class SynonymJson {
     public static void readJson() throws JSONException {
         String lines = "";
         try {
-            lines = FileUtils.readFileToString(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"Synonym_chinese.json"));
+            lines = FileUtils.readFileToString(new File("C://config//Synonym_chinese.json"));
             //lines = FileUtils.readFileToString(new File("/data/Synonym_chinese.json"));
         } catch (IOException e) {
             e.printStackTrace();

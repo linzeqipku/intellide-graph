@@ -28,6 +28,7 @@ import java.util.*;
 
 import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.getDbMap;
 import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.getProjectList;
+import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.isNlpSolver;
 
 @CrossOrigin
 @RestController
@@ -49,14 +50,15 @@ public class Controller {
 
     @PostConstruct
     public void init() throws IOException, JSONException {
-        dbMap = getDbMap(context.graphDir);
-        NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get("Lucene"),context.dataDir+"Lucene");
+        dbMap = getDbMap(context.graphDir,context.jsonPath);
+
+       /* NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get("Lucene"),context.dataDir+"Lucene");
         nlQueryEngine.createIndex();
         nlQueryEngineMap.put("Lucene",nlQueryEngine);
         codeSearchMap.put("Lucene",new CodeSearch(dbMap.get("Lucene")));
         codeSearch = codeSearchMap.get("Lucene");
         docSearchMap.put("Lucene",new DocSearch(dbMap.get("Lucene"),context.dataDir+"Lucene"+"/doc_search_index",codeSearch));
-        navResultMap.put("Lucene",NavResult.fetch(dbMap.get("Lucene")));
+        navResultMap.put("Lucene",NavResult.fetch(dbMap.get("Lucene")));*/
 
        /* for (Map.Entry<String, GraphDatabaseService> entry : dbMap.entrySet()) {
             //nlQueryEngineMap.put(entry.getKey(),new NLQueryEngine(entry.getValue(),context.dataDir));
@@ -80,7 +82,7 @@ public class Controller {
     synchronized public List<SnowGraphProject> getProjects() throws IOException, JSONException {
         List<SnowGraphProject> projects ;
         //projects.add(new SnowGraphProject())
-        projects = getProjectList();
+        projects = getProjectList(context.jsonPath);
         return projects;
     }
 
@@ -95,10 +97,11 @@ public class Controller {
 
             if (r.getNodes().size()>0) {
                 System.out.println("success");
+                System.out.println(r.getNodes().toString());
                 return r;
             }
         }
-        if(query.contains("Who")||query.contains("what")||query.contains("when")||query.contains("which")||query.contains("list")){
+        if(isNlpSolver(query)){
             if(!project.contains("chinese")){
                 if(!nlQueryEngineMap.containsKey(project)){
                     NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project),context.dataDir+project);
@@ -123,7 +126,7 @@ public class Controller {
 
         }
         CodeSearch codeSearch = codeSearchMap.get(project);
-        System.out.println("success ling");
+        System.out.println("开始CodeSearch...");
         return codeSearch.search(query);
     }
 
@@ -140,7 +143,7 @@ public class Controller {
         }
 
         DocSearch docSearch = docSearchMap.get(project);
-        //System.out.println(docSearch.search(query));
+        //System.out.println(docSearch.search(query,project).toString());
         return docSearch.search(query,project);
     }
 
@@ -183,14 +186,16 @@ public class Controller {
 @Component
 class Context{
 
-    //Map<String,GraphDatabaseService> dbMap;
+
     String graphDir = null;
     String dataDir = null;
+    String jsonPath = null;
 
     @Autowired
     public Context(Conf conf){
         this.dataDir=conf.getDataDir();
         this.graphDir = conf.getGraphDir();
+        this.jsonPath = conf.getJsonPath();
     }
 
 }

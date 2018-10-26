@@ -124,7 +124,7 @@ public class JavaCodeGraphBuilder {
     }
 
     public static void main(String[] args) throws IOException {
-        JavaCodeGraphBuilder.process("I:\\Graph-Lucene","I:\\lucene-3.6.2");
+        JavaCodeGraphBuilder.process("F:\\graph-tsr4","F:\\TSR2\\code\\TSR\\src");
     }
 
 }

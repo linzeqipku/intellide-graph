@@ -32,6 +32,7 @@ public class DocxGraphBuilder {
         DocxGraphBuilder graphBuilder=new DocxGraphBuilder(graphDirPath,dataDir);
         graphBuilder.extractDocxTrees();
         graphBuilder.inserter.shutdown();
+        System.out.println("docx ok!");
     }
 
     private DocxGraphBuilder(String graphDirPath, String dataDir) throws IOException {

@@ -11,6 +11,7 @@ public class Conf {
 
     private String graphDir;
     private String dataDir;
+    private String jsonPath;
 
     public String getGraphDir() {
         return graphDir;
@@ -28,4 +29,11 @@ public class Conf {
         this.dataDir = dataDir;
     }
 
+    public String getJsonPath() {
+        return jsonPath;
+    }
+
+    public void setJsonPath(String jsonPath) {
+        this.jsonPath = jsonPath;
+    }
 }

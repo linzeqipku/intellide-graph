@@ -25,7 +25,7 @@ public class PathsJson {
     public static void readJson(){
         String lines = "";
         try {
-             lines = FileUtils.readFileToString(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"Path23.json"));
+             lines = FileUtils.readFileToString(new File("C://config//Path23.json"));
              //lines = FileUtils.readFileToString(new File("/data/Path23.json"));
         } catch (IOException e) {
             e.printStackTrace();

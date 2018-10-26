@@ -31,6 +31,7 @@ public class APILocater {
                     }
             }
             if (cur.size() > 0) {
+                //System.out.println("- " + word + "找到了rootNode");
                 rootNodeSet.add(cur);
                 //System.out.println(word + " node set size: " + cur.size());
             } else {

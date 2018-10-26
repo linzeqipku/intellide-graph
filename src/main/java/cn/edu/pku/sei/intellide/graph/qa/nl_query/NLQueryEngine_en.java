@@ -47,8 +47,7 @@ public class NLQueryEngine_en {
         }else {
             cyphers = NLPInterpreter.pipeline(queryString);
             if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
-            System.out.println(cyphers.size());
-            System.out.println(cyphers);
+
             String c = cyphers.get(0);
             String returnT;String whereT; String matchT;
             if (!c.contains("WHERE")){

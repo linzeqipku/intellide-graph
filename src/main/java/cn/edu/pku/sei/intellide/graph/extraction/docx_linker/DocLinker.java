@@ -170,7 +170,7 @@ public class DocLinker {
     }
 
     public static void main(String args[]){
-        DocLinker.process("D://graph.db-tokens");
+        DocLinker.process("F://graph-tsr4");
     }
 
 }

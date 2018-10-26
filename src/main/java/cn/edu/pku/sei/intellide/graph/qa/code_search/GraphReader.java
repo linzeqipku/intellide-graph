@@ -1,6 +1,8 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
+import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
+import cn.edu.pku.sei.intellide.graph.extraction.javacode_to_neo4j.JavaCodeGraphBuilder;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
@@ -29,13 +31,13 @@ public class GraphReader {
             ResourceIterator<Node> iterator = graphDb.getAllNodes().iterator();
             while(iterator.hasNext()){
                 Node node = iterator.next();
-                if (!node.hasProperty("tokens"))
+                if (!node.hasProperty(CodeTokenizer.CODE_TOKENS))
                     continue;
 
                 MyNode myNode = new MyNode(node.getId());
-                myNode.fullName = (String)node.getProperty("fullName");
+                myNode.fullName = (String)node.getProperty(JavaCodeGraphBuilder.FULLNAME);
                 id2NodeMap.put(node.getId(), myNode);
-                String tokenString = (String)node.getProperty("tokens");
+                String tokenString = (String)node.getProperty(CodeTokenizer.CODE_TOKENS);
                 for (String s : tokenString.split(" "))
                     myNode.cnWordSet.add(s);
                 myNode.weight += 1.0 / myNode.cnWordSet.size();
@@ -48,7 +50,7 @@ public class GraphReader {
             ResourceIterator<Node> iterator = graphDb.getAllNodes().iterator();
             while(iterator.hasNext()){
                 Node node = iterator.next();
-                if (!node.hasProperty("tokens"))
+                if (!node.hasProperty(CodeTokenizer.CODE_TOKENS))
                     continue;
                 MyNode myNode = id2NodeMap.get(node.getId());
                 boolean hasDocRel = false; // whether has an edge to docs
@@ -58,7 +60,7 @@ public class GraphReader {
                     if (relation.isType(CodeMentionDetector.CODE_MENTION))
                         hasDocRel = true;
                     Node otherNode = relation.getOtherNode(node);
-                    if (otherNode.hasProperty("tokens")) {
+                    if (otherNode.hasProperty(CodeTokenizer.CODE_TOKENS)) {
                         MyNode otherMyNode = id2NodeMap.get(otherNode.getId());
                         myNode.neighbors.add(otherMyNode);
                     }

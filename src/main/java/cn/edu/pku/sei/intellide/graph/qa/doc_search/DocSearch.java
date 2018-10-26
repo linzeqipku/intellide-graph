@@ -108,12 +108,15 @@ public class DocSearch {
                 Node node=db.getNodeById(id);
                 Map map = new HashMap<>();
                 if(project.contains("chinese")){
+
                     map.put(DocxGraphBuilder.TITLE, getTitle(node));
                     map.put(DocxGraphBuilder.HTML, getHtml(node));
+                    //System.out.println(getHtml(node));
                 }
                 else{
                     map.put(StackOverflowGraphBuilder.QUESTION_TITLE,getTitle(node));
                     map.put("html",getHtml(node));
+                    //System.out.println(getHtml(node));
                 }
 
                 r.add(new Neo4jNode(Long.parseLong(doc.getField(ID_FIELD).stringValue()), node.getLabels().iterator().next().name(), map));
@@ -132,12 +135,15 @@ public class DocSearch {
                 Node node=db.getNodeById(id);
                 Map map = new HashMap<>();
                 if(project.contains("chinese")){
+                    //System.out.println(node.getLabels().toString());
                     map.put(DocxGraphBuilder.TITLE, getTitle(node));
                     map.put(DocxGraphBuilder.HTML, getHtml(node));
+                    //System.out.println(getHtml(node));
                 }
                 else{
                     map.put(StackOverflowGraphBuilder.QUESTION_TITLE,getTitle(node));
                     map.put("html",getHtml(node));
+                    //System.out.println(getHtml(node));
                 }
 
                 r.add(new Neo4jNode(Long.parseLong(doc.getField(ID_FIELD).stringValue()), node.getLabels().iterator().next().name(), map));
@@ -161,6 +167,7 @@ public class DocSearch {
 
     private String getTitle(Node node){
         if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+            //System.out.println("ooooooo");
             String r="";
             r+=(String) node.getProperty(DocxGraphBuilder.TITLE);
             Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.INCOMING).iterator();
@@ -168,6 +175,7 @@ public class DocSearch {
                 Relationship rel=rels.next();
                 r=getTitle(rel.getStartNode())+"/"+r;
             }
+            //System.out.println(r);
             return r;
         }
         //TODO
@@ -186,6 +194,7 @@ public class DocSearch {
 
     private String getHtml(Node node){
         if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+            //System.out.println("Dffdfffgg");
             String r="";
             r+=node.getProperty(DocxGraphBuilder.HTML);
             Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.OUTGOING).iterator();

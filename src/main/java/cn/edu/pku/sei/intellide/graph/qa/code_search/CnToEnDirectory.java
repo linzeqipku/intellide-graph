@@ -15,10 +15,11 @@ public class CnToEnDirectory {
 
     static private Set<Pair<String,String>> directory=new HashSet<>();
 
+
     static {
         List<String> lines;
         try {
-            lines= FileUtils.readLines(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"cn2en.txt"),"utf-8");
+            lines= FileUtils.readLines(new File("C://config//cn2en.txt"),"utf-8");
             //lines= FileUtils.readLines(new File("/data/cn2en.txt"),"utf-8");
             for (String line:lines){
                 String[] eles=line.trim().split("\\s+");

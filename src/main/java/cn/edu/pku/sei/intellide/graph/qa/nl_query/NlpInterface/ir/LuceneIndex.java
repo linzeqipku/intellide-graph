@@ -85,7 +85,7 @@ public class LuceneIndex {
             try {
                 reader = DirectoryReader.open(FSDirectory.open(Paths.get(dataDirPath+"/index")));
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
             }
             indexSearcher = new IndexSearcher(reader);
@@ -105,7 +105,7 @@ public class LuceneIndex {
         try {
             topDocs = indexSearcher.search(query,10);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+
             e.printStackTrace();
         }
         //System.out.println(topDocs.scoreDocs.length);
@@ -114,7 +114,7 @@ public class LuceneIndex {
             try {
                 document = indexSearcher.doc(scoreDoc.doc);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+
                 e.printStackTrace();
             }
 //            LuceneSearchResult result = new LuceneSearchResult(Long.parseLong(document.get("id")),

@@ -19,8 +19,7 @@ public class CnToEnDirectory {
     static {
         List<String> lines;
         try {
-            lines= FileUtils.readLines(new File("C://config//cn2en.txt"),"utf-8");
-            //lines= FileUtils.readLines(new File("/data/cn2en.txt"),"utf-8");
+            lines= FileUtils.readLines(new File(CnToEnDirectory.class.getResource("ch2en.txt").getPath()),"utf-8");
             for (String line:lines){
                 String[] eles=line.trim().split("\\s+");
                 if (eles.length<2)

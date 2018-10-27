@@ -1,9 +1,9 @@
 package cn.edu.pku.sei.intellide.graph.qa.doc_search;
 
-import cn.edu.pku.sei.intellide.graph.extraction.code_mention_detector.CodeMentionDetector;
-import cn.edu.pku.sei.intellide.graph.extraction.code_tokenizer.CodeTokenizer;
-import cn.edu.pku.sei.intellide.graph.extraction.docx_to_neo4j.DocxGraphBuilder;
-import cn.edu.pku.sei.intellide.graph.extraction.stackoverflow_to_neo4j.StackOverflowGraphBuilder;
+import cn.edu.pku.sei.intellide.graph.extraction.code_mention.CodeMentionExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.qa.StackOverflowExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.html.HtmlExtractor;
 import cn.edu.pku.sei.intellide.graph.qa.code_search.CodeSearch;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jNode;
 import org.apache.commons.lang3.StringUtils;
@@ -79,7 +79,7 @@ public class DocSearch {
         try (Transaction tx=db.beginTx()) {
             for (Neo4jNode codeNode:codeNodes){
                 Node node=db.getNodeById(codeNode.getId());
-                Iterator<Relationship> rels=node.getRelationships(CodeMentionDetector.CODE_MENTION,Direction.OUTGOING).iterator();
+                Iterator<Relationship> rels=node.getRelationships(CodeMentionExtractor.CODE_MENTION,Direction.OUTGOING).iterator();
                 Set<Long> tmpSet=new HashSet<>();
                 while (rels.hasNext()){
                     Relationship rel=rels.next();
@@ -97,7 +97,7 @@ public class DocSearch {
         ireader = DirectoryReader.open(directory);
         isearcher = new IndexSearcher(ireader);
         parser = new QueryParser(CONTENT_FIELD, analyzer);
-        Query query = parser.parse(StringUtils.join(CodeTokenizer.tokenization(queryString)," "));
+        Query query = parser.parse(StringUtils.join(TokenExtractor.tokenization(queryString)," "));
         ScoreDoc[] hits = isearcher.search(query, 1000).scoreDocs;
         try (Transaction tx=db.beginTx()) {
             for (int i = 0; i < hits.length; i++) {
@@ -109,12 +109,12 @@ public class DocSearch {
                 Map map = new HashMap<>();
                 if(project.contains("chinese")){
 
-                    map.put(DocxGraphBuilder.TITLE, getTitle(node));
-                    map.put(DocxGraphBuilder.HTML, getHtml(node));
+                    map.put(HtmlExtractor.TITLE, getTitle(node));
+                    map.put(HtmlExtractor.HTML, getHtml(node));
                     //System.out.println(getHtml(node));
                 }
                 else{
-                    map.put(StackOverflowGraphBuilder.QUESTION_TITLE,getTitle(node));
+                    map.put(StackOverflowExtractor.QUESTION_TITLE,getTitle(node));
                     map.put("html",getHtml(node));
                     //System.out.println(getHtml(node));
                 }
@@ -136,12 +136,12 @@ public class DocSearch {
                 Map map = new HashMap<>();
                 if(project.contains("chinese")){
                     //System.out.println(node.getLabels().toString());
-                    map.put(DocxGraphBuilder.TITLE, getTitle(node));
-                    map.put(DocxGraphBuilder.HTML, getHtml(node));
+                    map.put(HtmlExtractor.TITLE, getTitle(node));
+                    map.put(HtmlExtractor.HTML, getHtml(node));
                     //System.out.println(getHtml(node));
                 }
                 else{
-                    map.put(StackOverflowGraphBuilder.QUESTION_TITLE,getTitle(node));
+                    map.put(StackOverflowExtractor.QUESTION_TITLE,getTitle(node));
                     map.put("html",getHtml(node));
                     //System.out.println(getHtml(node));
                 }
@@ -154,23 +154,23 @@ public class DocSearch {
     }
 
     private String getIndexStr(Node node){
-        if (node.hasLabel(DocxGraphBuilder.DOCX))
-            return StringUtils.join(CodeTokenizer.tokenization((String) node.getProperty(DocxGraphBuilder.CONTENT))," ");
+        if (node.hasLabel(HtmlExtractor.DOCX))
+            return StringUtils.join(TokenExtractor.tokenization((String) node.getProperty(HtmlExtractor.CONTENT))," ");
         //TODO
-        if(node.hasLabel(StackOverflowGraphBuilder.QUESTION))
-            return StringUtils.join(CodeTokenizer.tokenization((String) node.getProperty(StackOverflowGraphBuilder.QUESTION_BODY))," ");
-        if(node.hasLabel(StackOverflowGraphBuilder.ANSWER))
-            return StringUtils.join(CodeTokenizer.tokenization((String) node.getProperty(StackOverflowGraphBuilder.ANSWER_BODY))," ");
+        if(node.hasLabel(StackOverflowExtractor.QUESTION))
+            return StringUtils.join(TokenExtractor.tokenization((String) node.getProperty(StackOverflowExtractor.QUESTION_BODY))," ");
+        if(node.hasLabel(StackOverflowExtractor.ANSWER))
+            return StringUtils.join(TokenExtractor.tokenization((String) node.getProperty(StackOverflowExtractor.ANSWER_BODY))," ");
 
         return null;
     }
 
     private String getTitle(Node node){
-        if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+        if (node.hasLabel(HtmlExtractor.DOCX)) {
             //System.out.println("ooooooo");
             String r="";
-            r+=(String) node.getProperty(DocxGraphBuilder.TITLE);
-            Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.INCOMING).iterator();
+            r+=(String) node.getProperty(HtmlExtractor.TITLE);
+            Iterator<Relationship> rels=node.getRelationships(HtmlExtractor.SUB_DOCX_ELEMENT, Direction.INCOMING).iterator();
             if (rels.hasNext()){
                 Relationship rel=rels.next();
                 r=getTitle(rel.getStartNode())+"/"+r;
@@ -179,10 +179,10 @@ public class DocSearch {
             return r;
         }
         //TODO
-        if(node.hasLabel(StackOverflowGraphBuilder.QUESTION)){
+        if(node.hasLabel(StackOverflowExtractor.QUESTION)){
             String r ="";
-            r=(String) node.getProperty(StackOverflowGraphBuilder.QUESTION_TITLE);
-            /*Iterator<Relationship> rels = node.getRelationships(StackOverflowGraphBuilder.HAVE_ANSWER,Direction.INCOMING).iterator();
+            r=(String) node.getProperty(StackOverflowExtractor.QUESTION_TITLE);
+            /*Iterator<Relationship> rels = node.getRelationships(StackOverflowExtractor.HAVE_ANSWER,Direction.INCOMING).iterator();
             if(rels.hasNext()){
                 Relationship rel = rels.next();
                 r = getTitle(rel.getStartNode())+"/"+r;
@@ -193,15 +193,15 @@ public class DocSearch {
     }
 
     private String getHtml(Node node){
-        if (node.hasLabel(DocxGraphBuilder.DOCX)) {
+        if (node.hasLabel(HtmlExtractor.DOCX)) {
             //System.out.println("Dffdfffgg");
             String r="";
-            r+=node.getProperty(DocxGraphBuilder.HTML);
-            Iterator<Relationship> rels=node.getRelationships(DocxGraphBuilder.SUB_DOCX_ELEMENT, Direction.OUTGOING).iterator();
+            r+=node.getProperty(HtmlExtractor.HTML);
+            Iterator<Relationship> rels=node.getRelationships(HtmlExtractor.SUB_DOCX_ELEMENT, Direction.OUTGOING).iterator();
             Map<Integer,String> subNodes=new HashMap<>();
             while (rels.hasNext()){
                 Relationship rel=rels.next();
-                int num= (int) rel.getProperty(DocxGraphBuilder.SERIAL_NUMBER);
+                int num= (int) rel.getProperty(HtmlExtractor.SERIAL_NUMBER);
                 subNodes.put(num,getHtml(rel.getEndNode()));
             }
             int i=0;
@@ -212,11 +212,11 @@ public class DocSearch {
             return r;
         }
         //TODO
-        if(node.hasLabel(StackOverflowGraphBuilder.QUESTION) || node.hasLabel(StackOverflowGraphBuilder.ANSWER)){
+        if(node.hasLabel(StackOverflowExtractor.QUESTION) || node.hasLabel(StackOverflowExtractor.ANSWER)){
             String r = "";
-            //r+=node.getProperty(StackOverflowGraphBuilder.QUESTION_BODY);
-            r+=node.getProperty(StackOverflowGraphBuilder.ANSWER_BODY);
-            Iterator<Relationship> rels=node.getRelationships(StackOverflowGraphBuilder.HAVE_ANSWER,Direction.OUTGOING).iterator();
+            //r+=node.getProperty(StackOverflowExtractor.QUESTION_BODY);
+            r+=node.getProperty(StackOverflowExtractor.ANSWER_BODY);
+            Iterator<Relationship> rels=node.getRelationships(StackOverflowExtractor.HAVE_ANSWER,Direction.OUTGOING).iterator();
             while(rels.hasNext()){
                 Relationship rel = rels.next();
                 r += getHtml(rel.getEndNode());

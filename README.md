@@ -116,7 +116,7 @@
 
 为了实现一个KnowledgeExtractor，首先我们需要定义数据模型. 例如，在JavaExtractor中，我们这么定义数据模型：
 
-    ```
+```
     public static final Label CLASS = Label.label("Class");  //定义一种类型的实体：类/接口
     public static final Label METHOD = Label.label("Method");  //定义一种类型的实体：方法
     public static final Label FIELD = Label.label("Field");  //定义一种类型的实体：域
@@ -149,4 +149,11 @@
     public static final String IS_CONSTRUCTOR="isConstructor";
     public static final String IS_STATIC="isStatic";
     public static final String IS_SYNCHRONIZED="isSynchronized";
-    ```
+```
+
+由于C#和Java同为面向对象编程语言，其成分基本一致，无需给C#设计一套新的数据模型，直接使用这套Java的数据模型即可.
+因此，我们的主要任务是对C#源代码数据进行静态分析，按照这一数据模型抽取出实体和关联关系，并将其写入到图数据库中.
+
+在实现JavaExtractor时，我们使用Eclipse AST Parser对Java源代码进行解析.
+然而，目前还没有比较成熟的可以解析C#源代码的Java工具包可以直接拿来用.
+一种妥协方案是：可以先在外部使用其它语言的C# Parser（如[C# Parser and CodeDOM](http://www.inevitablesoftware.com/Products.aspx)）对C#源代码进行解析，并将抽取出来的实体与关联关系存储为json文件；CSharpExtractor读取该json文件，并将其内容写入到neo4j图数据库中.

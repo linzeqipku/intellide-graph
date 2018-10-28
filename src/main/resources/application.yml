@@ -1,0 +1,4 @@
+server:
+  graphDir: F:/GraphDataBase/
+  dataDir: F:/tmp/tem/
+  infoDir: F:/project-info.json

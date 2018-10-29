@@ -1,16 +1,20 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.rules;
 
+import cn.edu.pku.sei.intellide.graph.qa.code_search.CnToEnDirectory;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.config.Config;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.schema.GraphEdgeType;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.schema.GraphPath;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.schema.GraphSchema;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,21 +26,15 @@ public class PathsJson {
     public static String nodeName[] = new String[100];
     public static String edgeName[] = new String[100];
     public static void readJson(){
-        String lines = "";
+        String content = "";
         try {
-            String filepath = PathsJson.class.getResource("/Path23.json").getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            //filepath = new File(filepath).getParentFile().getPath();
-            filepath = filepath+"\\config\\Path23.json";
-            filepath = filepath.substring(6);
-             lines = FileUtils.readFileToString(new File(filepath));
-             //lines = FileUtils.readFileToString(new File("/data/Path23.json"));
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/Path23.json");
+            content = StringUtils.join(IOUtils.readLines(in, "utf-8"),"\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            JsonArr = new JSONArray(lines);
+            JsonArr = new JSONArray(content);
         } catch (JSONException e) {
             e.printStackTrace();
         }

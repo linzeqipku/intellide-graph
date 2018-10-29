@@ -59,7 +59,7 @@ public class Controller {
     synchronized public Neo4jSubGraph codeSearch(String query, String project){
 
         if(project.contains("chinese")){
-            NLQueryEngine nlQueryEngine = new NLQueryEngine(dbMap.get(project), Context.dataDir+project);
+            NLQueryEngine nlQueryEngine = new NLQueryEngine(dbMap.get(project), Context.dataDir+'/'+project);
             nlQueryEngine.createIndex();
             Neo4jSubGraph r=nlQueryEngine.search(query);
 
@@ -72,7 +72,7 @@ public class Controller {
         if(isNlpSolver(query)){
             if(!project.contains("chinese")){
                 if(!nlQueryEngineMap.containsKey(project)){
-                    NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project), Context.dataDir+project);
+                    NLQueryEngine_en nlQueryEngine = new NLQueryEngine_en(dbMap.get(project), Context.dataDir+'/'+project);
                     nlQueryEngine.createIndex();
                 }
                 NLQueryEngine_en nlQueryEngine = nlQueryEngineMap.get(project);
@@ -86,7 +86,7 @@ public class Controller {
         }
 
         if(!dbMap.containsKey(project)) {
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir + project));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+'/'+project));
             dbMap.put(project,db);
         }
         if(!codeSearchMap.containsKey(project)){
@@ -101,13 +101,13 @@ public class Controller {
     @RequestMapping(value = "/docSearch", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public List<Neo4jNode> docSearch(String query, String project) throws IOException, ParseException {
         if(!dbMap.containsKey(project)) {
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir + project));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+'/'+project));
             dbMap.put(project,db);
         }
         if(!docSearchMap.containsKey(project)){
             codeSearchMap.put(project,new CodeSearch(dbMap.get(project)));
             codeSearch = codeSearchMap.get(project);
-            docSearchMap.put(project,new DocSearch(dbMap.get(project), Context.dataDir+project+"/doc_search_index",codeSearch));
+            docSearchMap.put(project,new DocSearch(dbMap.get(project), Context.dataDir+'/'+project+"/doc_search_index",codeSearch));
         }
 
         DocSearch docSearch = docSearchMap.get(project);
@@ -119,7 +119,7 @@ public class Controller {
     synchronized public NavResult nav(String project) {
         //System.out.println(project);
         if(!dbMap.containsKey(project)) {
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+ project));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+'/'+project));
             dbMap.put(project,db);
         }
         if(!navResultMap.containsKey(project)){
@@ -134,7 +134,7 @@ public class Controller {
     @RequestMapping(value = "/relationList", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public List<Neo4jRelation> relationList(long id, String project){
         if(!dbMap.containsKey(project)){
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir + project));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+'/'+project));
             dbMap.put(project,db);
         }
         return Neo4jRelation.getNeo4jRelationList(id,dbMap.get(project));
@@ -143,7 +143,7 @@ public class Controller {
     @RequestMapping(value = "/node", method = {RequestMethod.GET,RequestMethod.POST})
     synchronized public Neo4jNode node(long id, String project){
         if(!dbMap.containsKey(project)){
-            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir + project));
+            GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(Context.graphDir+'/'+project));
             dbMap.put(project,db);
         }
         return Neo4jNode.get(id,dbMap.get(project));

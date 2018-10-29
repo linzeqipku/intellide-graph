@@ -104,7 +104,10 @@ public class JavaExtractor extends KnowledgeExtractor {
         parser.setCompilerOptions(options);
         parser.setBindingsRecovery(true);
         BatchInserter inserter = this.getInserter();
-        parser.createASTs(srcPaths, null, new String[]{}, new FileASTRequestor() {
+        String[] encodings = new String[srcPaths.length];
+        for (int i=0;i<srcPaths.length;i++)
+            encodings[i] = "utf-8";
+        parser.createASTs(srcPaths, encodings, new String[]{}, new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit javaUnit) {
                 try {

@@ -1,15 +1,19 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules;
 
+import cn.edu.pku.sei.intellide.graph.qa.code_search.CnToEnDirectory;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphSchema;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,20 +33,14 @@ public class SynonymJson {
         }
     }
     public static void readJson() throws JSONException {
-        String lines = "";
+        String content = "";
         try {
-            String filepath = SynonymJson.class.getResource("/Synonym_chinese.json").getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            //filepath = new File(filepath).getParentFile().getPath();
-            filepath = filepath+"\\config\\Synonym_chinese.json";
-            filepath = filepath.substring(6);
-            lines = FileUtils.readFileToString(new File(filepath));
-            //lines = FileUtils.readFileToString(new File("/data/Synonym_chinese.json"));
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/Synonym_chinese.json");
+            content = StringUtils.join(IOUtils.readLines(in, "utf-8"), "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        JsonObj = new JSONObject(lines);
+        JsonObj = new JSONObject(content);
         for (int i = 0; i < JsonObj.getJSONArray("node").length(); i++){
             JSONObject obj = JsonObj.getJSONArray("node").getJSONObject(i);
             JSONArray nodeArr = obj.getJSONArray("nodeName");

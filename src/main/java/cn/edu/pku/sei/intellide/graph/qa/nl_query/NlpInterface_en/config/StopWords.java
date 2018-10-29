@@ -1,10 +1,13 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.config;
 
+import cn.edu.pku.sei.intellide.graph.qa.code_search.CnToEnDirectory;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.tartarus.snowball.ext.EnglishStemmer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,15 +19,8 @@ public class StopWords {
     static {
         List<String> lines=new ArrayList<>();
         try {
-            String filepath = StopWords.class.getResource("/stopwords_lcy.txt").getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            //filepath = new File(filepath).getParentFile().getPath();
-            filepath = filepath+"\\config\\stopwords_lcy.txt";
-            filepath = filepath.substring(6);
-            lines= FileUtils.readLines(new File(filepath),"utf-8");
-            //System.out.println(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"stopwords_lcy.txt");
-            //lines= FileUtils.readLines(new File("/data/stopwords_lcy.txt"),"utf-8");
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/stopwords_lcy.txt");
+            lines= IOUtils.readLines(in, "utf-8");
         } catch (IOException e) {
             e.printStackTrace();
         }

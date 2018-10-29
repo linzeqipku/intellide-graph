@@ -92,44 +92,4 @@ public class JavaMethodInfo {
         map.put(JavaExtractor.PARAM_TYPE_STR, params);
         return inserter.createNode(map, JavaExtractor.METHOD);
     }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public IMethodBinding getMethodBinding() {
-        return methodBinding;
-    }
-
-    public String getBelongTo() {
-        return belongTo;
-    }
-
-    public long getNodeId() {
-        return nodeId;
-    }
-
-    public String getFullParams() {
-        return fullParams;
-    }
-
-    public String getFullReturnType() {
-        return fullReturnType;
-    }
-
-    public String getThrowTypes() {
-        return throwTypes;
-    }
-
-    public String getFullVariables() {
-        return fullVariables;
-    }
-
-    public Set<IMethodBinding> getMethodCalls() {
-        return methodCalls;
-    }
-
-    public String getFieldAccesses() {
-        return fieldAccesses;
-    }
 }

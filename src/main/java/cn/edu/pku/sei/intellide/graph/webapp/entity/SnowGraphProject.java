@@ -45,7 +45,7 @@ public class SnowGraphProject {
         //File jsonFile = ResourceUtils.getFile(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath()+"/project-final.json");
         File jsonFile = ResourceUtils.getFile(jsonPath);
         //File jsonFile = ResourceUtils.getFile("/data/project-final.json");
-        String json = FileUtils.readFileToString(jsonFile);
+        String json = FileUtils.readFileToString(jsonFile,"utf-8");
         JSONArray jsonArray = new JSONArray(json);
         for (int i = 0; i<jsonArray.length();i++) {
             JSONObject jobj = jsonArray.getJSONObject(i);
@@ -62,7 +62,7 @@ public class SnowGraphProject {
         Map<String, GraphDatabaseService> dbMap1 = new LinkedHashMap<>();
 
         File jsonFile = ResourceUtils.getFile(jsonPath);
-        String json = FileUtils.readFileToString(jsonFile);
+        String json = FileUtils.readFileToString(jsonFile,"utf-8");
         JSONArray jsonArray = new JSONArray(json);
 
         for(int i=0;i<jsonArray.length();i++){

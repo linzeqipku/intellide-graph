@@ -57,19 +57,4 @@ public class JavaClassInfo {
         return inserter.createNode(map, JavaExtractor.CLASS);
     }
 
-    public String getFullName() {
-        return fullName;
-    }
-
-    public String getSuperClassType() {
-        return superClassType;
-    }
-
-    public String getSuperInterfaceTypes() {
-        return superInterfaceTypes;
-    }
-
-    public long getNodeId() {
-        return nodeId;
-    }
 }

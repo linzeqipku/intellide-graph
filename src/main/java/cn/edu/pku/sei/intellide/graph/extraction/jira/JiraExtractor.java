@@ -135,7 +135,7 @@ public class JiraExtractor extends KnowledgeExtractor{
                                         if (patchNodeMap.containsKey(patchId))
                                             try {
                                                 try (Transaction tx = db.beginTx()) {
-                                                    patchNodeMap.get(patchId).setProperty(JiraExtractor.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder));
+                                                    patchNodeMap.get(patchId).setProperty(JiraExtractor.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder,"utf-8"));
                                                     tx.success();
                                                 }
                                             } catch (IOException e) {

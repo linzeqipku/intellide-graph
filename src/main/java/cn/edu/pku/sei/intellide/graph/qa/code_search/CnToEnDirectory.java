@@ -2,11 +2,13 @@ package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,15 +21,8 @@ public class CnToEnDirectory {
     static {
         List<String> lines;
         try {
-            String filepath = CnToEnDirectory.class.getResource("/cn2en.txt").getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            filepath = new File(filepath).getParentFile().getPath();
-            //filepath = new File(filepath).getParentFile().getPath();
-            filepath = filepath+"\\config\\cn2en.txt";
-            filepath = filepath.substring(6);
-            //System.out.println(filepath);
-            lines= FileUtils.readLines(new File(filepath),"utf-8");
-            //System.out.println(CnToEnDirectory.class.getResource("/cn2en.txt").getPath());
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/cn2en.txt");
+            lines= IOUtils.readLines(in, "utf-8");
             for (String line:lines){
                 String[] eles=line.trim().split("\\s+");
                 if (eles.length<2)

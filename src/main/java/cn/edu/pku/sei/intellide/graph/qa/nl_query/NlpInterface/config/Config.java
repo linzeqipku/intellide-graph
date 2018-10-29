@@ -17,7 +17,7 @@ public class Config {
     static {
         List<String> lines = new ArrayList<>();
         try {
-            lines = FileUtils.readLines(new File( cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath() + "conf"));
+            lines = FileUtils.readLines(new File( cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath() + "conf"),"utf-8");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

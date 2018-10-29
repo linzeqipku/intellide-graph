@@ -1,5 +1,11 @@
 # 软件项目知识图谱的自动构建与智能问答
 
+## 编译构建
+
+```
+mvn package
+```
+
 ## 数据准备
 
 1. Java源代码数据
@@ -27,7 +33,7 @@
     配置文件的示例如下：
     
     ```
-    graphDir: E:/graph.db  # 知识图谱的输出文件夹路径
+    graphDir: E:/graph.db  # 知识图谱的输出文件夹路径，如果需要中文支持，该路径需要由"-chinese"来结尾
     
     # 依次执行如下数据解析插件
     cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor: E:/data/src
@@ -44,7 +50,7 @@
  2. 运行如下命令，自动生成知识图谱
  
      ```
-     java -Dfile.encoding=utf-8 -jar intellide-graph.jar -g {yml_config_path}
+     java -jar intellide-graph.jar -gen {yml_config_path}
      ```
      
      运行完毕之后，可以在配置文件中所指定的输出文件夹路径中生成neo4j图数据库格式的知识图谱.
@@ -75,21 +81,24 @@
     编辑intellide-graph.jar中的application.yml文件，例如：
     
     ```
-    server:
-        graphDir: E:/graphs/
-        dataDir: E:/tmp/  # 临时文件存储路径
-        infoDir: E:/graphs/graphs.json  #知识图谱描述文件
+    server.port=8004
+    
+    graphDir= E:/graphs/
+    dataDir= E:/tmp/  # 临时文件存储路径
+    infoDir= E:/graphs/graphs.json  #知识图谱描述文件
     ```
     
 2. 运行如下命令，启动后端服务器：
 
     ```
-    java -Xms1024m -Xmx4096m -XX:MaxPermSize=2048m -XX:MaxNewSize=2048m -Dfile.encoding=utf-8 -jar intellide-graph.jar -e
+    java -Xms1024m -Xmx4096m -XX:MaxPermSize=2048m -XX:MaxNewSize=2048m -jar intellide-graph.jar -exec
     ```
     
 3. 启动前端服务器
 
     前端项目：[woooking/snowview](https://github.com/woooking/snowview) (intelli-graph branch)
+    
+    在```src/config.ts```中配置后端服务器的URL
     
     编译项目：```npm install```
     

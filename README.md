@@ -78,7 +78,7 @@ mvn package
     ]
     ```
     
-    编辑intellide-graph.jar中的application.yml文件，例如：
+    编辑intellide-graph.jar中的BOOT-INF/classes/application.properties文件，例如：
     
     ```
     server.port=8004

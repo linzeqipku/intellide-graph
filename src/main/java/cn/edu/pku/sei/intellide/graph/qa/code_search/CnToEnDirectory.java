@@ -19,7 +19,15 @@ public class CnToEnDirectory {
     static {
         List<String> lines;
         try {
-            lines= FileUtils.readLines(new File(CnToEnDirectory.class.getResource("ch2en.txt").getPath()),"utf-8");
+            String filepath = CnToEnDirectory.class.getResource("/cn2en.txt").getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            //filepath = new File(filepath).getParentFile().getPath();
+            filepath = filepath+"\\config\\cn2en.txt";
+            filepath = filepath.substring(6);
+            //System.out.println(filepath);
+            lines= FileUtils.readLines(new File(filepath),"utf-8");
+            //System.out.println(CnToEnDirectory.class.getResource("/cn2en.txt").getPath());
             for (String line:lines){
                 String[] eles=line.trim().split("\\s+");
                 if (eles.length<2)

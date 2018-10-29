@@ -31,7 +31,13 @@ public class SynonymJson {
     public static void readJson() throws JSONException {
         String lines = "";
         try {
-            lines = FileUtils.readFileToString(new File("C://config//Synonym_chinese.json"));
+            String filepath = SynonymJson.class.getResource("/Synonym_chinese.json").getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            //filepath = new File(filepath).getParentFile().getPath();
+            filepath = filepath+"\\config\\Synonym_chinese.json";
+            filepath = filepath.substring(6);
+            lines = FileUtils.readFileToString(new File(filepath));
             //lines = FileUtils.readFileToString(new File("/data/Synonym_chinese.json"));
         } catch (IOException e) {
             e.printStackTrace();

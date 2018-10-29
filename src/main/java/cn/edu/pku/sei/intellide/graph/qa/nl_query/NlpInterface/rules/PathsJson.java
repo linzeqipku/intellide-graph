@@ -25,7 +25,14 @@ public class PathsJson {
     public static void readJson(){
         String lines = "";
         try {
-             lines = FileUtils.readFileToString(new File("C://config//Path23.json"));
+            String filepath = PathsJson.class.getResource("/Path23.json").getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            filepath = new File(filepath).getParentFile().getPath();
+            //filepath = new File(filepath).getParentFile().getPath();
+            filepath = filepath+"\\config\\Path23.json";
+            filepath = filepath.substring(6);
+            lines = FileUtils.readFileToString(new File(filepath));
+
              //lines = FileUtils.readFileToString(new File("/data/Path23.json"));
         } catch (IOException e) {
             e.printStackTrace();

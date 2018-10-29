@@ -6,6 +6,13 @@
 mvn package
 ```
 
+或者可以使用已编译好的jar包:
+
+```
+链接：https://pan.baidu.com/s/1uDLKt56avxbjjByAyXZskQ 
+提取码：irdj
+```
+
 ## 数据准备
 
 1. Java源代码数据

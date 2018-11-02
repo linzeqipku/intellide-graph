@@ -119,6 +119,8 @@ mvn package
 
 ## 基本使用方法
 
+- Onlie Demo: [http://106.75.143.22:3000/](http://106.75.143.22:3000/)
+
 - 选择感兴趣的软件项目，并进入其知识图谱主页
 
     ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/start.gif)
@@ -132,6 +134,11 @@ mvn package
 - 智能代码搜索
 
     ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/api_search.gif)
+    
+    - 点击页面上方的“智能问答”标签，进入智能代码搜索页面；
+    - 在搜索框中输入自然语言查询语句，系统会帮你找到与之相关的代码元素（类、接口、方法等），并给出它们之间的依赖关系图；
+    - 默认支持英文查询，但对于中文的知识图谱（以"-chinese"作为名字后缀的知识图谱），也支持中文查询；
+    - 代码搜索的基本原理：根据查询语句中的关键词与代码元素中的标识符以及注释中的关键词的匹配来找到候选的代码元素集合，之后根据它们之间的依赖关系远近选取出最合适的一个子图作为搜索结果.
     
 - 知识图谱的可视化浏览
 

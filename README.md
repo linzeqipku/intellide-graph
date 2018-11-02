@@ -173,3 +173,21 @@ mvn package
 在实现JavaExtractor时，我们使用Eclipse AST Parser对Java源代码进行解析.
 然而，目前还没有比较成熟的可以解析C#源代码的Java工具包可以直接拿来用.
 一种妥协方案是：可以先在外部使用其它语言的C# Parser（如[C# Parser and CodeDOM](http://www.inevitablesoftware.com/Products.aspx)）对C#源代码进行解析，并将抽取出来的实体与关联关系存储为json文件；CSharpExtractor读取该json文件，并将其内容写入到neo4j图数据库中.
+
+## 基本使用方法
+
+- 选择感兴趣的软件项目，并进入其知识图谱主页
+
+    ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/start.gif)
+    
+- 智能代码搜索
+
+    ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/code_search.gif)
+    
+- 知识图谱的可视化浏览
+
+    ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/surf.gif)
+    
+- 智能文档搜索
+
+    ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/doc_search.gif)

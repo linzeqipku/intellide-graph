@@ -1,7 +1,8 @@
 # 软件项目知识图谱的自动构建与智能问答
 
-1. [基本功能概览](#user-guide)
-2. [构建与部署](#install)
+- [基本功能概览](#user-guide)
+- [构建与部署](#install)
+- [FAQ](https://github.com/linzeqipku/intellide-graph/blob/master/docs/FAQ.md)
 
 <a name="user-guide"></a>
 ## 基本功能概览

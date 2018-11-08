@@ -4,10 +4,10 @@
 
 本系统的依赖环境包括：
 
-1. JRE 1.8+ (用于知识图谱的自动构建与后端服务器的运行)
+1. [Java](https://www.java.com/download/) 1.8+ (用于知识图谱的自动构建与后端服务器的运行)
 2. [Node.js](https://www.npmjs.com/) (用于前端服务器的运行)
-3. Maven 3.2+ (optional，用于从源代码开始编译构建)
-4. Python 3 (optional，用于word文档数据的预处理)
+3. [Maven](https://maven.apache.org/) 3.2+ (optional，用于从源代码开始编译构建)
+4. [Python](https://www.python.org/) 3 (optional，用于word文档数据的预处理)
 
 可以使用maven从源代码开始进行编译构建：
 

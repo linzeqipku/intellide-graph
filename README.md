@@ -7,7 +7,7 @@
 <a name="user-guide"></a>
 ## 基本功能概览
 
-- Onlie Demo: [http://106.75.143.22:3000/](http://106.75.143.22:3000/)
+- Onlie Demo: [http://106.75.143.22:3000/](http://snowgraph.tech:3000/)
 
 - 选择感兴趣的软件项目，并进入其知识图谱主页
 

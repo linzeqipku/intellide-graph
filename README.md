@@ -13,7 +13,7 @@
 
     ![](https://github.com/linzeqipku/intellide-graph/raw/master/docs/figures/start.gif)
     
-    - 进入 http://localhost:3000/ 后，首先看到的是简介页面；
+    - 首先看到的是简介页面；
     - 点击页面左侧的“use it”标签，可以看到目前已经部署的所有软件项目知识图谱的列表；
     - 点击某个项目，进入其知识图谱主页；
     - 进入知识图谱主页后，首先看到的是该知识图谱的基本统计信息，即：各种类型的实体分别有多少个，各种类型的关联关系分别有多少条；

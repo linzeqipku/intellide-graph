@@ -46,7 +46,7 @@ public class NLPInterpreter {
             for (Query query1 : queries) {
                 if (query1.nodes.size() == 0) continue;
                 List<Query> listq = new ArrayList<>();
-                listq.addAll(LinkAllNodes.process(query1));
+                listq.addAll(LinkAllNodes.getInstance(languageIdentifier).process(query1));
                 for (Query q : listq) {
                     Evaluator.evaluate(q);
                     if (q.score < -0.1) continue;

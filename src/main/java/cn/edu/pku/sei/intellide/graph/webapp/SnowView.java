@@ -27,7 +27,6 @@ public class SnowView {
             }
             parser.parseArgument(args);
             if (option.exec){
-                StanfordParser.getSingle();
                 SpringApplication.run(SnowView.class, args);
             }
             else if (option.genConfigPath != null){

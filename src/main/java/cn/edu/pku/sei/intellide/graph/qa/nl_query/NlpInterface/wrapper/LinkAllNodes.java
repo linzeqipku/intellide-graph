@@ -10,21 +10,42 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphPath;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphVertexType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LinkAllNodes {
-    public static Query query;
-    public static List<Query> queries;
-    public static int color[] = new int[100];
-    public static double dis[][] = new double[100][100];
-    public static int disi[][] = new int[100][100];
-    public static int disj[][] = new int[100][100];
-    public static double prim[] = new double[100];
-    public static int primi[] = new int[100];
-    public static int primj[] = new int[100];
-    public static int colors = 0;
-    public static List<Query> process(Query query){
-        LinkAllNodes.query = query;
+
+    private static Map<String, LinkAllNodes> instances = new HashMap<>();
+
+    public String languageIdentifier;
+    public Query query;
+    public List<Query> queries;
+    public int color[] = new int[100];
+    public double dis[][] = new double[100][100];
+    public int disi[][] = new int[100][100];
+    public int disj[][] = new int[100][100];
+    public double prim[] = new double[100];
+    public int primi[] = new int[100];
+    public int primj[] = new int[100];
+    public int colors = 0;
+
+    public synchronized static LinkAllNodes getInstance(String languageIdentifier){
+        LinkAllNodes instance = instances.get(languageIdentifier);
+        if (instance != null){
+            return instance;
+        }
+        instance = new LinkAllNodes(languageIdentifier);
+        instances.put(languageIdentifier, instance);
+        return instance;
+    }
+
+    private LinkAllNodes(String languageIdentifier){
+        this.languageIdentifier = languageIdentifier;
+    }
+
+    public List<Query> process(Query query){
+        this.query = query;
         queries = new ArrayList<>();
         for (int i = 0; i < query.nodes.size()+10; i++) {color[i] = -1; prim[i] = 1e10;}
         for (int i = 0; i < query.nodes.size()+10; i++)
@@ -41,7 +62,7 @@ public class LinkAllNodes {
         queries.add(query);
         return queries;
     }
-    public static void coloring(){
+    public void coloring(){
         for (int i = 0; i < query.nodes.size(); i++){
             if (color[query.nodes.get(i).id] < 0){
                 visit(query.nodes.get(i),colors);
@@ -49,7 +70,7 @@ public class LinkAllNodes {
             }
         }
     }
-    public static void visit(NLPNode node, int c){
+    public void visit(NLPNode node, int c){
         color[node.id] = c;
         for (NLPNode nextNode : node.nextNode){
             if (color[nextNode.id] < 0) visit(nextNode,c);
@@ -114,7 +135,7 @@ public class LinkAllNodes {
         }
         return 1e10;
     }
-    public static void MST(){
+    public void MST(){
         //distance between color
         for (int i = 0; i < colors; i++){
             dis[i][i] = 0;
@@ -155,7 +176,7 @@ public class LinkAllNodes {
             prim[x] = 0;
         }
     }
-    public static void linking(){
+    public void linking(){
         for (int i = 1; i < colors; i++){
             NLPNode nodei = query.nodes.get(primi[i]);
             NLPNode nodej = query.nodes.get(primj[i]);
@@ -186,7 +207,7 @@ public class LinkAllNodes {
                 GraphEdgeType edge = null;
                 for (GraphEdgeType edgeType : ((NLPVertexSchemaMapping) nodei.token.mapping).vertexType.outcomingsEdges){
                     if (edgeType.end.name.equals(((NLPVertexSchemaMapping) nodej.token.mapping).vertexType.name)){
-                        double tmp = TokenMapping.disTextf(edgeType.name,query);
+                        double tmp = TokenMapping.disTextf(edgeType.name,query, languageIdentifier);
                         if (max < tmp){
                             max = tmp;
                             edge = edgeType;
@@ -195,7 +216,7 @@ public class LinkAllNodes {
                 }
                 for (GraphEdgeType edgeType : ((NLPVertexSchemaMapping) nodej.token.mapping).vertexType.outcomingsEdges){
                     if (edgeType.end.name.equals(((NLPVertexSchemaMapping) nodei.token.mapping).vertexType.name)){
-                        double tmp = TokenMapping.disTextf(edgeType.name,query);
+                        double tmp = TokenMapping.disTextf(edgeType.name,query, languageIdentifier);
                         if (max < tmp){
                             max = tmp;
                             edge = edgeType;

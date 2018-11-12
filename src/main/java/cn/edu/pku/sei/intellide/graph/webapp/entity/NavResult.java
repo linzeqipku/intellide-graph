@@ -14,6 +14,7 @@ public class NavResult {
     public static NavResult fetch(GraphDatabaseService db){
         NavResult res=null;
         try (Transaction tx=db.beginTx()){
+            System.out.println(db.getAllNodes().iterator());
             int propertyTypeCount=0;
             for (String i:db.getAllPropertyKeys())
                 propertyTypeCount++;

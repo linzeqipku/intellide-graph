@@ -1,6 +1,7 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.StopWords;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -10,12 +11,14 @@ import java.util.*;
 
 public class CodeSearch {
 
+    private String languageIdentifier;
     private GraphDatabaseService db;
     private GraphReader graphReader;
     private APILocater locater;
 
-    public CodeSearch(GraphDatabaseService db){
+    public CodeSearch(GraphDatabaseService db, String languageIdentifier){
         this.db = db;
+        this.languageIdentifier = languageIdentifier;
         graphReader = new GraphReader(db);
         locater = new APILocater(graphReader);
     }
@@ -27,7 +30,7 @@ public class CodeSearch {
         Set<String> baseTokens = TokenExtractor.tokenization(queryString);
         Set<String> tokens = new HashSet<>();
         for (String token: baseTokens)
-            if (!StopWords.isStopWord(token))
+            if (!StopWords.getInstance(languageIdentifier).isStopWord(token))
                 tokens.add(token);
         //System.out.println("切词结果：" + tokens);
         MySubgraph subgraph = locater.query(tokens);
@@ -50,7 +53,7 @@ public class CodeSearch {
         Set<String> baseTokens = TokenExtractor.tokenization(queryString);
         Set<String> tokens = new HashSet<>();
         for (String token: baseTokens)
-            if (!StopWords.isStopWord(token))
+            if (!StopWords.getInstance(languageIdentifier).isStopWord(token))
                 tokens.add(token);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null){
@@ -61,10 +64,4 @@ public class CodeSearch {
         return new Neo4jSubGraph(nodes, new ArrayList<>(), db);
     }
 
-    public static void main(String[] args){
-        CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
-                new File("F:\\testdata\\graph.db-tokens")));
-        //System.out.println(StopWords.stopWords);
-        searcher.search("区域 游客");
-    }
 }

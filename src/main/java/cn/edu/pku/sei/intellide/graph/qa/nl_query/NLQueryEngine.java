@@ -4,34 +4,37 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.NLPInterpreter;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.ExtractModel;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
-import org.json.JSONException;
-import org.neo4j.cypher.internal.ExecutionEngine;
-import org.neo4j.cypher.internal.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.impl.core.NodeProxy;
-import org.neo4j.kernel.impl.util.BaseToObjectValueWriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
 
 public class NLQueryEngine {
 
+    private String languageIdentifier;
     private GraphDatabaseService db;
     private String dataDirPath;
 
-    public NLQueryEngine(GraphDatabaseService db, String dataDirPath){
+    public NLQueryEngine(GraphDatabaseService db, String dataDirPath, String languageIdentifier){
         this.db=db;
         this.dataDirPath = dataDirPath;
+        this.languageIdentifier = languageIdentifier;
         ExtractModel.db = db;
         ExtractModel.single = null;
         LuceneIndex.dataDirPath = dataDirPath;
     }
     public Neo4jSubGraph search(String queryString){
+
+        if (languageIdentifier.equals("english")&&!isNlpSolver(queryString)){
+            return new Neo4jSubGraph();
+        }
+
         queryString.replace("接口","接口类");
         ExtractModel.db = this.db;
         List<Long> nodes=new ArrayList<>();
@@ -49,7 +52,7 @@ public class NLQueryEngine {
             }
             cypherret = c;
         }else {
-            cyphers = NLPInterpreter.pipeline(queryString);
+            cyphers = NLPInterpreter.getInstance(languageIdentifier).pipeline(queryString);
             if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
             String c = cyphers.get(0);
             String returnT;String whereT; String matchT;
@@ -107,40 +110,21 @@ public class NLQueryEngine {
         }
         return ppp;
     }
-//    public Neo4jSubGraph search(String queryString){
-//        queryString.replace("接口","接口类");
-//        ExtractModel.db = this.db;
-//        List<Long> nodes=new ArrayList<>();
-//        List<Long> rels=new ArrayList<>();
-//        List<String> cyphers = null;
-//        if (queryString.matches("\\d+")){
-//            String c = "Match (n) where id(n)="+queryString+" return n, id(n), labels(n)";
-//            System.out.println(c);
-//            Result p = db.execute(c + " limit 30");
-//            while (p.hasNext()){
-//                Map m = p.next();
-//                nodes.add((Long)m.get("id(n)"));
-//            }
-//        }else {
-//            cyphers = NLPInterpreter.pipeline(queryString);
-//            if (cyphers==null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
-//            String c = cyphers.get(0);
-//            String returnT = c.substring(c.indexOf("RETURN")+7,c.length());
-//            String nodeid;
-//            if (!returnT.contains("labels")){
-//                nodeid = returnT.substring(0,returnT.indexOf("."));
-//                c = c.substring(0,c.indexOf("RETURN")+7) + String.format("%s,id(%s),labels(%s)",nodeid);
-//            }else nodeid = returnT.substring(0,returnT.indexOf(","));
-//            System.out.println(c);
-//            Result p = db.execute(c + " limit 30");
-//
-//            while (p.hasNext()) {
-//                Map m = p.next();
-//                nodes.add((Long) m.get("id("+nodeid+")"));
-//            }
-//        }
-//        return new Neo4jSubGraph(nodes,rels,db);
-//    }
+
+    private static boolean isNlpSolver(String query){
+        if(query.contains("Who")||query.contains("What")||query.contains("Which")||query.contains("When")||query.contains("List")){
+            return true;
+        }
+        if(query.contains("who")||query.contains("what")||query.contains("which")||query.contains("when")||query.contains("list")){
+            return true;
+        }
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(".*\\d+.*");
+        Matcher m = p.matcher(query);
+        if(m.matches()){
+            return true;
+        }
+        return false;
+    }
 
     public void createIndex(){
         if (new File(dataDirPath+"/index").exists())
@@ -152,16 +136,5 @@ public class NLQueryEngine {
             e.printStackTrace();
         }
     }
-    public static void main(String args[]){
-        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File("F:\\graph.db-tokens2"));
-        NLQueryEngine engine =  new NLQueryEngine(db,"E:\\tmp\\data_dir");
-        Scanner sc = new Scanner(System.in);
-        engine.search("列出\"发布通知\"有关的文档");
-        while (sc.hasNextLine()){
-            String s = sc.nextLine();
-            engine.search(s);
-        }
 
-        //engine.createIndex();
-    }
 }

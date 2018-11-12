@@ -18,7 +18,6 @@ import cn.edu.pku.sei.intellide.graph.extraction.qa.entity.QaUserInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.qa.entity.QuestionInfo;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

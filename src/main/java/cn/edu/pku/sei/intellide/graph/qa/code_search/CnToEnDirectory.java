@@ -1,12 +1,9 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
-import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -21,7 +18,7 @@ public class CnToEnDirectory {
     static {
         List<String> lines;
         try {
-            InputStream in = CnToEnDirectory.class.getResourceAsStream("/cn2en.txt");
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/nli/cn2en.txt");
             lines= IOUtils.readLines(in, "utf-8");
             for (String line:lines){
                 String[] eles=line.trim().split("\\s+");

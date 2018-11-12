@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public class TokensGenerator {
-    public static Query generator(String text){
+
+    public static Query generator(String text, String languageIdentifier){
         /*AST 匹配到*/
         Query query = new Query();
         boolean flag = false;
@@ -39,9 +40,9 @@ public class TokensGenerator {
         text = tmptext;
         query.text = text;
         long offset = -1;
-        List<NLPToken> set = StanfordParser.getSingle().runAllAnnotators(text);
+        List<NLPToken> set = StanfordParser.getInstance(languageIdentifier).runAllAnnotators(text);
         for (NLPToken token : set){
-            if (!StopWords.isStopWord(token.text)) {
+            if (!StopWords.getInstance(languageIdentifier).isStopWord(token.text)) {
                 token.roffset = token.offset;
                 offset++;
                 token.offset = offset;

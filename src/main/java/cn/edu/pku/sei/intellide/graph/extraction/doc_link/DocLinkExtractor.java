@@ -2,8 +2,7 @@ package cn.edu.pku.sei.intellide.graph.extraction.doc_link;
 
 import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import java.io.File;
+
 import java.util.*;
 
 /**

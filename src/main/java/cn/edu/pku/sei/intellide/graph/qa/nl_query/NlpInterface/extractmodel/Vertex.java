@@ -1,9 +1,5 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 public class Vertex {
 	
 	public long id;

@@ -13,7 +13,6 @@ import org.apache.poi.xslf.usermodel.*;
 
 import org.neo4j.graphdb.*;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
-import org.neo4j.unsafe.batchinsert.BatchInserters;
 
 
 public class PptxExtractor extends KnowledgeExtractor {

@@ -1,7 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
-import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface_en.config.StopWords;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -65,7 +64,7 @@ public class CodeSearch {
     public static void main(String[] args){
         CodeSearch searcher = new CodeSearch(new GraphDatabaseFactory().newEmbeddedDatabase(
                 new File("F:\\testdata\\graph.db-tokens")));
-        //System.out.println(StopWords.englishStopWords);
+        //System.out.println(StopWords.stopWords);
         searcher.search("区域 游客");
     }
 }

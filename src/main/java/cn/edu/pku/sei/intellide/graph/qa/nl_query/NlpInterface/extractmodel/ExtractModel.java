@@ -3,9 +3,7 @@ package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules.PathsJson;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.*;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-import java.io.File;
 import java.util.*;
 
 public class ExtractModel {

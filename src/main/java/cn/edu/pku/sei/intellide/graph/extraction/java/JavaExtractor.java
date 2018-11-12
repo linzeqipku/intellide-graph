@@ -11,7 +11,6 @@ import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
-import org.neo4j.unsafe.batchinsert.BatchInserters;
 
 import java.io.File;
 import java.io.IOException;

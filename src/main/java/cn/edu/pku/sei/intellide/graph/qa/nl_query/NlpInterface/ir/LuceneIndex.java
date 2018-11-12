@@ -1,6 +1,5 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir;
 
-import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.ExtractModel;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.Graph;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.Vertex;

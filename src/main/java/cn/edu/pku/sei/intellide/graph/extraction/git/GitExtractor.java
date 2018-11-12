@@ -17,7 +17,6 @@ import org.neo4j.graphdb.RelationshipType;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 public class GitExtractor extends KnowledgeExtractor {
 

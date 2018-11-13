@@ -13,28 +13,21 @@ public class ExtractModel {
     public GraphSchema graphSchema = null;
     int n = 0;
     int dis[][] = new int[100][100];
-    int dir[][] = new int[100][100];
     int fa[][] = new int[100][100];
     GraphEdgeType edgePath[][] = new GraphEdgeType[100][100];
     Map<Integer, String> id2str = new HashMap<>();
     Map<String, Integer> str2id = new HashMap<>();
 
     private ExtractModel() {
-        //db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(srcPath));
         graphSchema = new GraphSchema();
         graph = pipeline();
         floyd();
         addPreDefined();
-        //System.out.println("nodes  " +  graph.vertexes.size());
-        //System.out.println("edges  "+ graphSchema.vertexTypes.size());
-        //System.out.println("edges  "+ graphSchema.edgeTypes.size());
-        //for (Vertex vertex:graph.getAllVertexes()) System.out.println(vertex.name);
     }
 
     public static ExtractModel getSingle() {
         if (single != null) return single;
         single = new ExtractModel();
-        //single = new ExtractModel("F:\\0319NJN1");
         return single;
     }
 
@@ -64,8 +57,6 @@ public class ExtractModel {
             for (GraphEdgeType edgeType : edgeTypes) {
                 dis[str2id.get(edgeType.start.name)][str2id.get(edgeType.end.name)] = 1;
                 dis[str2id.get(edgeType.end.name)][str2id.get(edgeType.start.name)] = 1;
-//				dir[str2id.get(edgeType.start.name)][str2id.get(edgeType.end.name)] = 1;
-//				dir[str2id.get(edgeType.end.name)][str2id.get(edgeType.start.name)] = -1;
                 edgePath[str2id.get(edgeType.start.name)][str2id.get(edgeType.end.name)] = edgeType;
                 edgePath[str2id.get(edgeType.end.name)][str2id.get(edgeType.start.name)] = edgeType;
             }
@@ -134,7 +125,6 @@ public class ExtractModel {
                 for (Iterator<Label> o_iterator = node.getLabels().iterator(); o_iterator.hasNext(); ) {
                     Label label = o_iterator.next();
                     String node_type = label.name();
-                    //if (node_type.equals("GitCommit")) System.out.println("asd");
                     if (!GraphSchemaKeywords.getSingle().types.containsKey(node_type)) continue;
                     Object leftObj = node.getProperty(GraphSchemaKeywords.getSingle().types.get(node_type).getLeft());
                     Object rightObj = node.getProperty(GraphSchemaKeywords.getSingle().types.get(node_type).getRight());
@@ -176,7 +166,6 @@ public class ExtractModel {
                     for (GraphVertexType dstVertex : vertexType.outcomings.get(type)) {
                         if (!graphSchema.edgeTypes.containsKey(type)) graphSchema.edgeTypes.put(type, new HashSet<>());
                         graphSchema.edgeTypes.get(type).add(new GraphEdgeType(type, vertexType, dstVertex, true));
-                        //graphSchema.edgeTypes.get(type).add(new GraphEdgeType(type,dstVertex,vertexType,false));
                     }
                 }
             }

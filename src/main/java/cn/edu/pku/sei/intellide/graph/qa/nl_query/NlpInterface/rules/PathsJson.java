@@ -21,12 +21,11 @@ public class PathsJson {
     public static JSONArray JsonArr = null;
     public static GraphSchema graphSchema;
     public static String nodeName[] = new String[100];
-    public static String edgeName[] = new String[100];
 
     public static void readJson() {
         String content = "";
         try {
-            InputStream in = CnToEnDirectory.class.getResourceAsStream("/nli/Path23.json");
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/nli/Path.json");
             content = StringUtils.join(IOUtils.readLines(in, "utf-8"), "\n");
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,9 +42,8 @@ public class PathsJson {
         if (JsonArr == null) {
             readJson();
         }
-        List<GraphPath> ret = new ArrayList<>();
         for (int id = 0; id < JsonArr.length(); id++) {
-            JSONObject pathObj = null;
+            JSONObject pathObj;
             try {
                 pathObj = JsonArr.getJSONObject(id);
                 DFS(pathObj, 0);

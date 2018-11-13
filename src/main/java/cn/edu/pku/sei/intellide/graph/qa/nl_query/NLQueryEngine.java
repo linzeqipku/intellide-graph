@@ -1,7 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query;
 
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.NLPInterpreter;
-import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.ExtractModel;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class NLQueryEngine {
 
     private String languageIdentifier;
@@ -67,6 +67,7 @@ public class NLQueryEngine {
             cyphers = NLPInterpreter.createInstance(db, languageIdentifier).pipeline(queryString);
             if (cyphers == null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
             String c = cyphers.get(0);
+            log.debug("问句语义解析结果：" + c);
             String returnT;
             String whereT;
             String matchT;

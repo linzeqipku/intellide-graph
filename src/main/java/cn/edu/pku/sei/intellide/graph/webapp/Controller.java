@@ -50,6 +50,7 @@ public class Controller {
     @RequestMapping(value = "/codeSearch", method = {RequestMethod.GET, RequestMethod.POST})
     synchronized public Neo4jSubGraph codeSearch(String query, String project) {
 
+        log.info("==================================================");
         log.info("启动代码搜索，query: " + query);
 
         String languageIdentifier = "english";

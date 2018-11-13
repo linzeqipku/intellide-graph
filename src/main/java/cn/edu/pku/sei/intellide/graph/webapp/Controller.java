@@ -4,10 +4,13 @@ import cn.edu.pku.sei.intellide.graph.qa.code_search.CodeSearch;
 import cn.edu.pku.sei.intellide.graph.qa.doc_search.DocSearch;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NLQueryEngine;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.json.JSONException;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -25,6 +28,7 @@ import static cn.edu.pku.sei.intellide.graph.webapp.entity.SnowGraphProject.getP
 
 @CrossOrigin
 @RestController
+@Slf4j
 public class Controller {
 
     Map<String, CodeSearch> codeSearchMap = new LinkedHashMap<>();
@@ -45,6 +49,8 @@ public class Controller {
 
     @RequestMapping(value = "/codeSearch", method = {RequestMethod.GET, RequestMethod.POST})
     synchronized public Neo4jSubGraph codeSearch(String query, String project) {
+
+        log.info("启动代码搜索，query: " + query);
 
         String languageIdentifier = "english";
         if (project.contains("chinese")) {

@@ -1,9 +1,13 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import javafx.util.Pair;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+@Slf4j
 public class APILocater {
 
     GraphReader graphReader;
@@ -31,15 +35,11 @@ public class APILocater {
                     }
             }
             if (cur.size() > 0) {
-                //System.out.println("- " + word + "找到了rootNode");
+                log.debug("关键词:[" + word +"] 匹配到了 " + cur.size() + " 个代码实体.");
                 rootNodeSet.add(cur);
-                //System.out.println(word + " node set size: " + cur.size());
-            } else {
-                //System.out.println(word + " has relevant no node");
             }
         }
         if (rootNodeSet.size() == 0) {
-            //System.out.println("no matched nodes found");
             return null;
         }
         int minSize = Integer.MAX_VALUE;

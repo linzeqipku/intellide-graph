@@ -3,13 +3,17 @@ package cn.edu.pku.sei.intellide.graph.qa.code_search;
 import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.StopWords;
 import cn.edu.pku.sei.intellide.graph.webapp.entity.Neo4jSubGraph;
+import lombok.extern.slf4j.Slf4j;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 public class CodeSearch {
 
     private String languageIdentifier;
@@ -28,18 +32,17 @@ public class CodeSearch {
      * 对于一个query，首先切词为一个词袋，然后生成一个连通的子图
      */
     public Neo4jSubGraph search(String queryString) {
+        log.debug("启动模糊搜索.");
         Set<String> baseTokens = TokenExtractor.tokenization(queryString);
         Set<String> tokens = new HashSet<>();
         for (String token : baseTokens)
             if (!StopWords.getInstance(languageIdentifier).isStopWord(token))
                 tokens.add(token);
-        //System.out.println("切词结果：" + tokens);
+        log.debug("切词结果：" + tokens);
         MySubgraph subgraph = locater.query(tokens);
         if (subgraph == null) {
-            //System.out.println("codesearcher find no subgraph");
             subgraph = new MySubgraph();
         }
-        subgraph.print();
 
         List<Long> nodes = new ArrayList<>(subgraph.nodes);
         List<Long> rels = new ArrayList<>(subgraph.edges);

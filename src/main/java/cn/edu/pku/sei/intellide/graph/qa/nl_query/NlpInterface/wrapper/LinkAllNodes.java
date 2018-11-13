@@ -91,8 +91,6 @@ public class LinkAllNodes {
             if (!(node1.token.mapping instanceof NLPVertexMapping) && !(node2.token.mapping instanceof NLPVertexMapping))
                 delta = 0;
             if (node1.middle || node2.middle) delta += 10;
-//            if (node1.token.text.equals("what")) delta += 5;
-//            if (node2.token.text.equals("what")) delta += 5;
             if (((NLPVertexSchemaMapping) node1.token.mapping).vertexType.shortestPaths.keySet().contains(((NLPVertexSchemaMapping) node2.token.mapping).vertexType.name)) {
                 int step = ((NLPVertexSchemaMapping) node1.token.mapping).vertexType.shortestPaths.get(((NLPVertexSchemaMapping) node2.token.mapping).vertexType.name).edges.size();
 

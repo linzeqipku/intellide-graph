@@ -35,7 +35,7 @@ public class APILocater {
                     }
             }
             if (cur.size() > 0) {
-                log.debug("关键词:[" + word +"] 匹配到了 " + cur.size() + " 个代码实体.");
+                log.debug("关键词 [" + word +"] 匹配到了 " + cur.size() + " 个代码实体.");
                 rootNodeSet.add(cur);
             }
         }

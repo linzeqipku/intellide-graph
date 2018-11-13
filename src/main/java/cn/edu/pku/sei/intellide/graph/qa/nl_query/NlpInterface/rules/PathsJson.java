@@ -73,8 +73,8 @@ public class PathsJson {
                 path.edges.add(edge);
                 path.edgesDirect.add(direct);
                 for (int j = 1; j < t - 1; j++) {
-                    edgen = json.getJSONArray("relations").getJSONObject(t).getString("via");
-                    direct = json.getJSONArray("relations").getJSONObject(t).getBoolean("direct");
+                    edgen = json.getJSONArray("relations").getJSONObject(j).getString("via");
+                    direct = json.getJSONArray("relations").getJSONObject(j).getBoolean("direct");
                     if (direct)
                         edge = graphSchema.findGraphEdgeTypeByNameAndVertex(edgen, path.nodes.get(j - 1), path.nodes.get(j));
                     else

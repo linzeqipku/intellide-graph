@@ -11,6 +11,7 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules.SynonymJson
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphEdgeType;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphPath;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphSchema;
+import lombok.extern.slf4j.Slf4j;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -20,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 public class TokenMapping {
 
     public static double threshold = 0.5;
@@ -37,6 +39,7 @@ public class TokenMapping {
             for (String edgeTypeName : graphSchema.edgeTypes.keySet()) {
                 double similar = isSimilar(token.text, edgeTypeName, "relation", languageIdentifier);
                 if (similar > thresholdEdge && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score*/))) {
+                    log.debug("Token [" + token.text + "] can be mapped to EdgeType [" + edgeTypeName + "] with score " + similar);
                     NLPMapping mapping = new NLPEdgeSchemaMapping(edgeTypeName, null, token, similar);
                     if (token.mapping == null) {
                         token.mappingList.add(mapping);
@@ -47,16 +50,14 @@ public class TokenMapping {
                         token.mappingList.add(mapping);
                         continue;
                     }
-                    //token.mappingList.clear();
                     token.mapping = mapping;
                     token.mappingList.add(mapping);
-                    //break;
                 }
             }
-            //if (token.mapping != null) continue;
             for (String pathName : graphSchema.paths.keySet()) {
                 double similar = isSimilar(token.text, pathName, "relation", languageIdentifier);
                 if (similar > thresholdEdge && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score*/))) {
+                    log.debug("Token [" + token.text + "] can be mapped to PathType [" + pathName + "] with score " + similar);
                     NLPMapping mapping = new NLPPathSchemaMapping(pathName, null, token, similar);
                     if (token.mapping == null) {
                         token.mappingList.add(mapping);
@@ -73,10 +74,10 @@ public class TokenMapping {
                     //break;
                 }
             }
-            //if (token.mapping != null) continue;
             for (String vertexTypeName : graphSchema.vertexTypes.keySet()) {
                 double similar = isSimilar(token.text, vertexTypeName, "node", languageIdentifier);
                 if (similar > thresholdEdge && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score*/))) {
+                    log.debug("Token [" + token.text + "] can be mapped to VertexType [" + vertexTypeName + "] with score " + similar);
                     NLPMapping mapping = new NLPVertexSchemaMapping(graphSchema.vertexTypes.get(vertexTypeName), token, similar);
                     if (token.mapping == null) {
                         token.mappingList.add(mapping);
@@ -104,6 +105,7 @@ public class TokenMapping {
                 if (vertex.labels.equals("Method") && nn.charAt(0) >= 'A' && nn.charAt(0) <= 'Z') continue;
 
                 if (similar > 0.8 && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score - 0.01*/))) {
+                    log.debug("Token [" + token.text + "] can be mapped to Vertex [" + vertex.name + "] with score " + similar);
                     NLPMapping mapping = new NLPVertexMapping(vertex, graphSchema.vertexTypes.get(vertex.labels), token, similar);
                     if (token.mapping == null) {
                         token.mappingList.add(mapping);
@@ -142,8 +144,8 @@ public class TokenMapping {
                 for (String attrName : graphSchema.vertexTypes.get(vertexTypeName).attrs.keySet()) {
                     double similar = isSimilar(token.text, attrName, "attribute", languageIdentifier);
                     if (similar > threshold && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score*/))) {
+                        log.debug("Token [" + token.text + "] can be mapped to Attribute [" + attrName + "] with score " + similar);
                         NLPMapping mapping = new NLPAttributeSchemaMapping(graphSchema.vertexTypes.get(vertexTypeName), attrName, token, similar);
-                        //token.mapping = mapping;
                         if (NLPAttributeSchemaMapping.isBoolAttr(attrName)) {
                             ((NLPAttributeSchemaMapping) mapping).isbool = true;
                             ((NLPAttributeSchemaMapping) mapping).boolval = true;
@@ -204,6 +206,7 @@ public class TokenMapping {
                         String attrValue = (String) obj;
                         double similar = isSimilar(token.text, attrValue, "", languageIdentifier);
                         if (similar > threshold && ((token.mapping == null) || (token.mapping != null /*&& similar > token.mapping.score*/))) {
+                            log.debug("Token [" + token.text + "] can be mapped to AttributeValue [" + attrValue + "] with score " + similar);
                             NLPMapping mapping = new NLPAttributeMapping(vertex, graphSchema.vertexTypes.get(vertex.labels), attrTypeName, attrValue, token, similar);
                             if (token.mapping == null) {
                                 token.mappingList.add(mapping);

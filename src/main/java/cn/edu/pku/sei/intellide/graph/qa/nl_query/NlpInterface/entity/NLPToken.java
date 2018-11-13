@@ -26,10 +26,6 @@ public class NLPToken {
         this.NE = NE;
     }
 
-    public boolean isQWord() {
-        return false;
-    }
-
     public NLPToken copy() {
         NLPToken token = new NLPToken(text, POS, NE);
         token.offset = offset;

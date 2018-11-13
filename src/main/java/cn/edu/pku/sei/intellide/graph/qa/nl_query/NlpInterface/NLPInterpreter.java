@@ -4,11 +4,13 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.NLPToken;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.Query;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPVertexSchemaMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.wrapper.*;
+import lombok.extern.slf4j.Slf4j;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 public class NLPInterpreter {
 
     private static Map<GraphDatabaseService, NLPInterpreter> instances = new HashMap<>();
@@ -50,6 +52,7 @@ public class NLPInterpreter {
      * @return
      */
     public synchronized List<String> pipeline(String plainText) {
+        log.debug("开始解析问句的语义.");
         try {
             queries.clear();
             Query query = new TokensGenerator().generator(plainText, languageIdentifier, db);

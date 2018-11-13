@@ -6,13 +6,16 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMappi
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPVertexMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPVertexSchemaMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.GraphSchemaKeywords;
+import lombok.Getter;
 
 public class CyphersGenerator {
-    public static Query query;
 
-    public static String generate(Query query) {
+    @Getter
+    private Query query;
+
+    public String generate(Query query) {
         /*从tupleLinks翻译到cypher*/
-        CyphersGenerator.query = query;
+        this.query = query;
         String matchText = getMatchCypher();
         String whereText = getWhereCypher();
         String returnText = getReturnCypher();
@@ -20,7 +23,7 @@ public class CyphersGenerator {
         return matchText + " " + whereText + " " + returnText;
     }
 
-    public static String getReturnCypher() {
+    public String getReturnCypher() {
         String returnText = "RETURN";
         if (query.focusNode == null) return "";
         for (int i = 0; i < query.focusNode.nextRelation.size(); i++) {
@@ -42,7 +45,7 @@ public class CyphersGenerator {
         return returnText;
     }
 
-    public static String getWhereCypher() {
+    public String getWhereCypher() {
         String whereText = "WHERE";
         boolean first = true;
         for (NLPNode node : query.nodes) {
@@ -108,7 +111,7 @@ public class CyphersGenerator {
         return whereText;
     }
 
-    public static String getMatchCypher() {
+    public String getMatchCypher() {
         String matchText = "";
         for (NLPInferenceLink inferenceLink : query.inferenceLinks) {
             NLPInferenceNode start = inferenceLink.start;

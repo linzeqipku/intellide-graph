@@ -5,7 +5,6 @@ public class GraphEdgeType {
     public GraphVertexType end;
     public String name;
     public boolean direct = true;
-    public GraphEdgeType mirror;
     public double score;
 
     public GraphEdgeType(String name, GraphVertexType start, GraphVertexType end, boolean direct) {

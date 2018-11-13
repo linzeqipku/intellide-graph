@@ -16,54 +16,46 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 public class NLQueryEngine {
 
     private String languageIdentifier;
     private GraphDatabaseService db;
     private String dataDirPath;
+    private static final String[] englishQuestionIndicators = new String[]{"who", "what", "which", "when", "list"};
 
     public NLQueryEngine(GraphDatabaseService db, String dataDirPath, String languageIdentifier) {
         this.db = db;
         this.dataDirPath = dataDirPath;
         this.languageIdentifier = languageIdentifier;
-        ExtractModel.db = db;
-        ExtractModel.single = null;
-        LuceneIndex.dataDirPath = dataDirPath;
+        createIndex();
     }
 
     private static boolean isNlpSolver(String query) {
-        if (query.contains("Who") || query.contains("What") || query.contains("Which") || query.contains("When") || query.contains("List")) {
-            return true;
+        for (String indicator : englishQuestionIndicators){
+            if (indicator.trim().toLowerCase().startsWith(indicator+" ")){
+                return true;
+            }
         }
-        if (query.contains("who") || query.contains("what") || query.contains("which") || query.contains("when") || query.contains("list")) {
-            return true;
-        }
-        java.util.regex.Pattern p = java.util.regex.Pattern.compile(".*\\d+.*");
-        Matcher m = p.matcher(query);
-        if (m.matches()) {
-            return true;
-        }
-        return false;
+        return query.matches("\\d+");
     }
 
     public Neo4jSubGraph search(String queryString) {
 
+        // Hack: 对于英文问句，只解析具有特定模式的句子，否则不做解析，交给下一个模块处理.
         if (languageIdentifier.equals("english") && !isNlpSolver(queryString)) {
             return new Neo4jSubGraph();
         }
 
-        queryString.replace("接口", "接口类");
-        ExtractModel.db = this.db;
         List<Long> nodes = new ArrayList<>();
         List<Long> rels = new ArrayList<>();
-        List<Long> retnodes = new ArrayList<>();
-        List<String> cyphers = null;
-        String cypherret = "";
+        List<Long> retNodes = new ArrayList<>();
+        List<String> cyphers;
+        String cypherret;
+
         if (queryString.matches("\\d+")) {
+            //输入数字，则返回ID为该数字的结点
             String c = "Match (n) where id(n)=" + queryString + " return n, id(n), labels(n)";
-            //System.out.println(c);
             Result p = db.execute(c + " limit 30");
             while (p.hasNext()) {
                 Map m = p.next();
@@ -71,7 +63,7 @@ public class NLQueryEngine {
             }
             cypherret = c;
         } else {
-            cyphers = NLPInterpreter.getInstance(languageIdentifier).pipeline(queryString);
+            cyphers = NLPInterpreter.createInstance(db, languageIdentifier).pipeline(queryString);
             if (cyphers == null || cyphers.size() == 0) return new Neo4jSubGraph(nodes, rels, db);
             String c = cyphers.get(0);
             String returnT;
@@ -91,19 +83,17 @@ public class NLQueryEngine {
                 nodeid = returnT.substring(0, returnT.indexOf("."));
                 c = c.substring(0, c.indexOf("RETURN") + 7) + String.format("%s,id(%s),labels(%s)", nodeid);
             } else nodeid = returnT.substring(0, returnT.indexOf(","));
-            //System.out.println(c.replaceAll("RETURN","RETURN distinct"));
 
             Result p = db.execute(c.replaceAll("RETURN", "RETURN distinct") + " limit 10");
             cypherret = c;
             while (p.hasNext()) {
                 Map m = p.next();
-                retnodes.add((Long) m.get("id(" + nodeid + ")"));
+                retNodes.add((Long) m.get("id(" + nodeid + ")"));
             }
-            for (Long id : retnodes) {
+            for (Long id : retNodes) {
                 String tmpc = "MATCH p= " + matchT.substring(5, matchT.length());
                 tmpc += whereT + " AND (id(" + nodeid + ")=" + id + ")";
                 tmpc += "return p";
-                //System.out.println(tmpc);
                 Result pr = db.execute(tmpc + " limit 1");
                 while (pr.hasNext()) {
                     Map m = pr.next();
@@ -118,24 +108,23 @@ public class NLQueryEngine {
                         Relationship relp = (Relationship) iter.next();
                         rels.add(relp.getId());
                     }
-                    //retnodes.add((Long) m.get("id("+nodeid+")"));
                 }
             }
         }
-        Neo4jSubGraph ppp = new Neo4jSubGraph(nodes, rels, db);
-        ppp.setCypher(cypherret);
+        Neo4jSubGraph ret = new Neo4jSubGraph(nodes, rels, db);
+        ret.setCypher(cypherret);
         if (!cypherret.toLowerCase().contains("where")) {
-            ppp.getNodes().clear();
-            ppp.getRelationships().clear();
-            ppp.setCypher("");
+            ret.getNodes().clear();
+            ret.getRelationships().clear();
+            ret.setCypher("");
         }
-        return ppp;
+        return ret;
     }
 
-    public void createIndex() {
+    private void createIndex() {
         if (new File(dataDirPath + "/index").exists())
             return;
-        LuceneIndex LI = new LuceneIndex();
+        LuceneIndex LI = LuceneIndex.createInstance(db, dataDirPath);
         try {
             LI.index();
         } catch (IOException e) {

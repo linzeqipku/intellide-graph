@@ -6,14 +6,16 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.Query;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPNoticeMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneIndex;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneSearchResult;
+import org.neo4j.graphdb.GraphDatabaseService;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class TokensGenerator {
 
-    public static Query generator(String text, String languageIdentifier) {
+    public Query generator(String text, String languageIdentifier, GraphDatabaseService db) {
         /*AST 匹配到*/
         Query query = new Query();
         boolean flag = false;
@@ -48,7 +50,12 @@ public class TokensGenerator {
                 token.offset = offset;
                 token.offsetVal = offset;
                 if (token.text.startsWith("TOKEN_")) {
-                    List<LuceneSearchResult> l = LuceneIndex.query(key.get(token.text));
+                    List<LuceneSearchResult> l = null;
+                    try {
+                        l = LuceneIndex.getInstance(db).query(key.get(token.text));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     token.mapping = new NLPNoticeMapping(l);
                     token.mappingList.add(token.mapping);
                 }

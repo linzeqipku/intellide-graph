@@ -13,41 +13,50 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphPath;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphVertexType;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class LinkAllNodes {
 
-    private static Map<String, LinkAllNodes> instances = new HashMap<>();
+    private String languageIdentifier;
+    private Query query;
+    private List<Query> queries;
+    private int color[] = new int[100];
+    private double dis[][] = new double[100][100];
+    private int disi[][] = new int[100][100];
+    private int disj[][] = new int[100][100];
+    private double prim[] = new double[100];
+    private int primi[] = new int[100];
+    private int primj[] = new int[100];
+    private int colors = 0;
 
-    public String languageIdentifier;
-    public Query query;
-    public List<Query> queries;
-    public int color[] = new int[100];
-    public double dis[][] = new double[100][100];
-    public int disi[][] = new int[100][100];
-    public int disj[][] = new int[100][100];
-    public double prim[] = new double[100];
-    public int primi[] = new int[100];
-    public int primj[] = new int[100];
-    public int colors = 0;
-
-    private LinkAllNodes(String languageIdentifier) {
+    public LinkAllNodes(String languageIdentifier){
         this.languageIdentifier = languageIdentifier;
     }
 
-    public synchronized static LinkAllNodes getInstance(String languageIdentifier) {
-        LinkAllNodes instance = instances.get(languageIdentifier);
-        if (instance != null) {
-            return instance;
+    public List<Query> process(Query query) {
+        this.query = query;
+        queries = new ArrayList<>();
+        for (int i = 0; i < query.nodes.size() + 10; i++) {
+            color[i] = -1;
+            prim[i] = 1e10;
         }
-        instance = new LinkAllNodes(languageIdentifier);
-        instances.put(languageIdentifier, instance);
-        return instance;
+        for (int i = 0; i < query.nodes.size() + 10; i++)
+            for (int j = 0; j < query.nodes.size() + 10; j++)
+                dis[i][j] = 1e10;
+        colors = 0;
+        coloring();
+        mst();
+        for (int i = 0; i < colors; i++)
+            if (prim[i] > 1e9) {
+                return queries;
+            }
+        linking();
+
+        queries.add(query);
+        return queries;
     }
 
-    public static double getAverageOffset(NLPNode node) {
+    private static double getAverageOffset(NLPNode node) {
         List<NLPNode> allNodes = new ArrayList<>();
         List<NLPRelation> allRelations = new ArrayList<>();
         allNodes.addAll(node.nextNode);
@@ -70,7 +79,7 @@ public class LinkAllNodes {
         return offset;
     }
 
-    public static double distance(NLPNode node1, NLPNode node2) {
+    private static double distance(NLPNode node1, NLPNode node2) {
         if (node1.token.mapping instanceof NLPAttributeSchemaMapping) return 1e10;
         if (node2.token.mapping instanceof NLPAttributeSchemaMapping) return 1e10;
 
@@ -105,30 +114,7 @@ public class LinkAllNodes {
         return 1e10;
     }
 
-    public List<Query> process(Query query) {
-        this.query = query;
-        queries = new ArrayList<>();
-        for (int i = 0; i < query.nodes.size() + 10; i++) {
-            color[i] = -1;
-            prim[i] = 1e10;
-        }
-        for (int i = 0; i < query.nodes.size() + 10; i++)
-            for (int j = 0; j < query.nodes.size() + 10; j++)
-                dis[i][j] = 1e10;
-        colors = 0;
-        coloring();
-        MST();
-        for (int i = 0; i < colors; i++)
-            if (prim[i] > 1e9) {
-                return queries;
-            }
-        linking();
-
-        queries.add(query);
-        return queries;
-    }
-
-    public void coloring() {
+    private void coloring() {
         for (int i = 0; i < query.nodes.size(); i++) {
             if (color[query.nodes.get(i).id] < 0) {
                 visit(query.nodes.get(i), colors);
@@ -137,7 +123,7 @@ public class LinkAllNodes {
         }
     }
 
-    public void visit(NLPNode node, int c) {
+    private void visit(NLPNode node, int c) {
         color[node.id] = c;
         for (NLPNode nextNode : node.nextNode) {
             if (color[nextNode.id] < 0) visit(nextNode, c);
@@ -147,7 +133,7 @@ public class LinkAllNodes {
         }
     }
 
-    public void MST() {
+    private void mst() {
         //distance between color
         for (int i = 0; i < colors; i++) {
             dis[i][i] = 0;
@@ -170,7 +156,7 @@ public class LinkAllNodes {
                         }
                 }
         }
-        //MST
+        //mst
         for (int i = 0; i < colors; i++) prim[i] = 1e10;
         prim[0] = 0;
         int x = 0;
@@ -192,7 +178,7 @@ public class LinkAllNodes {
         }
     }
 
-    public void linking() {
+    private void linking() {
         for (int i = 1; i < colors; i++) {
             NLPNode nodei = query.nodes.get(primi[i]);
             NLPNode nodej = query.nodes.get(primj[i]);

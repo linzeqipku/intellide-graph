@@ -9,28 +9,29 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel.Extr
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphEdgeType;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphPath;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphVertexType;
+import org.neo4j.graphdb.GraphDatabaseService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EdgeMappingSchema {
-    public static Query query;
-    public static List<Query> queries;
-    public static int[] mapEnd = new int[100];
-    public static int[] mapStart = new int[100];
-    public static List<NLPNode> nodes;
-    public static int tot = 0;
+    private Query query;
+    private List<Query> queries;
+    private int[] mapEnd = new int[100];
+    private int[] mapStart = new int[100];
+    private List<NLPNode> nodes;
+    private int tot = 0;
 
-    public static List<Query> process(Query query) {
-        EdgeMappingSchema.query = query;
+    public List<Query> process(Query query, GraphDatabaseService db) {
+        this.query = query;
         nodes = query.nodes;
         queries = new ArrayList<>();
         tot = 0;
-        DFS(0);
+        dfs(0, db);
         return queries;
     }
 
-    public static void DFS(int t) {
+    private void dfs(int t, GraphDatabaseService db) {
         if (t == query.tokens.size()) {
             List<NLPNode> tmp = query.nodes;
             query.nodes = nodes;
@@ -98,7 +99,7 @@ public class EdgeMappingSchema {
             return;
         }
         if (!(query.tokens.get(t).mapping instanceof NLPEdgeSchemaMapping || query.tokens.get(t).mapping instanceof NLPPathSchemaMapping)) {
-            DFS(t + 1);
+            dfs(t + 1, db);
             return;
         }
         double direct = 1;
@@ -129,7 +130,7 @@ public class EdgeMappingSchema {
                             if (((NLPVertexSchemaMapping) nodeEnd.token.mapping).vertexType.name.equals(endname)) {
                                 mapStart[t] = nodeStart.id;
                                 mapEnd[t] = nodeEnd.id;
-                                DFS(t + 1);
+                                dfs(t + 1, db);
                             }
                         }
             }
@@ -140,8 +141,8 @@ public class EdgeMappingSchema {
                 if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.name.equals(startname)
                         && ((node.token.offsetVal < token.offsetVal && direct > 0) || (node.token.offsetVal > token.offsetVal && direct < 0))) {
                     NLPNode newNode = new NLPNode(new NLPToken("what"));
-                    NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                            graphSchema.vertexTypes.get(endname), newNode.token, 1);
+                    NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                            .vertexTypes.get(endname), newNode.token, 1);
                     newNode.token.mapping = mapping;
                     newNode.token.offsetVal = query.tokens.get(t).offsetVal + 0.5 * direct;
                     newNode.id = nodes.size();
@@ -149,7 +150,7 @@ public class EdgeMappingSchema {
                     mapStart[t] = node.id;
                     mapEnd[t] = newNode.id;
                     tot++;
-                    DFS(t + 1);
+                    dfs(t + 1, db);
                     tot--;
                     nodes.remove(newNode);
                     flag = true;
@@ -157,8 +158,8 @@ public class EdgeMappingSchema {
                 if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.name.equals(endname)) {
 //                    && ((node.token.offsetVal < token.offsetVal && direct < 0) || (node.token.offsetVal > token.offsetVal && direct > 0))){
                     NLPNode newNode = new NLPNode(new NLPToken("what"));
-                    NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                            graphSchema.vertexTypes.get(startname), newNode.token, 1);
+                    NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                            .vertexTypes.get(startname), newNode.token, 1);
                     newNode.token.mapping = mapping;
                     newNode.token.offsetVal = query.tokens.get(t).offsetVal - 0.5 * direct;
                     newNode.id = nodes.size();
@@ -166,7 +167,7 @@ public class EdgeMappingSchema {
                     mapStart[t] = newNode.id;
                     mapEnd[t] = node.id;
                     tot++;
-                    DFS(t + 1);
+                    dfs(t + 1, db);
                     tot--;
                     nodes.remove(newNode);
                     flag = true;
@@ -174,8 +175,8 @@ public class EdgeMappingSchema {
                 if (!flag) {
                     if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.name.equals(startname)) {
                         NLPNode newNode = new NLPNode(new NLPToken("what"));
-                        NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                                graphSchema.vertexTypes.get(endname), newNode.token, 1);
+                        NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                                .vertexTypes.get(endname), newNode.token, 1);
                         newNode.token.mapping = mapping;
                         newNode.token.offsetVal = query.tokens.get(t).offsetVal + 0.5;
                         newNode.id = nodes.size();
@@ -183,15 +184,15 @@ public class EdgeMappingSchema {
                         mapStart[t] = node.id;
                         mapEnd[t] = newNode.id;
                         tot++;
-                        DFS(t + 1);
+                        dfs(t + 1, db);
                         tot--;
                         nodes.remove(newNode);
                         flag = true;
                     }
                     if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.name.equals(endname)) {
                         NLPNode newNode = new NLPNode(new NLPToken("what"));
-                        NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                                graphSchema.vertexTypes.get(startname), newNode.token, 1);
+                        NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                                .vertexTypes.get(startname), newNode.token, 1);
                         newNode.token.mapping = mapping;
                         newNode.token.offsetVal = query.tokens.get(t).offsetVal - 0.5;
                         newNode.id = nodes.size();
@@ -199,7 +200,7 @@ public class EdgeMappingSchema {
                         mapStart[t] = newNode.id;
                         mapEnd[t] = node.id;
                         tot++;
-                        DFS(t + 1);
+                        dfs(t + 1, db);
                         tot--;
                         nodes.remove(newNode);
                         flag = true;
@@ -207,8 +208,8 @@ public class EdgeMappingSchema {
                 }
             }
         NLPNode newNodeStart = new NLPNode(new NLPToken("what"));
-        NLPMapping mappingStart = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                graphSchema.vertexTypes.get(startname), newNodeStart.token, 1);
+        NLPMapping mappingStart = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                .vertexTypes.get(startname), newNodeStart.token, 1);
         newNodeStart.token.mapping = mappingStart;
         newNodeStart.id = nodes.size();
         newNodeStart.token.offsetVal = query.tokens.get(t).offsetVal - 0.5;
@@ -216,126 +217,18 @@ public class EdgeMappingSchema {
         nodes.add(newNodeStart);
 
         NLPNode newNodeEnd = new NLPNode(new NLPToken("what"));
-        NLPMapping mappingEnd = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                graphSchema.vertexTypes.get(endname), newNodeEnd.token, 1);
+        NLPMapping mappingEnd = new NLPVertexSchemaMapping(ExtractModel.getInstance(db).getGraphSchema()
+                .vertexTypes.get(endname), newNodeEnd.token, 1);
         newNodeEnd.token.mapping = mappingEnd;
         newNodeEnd.id = nodes.size();
         newNodeEnd.token.offsetVal = query.tokens.get(t).offsetVal + 0.5;
         mapEnd[t] = newNodeEnd.id;
         nodes.add(newNodeEnd);
         tot += 2;
-        DFS(t + 1);
+        dfs(t + 1, db);
         tot -= 2;
         nodes.remove(newNodeStart);
         nodes.remove(newNodeEnd);
-    }
-
-    public static void mappingEdgeSchema() {
-        for (NLPToken token : query.tokens)
-            if (token.mapping instanceof NLPEdgeSchemaMapping) {
-                double direct = 1;
-                if (token.POS.equals("VBN")) direct = -1;
-                boolean flagFind = false;
-                String edgeTypeName = ((NLPEdgeSchemaMapping) token.mapping).type;
-                NLPNode nodeStartFinal = null;
-                NLPNode nodeEndFinal = null;
-                double score = 10000;
-                for (NLPNode nodeStart : query.nodes)
-                    if (nodeStart.token.mapping instanceof NLPVertexSchemaMapping) {
-                        if (((NLPVertexSchemaMapping) nodeStart.token.mapping).vertexType.outcomings.keySet().contains(edgeTypeName))
-                            for (NLPNode nodeEnd : query.nodes)
-                                if (nodeEnd.token.mapping instanceof NLPVertexSchemaMapping) {
-                                    if (nodeStart == nodeEnd) continue;
-                                    if (((NLPVertexSchemaMapping) nodeEnd.token.mapping).vertexType.incomings.keySet().contains(edgeTypeName)) {
-                                        flagFind = true;
-                                        double newscore = Math.abs(token.offsetVal + direct * 1 - nodeEnd.token.offsetVal) + Math.abs(token.offsetVal - direct * 1 - nodeStart.token.offsetVal);
-                                        if (newscore < score) {
-                                            score = newscore;
-                                            nodeStartFinal = nodeStart;
-                                            nodeEndFinal = nodeEnd;
-                                        }
-                                        //break;
-                                    }
-                                }
-                        //if (flagFind) break;
-
-                    }
-                if (flagFind) {
-                    GraphEdgeType edgeType = ExtractModel.getSingle().graphSchema.findGraphEdgeTypeByNameAndVertex(edgeTypeName,
-                            ((NLPVertexSchemaMapping) nodeStartFinal.token.mapping).vertexType, ((NLPVertexSchemaMapping) nodeEndFinal.token.mapping).vertexType);
-                    NLPRelation relation1 = new NLPRelation(edgeType, token);
-                    NLPRelation relation2 = new NLPRelation(edgeType, token);
-                    relation1.mirror = relation2;
-                    relation2.mirror = relation1;
-                    nodeStartFinal.addNext(nodeEndFinal, relation1);
-                    nodeEndFinal.addLast(nodeStartFinal, relation2);
-                    continue;
-                }
-
-                NLPNode newNodeLast = null;
-                for (NLPNode node : query.nodes)
-                    if (node.token.mapping instanceof NLPVertexSchemaMapping) {
-                        if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.outcomings.keySet().contains(edgeTypeName)) {
-                            GraphEdgeType edgeType = ExtractModel.getSingle().graphSchema.findGraphEdgeTypeByNameAndVertex(edgeTypeName,
-                                    ((NLPVertexSchemaMapping) node.token.mapping).vertexType, null);
-                            NLPNode newNode = new NLPNode(new NLPToken("what"));
-                            NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                                    graphSchema.vertexTypes.get(edgeType.end.name), newNode.token, 1);
-                            newNode.token.mapping = mapping;
-                            newNode.focus = true;
-//                    NLPRelation relation1 = new NLPRelation(edgeType);
-//                    NLPRelation relation2 = new NLPRelation(edgeType);
-//                    relation1.mirror = relation2;
-//                    relation2.mirror = relation1;
-//                    newNode.addLast(node,relation1);
-//                    node.addNext(newNode,relation2);
-//                    query.nodes.add(newNode);
-                            double newscore = Math.abs(token.offsetVal - direct * 1 - node.token.offsetVal);
-                            if (newscore < score) {
-                                flagFind = true;
-                                score = newscore;
-                                nodeStartFinal = node;
-                                nodeEndFinal = newNode;
-                                newNodeLast = newNode;
-                            }
-                        }
-                        if (((NLPVertexSchemaMapping) node.token.mapping).vertexType.incomings.keySet().contains(edgeTypeName)) {
-                            GraphEdgeType edgeType = ExtractModel.getSingle().graphSchema.findGraphEdgeTypeByNameAndVertex(edgeTypeName,
-                                    null, ((NLPVertexSchemaMapping) node.token.mapping).vertexType);
-                            NLPNode newNode = new NLPNode(new NLPToken("what"));
-                            NLPMapping mapping = new NLPVertexSchemaMapping(ExtractModel.getSingle().
-                                    graphSchema.vertexTypes.get(edgeType.start.name), newNode.token, 1);
-                            newNode.token.mapping = mapping;
-                            newNode.focus = true;
-//                    NLPRelation relation1 = new NLPRelation(edgeType);
-//                    NLPRelation relation2 = new NLPRelation(edgeType);
-//                    relation1.mirror = relation2;
-//                    relation2.mirror = relation1;
-//                    newNode.addNext(node,relation1);
-//                    node.addLast(newNode,relation2);
-//                    query.nodes.add(newNode);
-                            double newscore = Math.abs(token.offsetVal + direct * 1 - node.token.offsetVal);
-                            if (newscore < score) {
-                                flagFind = true;
-                                score = newscore;
-                                nodeStartFinal = newNode;
-                                nodeEndFinal = node;
-                                newNodeLast = newNode;
-                            }
-                        }
-                    }
-                if (flagFind) {
-                    GraphEdgeType edgeType = ExtractModel.getSingle().graphSchema.findGraphEdgeTypeByNameAndVertex(edgeTypeName,
-                            ((NLPVertexSchemaMapping) nodeStartFinal.token.mapping).vertexType, ((NLPVertexSchemaMapping) nodeEndFinal.token.mapping).vertexType);
-                    NLPRelation relation1 = new NLPRelation(edgeType, token);
-                    NLPRelation relation2 = new NLPRelation(edgeType, token);
-                    relation1.mirror = relation2;
-                    relation2.mirror = relation1;
-                    nodeStartFinal.addNext(nodeEndFinal, relation1);
-                    nodeEndFinal.addLast(nodeStartFinal, relation2);
-                    query.nodes.add(newNodeLast);
-                }
-            }
     }
 
     public static boolean linkAttributeSchemaAndVectexSchemaAndVertex(Query query) {

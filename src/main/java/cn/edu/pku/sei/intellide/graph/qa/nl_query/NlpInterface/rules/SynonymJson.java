@@ -20,7 +20,6 @@ public class SynonymJson {
     private static Map<String, SynonymJson> instances = new HashMap<>();
 
     public JSONObject JsonObj = null;
-    public GraphSchema graphSchema;
     public Map<String, Set<String>> nodedict = new HashMap<>();
     public Map<String, Set<String>> edgedict = new HashMap<>();
     public Map<String, Set<String>> attributedict = new HashMap<>();

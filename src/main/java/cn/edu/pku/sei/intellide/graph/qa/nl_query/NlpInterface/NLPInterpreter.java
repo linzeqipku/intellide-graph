@@ -4,57 +4,74 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.NLPToken;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.Query;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPVertexSchemaMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.wrapper.*;
+import org.neo4j.graphdb.GraphDatabaseService;
 
+import java.io.IOException;
 import java.util.*;
 
 public class NLPInterpreter {
 
-    public static Map<String, NLPInterpreter> instances = new HashMap<>();
+    private static Map<GraphDatabaseService, NLPInterpreter> instances = new HashMap<>();
 
+    private GraphDatabaseService db;
     private String languageIdentifier = "english";
-    private String cypherStr = "";
     private List<Query> queries = new ArrayList<>();
     private int offsetMax;
 
-    private NLPInterpreter(String languageIdentifier) {
+    private NLPInterpreter(GraphDatabaseService db, String languageIdentifier) {
+        this.db = db;
         this.languageIdentifier = languageIdentifier;
     }
 
-    public synchronized static NLPInterpreter getInstance(String languageIdentifier) {
-        NLPInterpreter instance = instances.get(languageIdentifier);
-        if (instance != null) {
-            return instance;
+    public synchronized static NLPInterpreter getInstance(GraphDatabaseService db) throws IOException {
+        NLPInterpreter instance = instances.get(db);
+        if (instance == null) {
+            throw new IOException("NLPInterpreter not found");
         }
-        instance = new NLPInterpreter(languageIdentifier);
-        instances.put(languageIdentifier, instance);
         return instance;
     }
 
+    public synchronized static NLPInterpreter createInstance(GraphDatabaseService db, String languageIdentifier){
+        NLPInterpreter instance = instances.get(db);
+        if (instance != null){
+            return instance;
+        }
+        instance = new NLPInterpreter(db, languageIdentifier);
+        instances.put(db, instance);
+        return instance;
+    }
+
+    /**
+     * 1. 使用TokensGenerator，对输入的句子进行切词、词性标注、命名实体识别等预处理；
+     * 2. 使用TokenMapping，给每个token识别出相应的graph schema元素；
+     * 3. 使用SchemaMapping和EdgeMappingSchema，给每个token识别出相应的graph entity元素；
+     * 4. ...
+     * @param plainText
+     * @return
+     */
     public synchronized List<String> pipeline(String plainText) {
         try {
             queries.clear();
-            Query query = generatorTokens(plainText);
-            mapTokensToNodeAndRelation(query);
+            Query query = new TokensGenerator().generator(plainText, languageIdentifier, db);
+            new TokenMapping().process(query, languageIdentifier, db);
             offsetMax = query.tokens.size();
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i < offsetMax; i++) list.add(0);
-            cypherStr = "";
 
-            DFS(query, 0, list, 0);
+            dfs(query, 0, list, 0);
             int tot = 0;
             List<Query> answers = new ArrayList<>();
             for (Query query1 : queries) {
                 if (query1.nodes.size() == 0) continue;
                 List<Query> listq = new ArrayList<>();
-                listq.addAll(LinkAllNodes.getInstance(languageIdentifier).process(query1));
+                listq.addAll(new LinkAllNodes(languageIdentifier).process(query1));
                 for (Query q : listq) {
-                    Evaluator.evaluate(q);
+                    new Evaluator().evaluate(q);
                     if (q.score < -0.1) continue;
-                    generatorInferenceLinks(q);
-                    String s = generatorCyphers(q);
+                    new InferenceLinksGenerator().generate(q);
+                    String s = new CyphersGenerator().generate(q);
                     q.cypher = s;
                     if (!s.equals("")) {
-                        cypherStr += s + "</br>";
                         q.rank = tot;
                         tot++;
                         answers.add(q);
@@ -89,18 +106,19 @@ public class NLPInterpreter {
         }
     }
 
-    public void DFS(Query query, int offset, List<Integer> list, int no) {
+    private void dfs(Query query, int offset, List<Integer> list, int no) {
         if (no > 1) return;
         if (offset == offsetMax) {
             for (NLPToken token : query.tokens) {
-                if (list.get((int) token.offset) < 0) token.mapping = null;
+                if (list.get((int) token.offset) < 0)
+                    token.mapping = null;
                 else
                     token.mapping = token.mappingList.get(list.get((int) token.offset));
             }
             Query newquery = query.copyOut();
-            mapToSchema(newquery);
-            List<Query> querys = EdgeMappingSchema.process(newquery);
-            queries.addAll(querys);
+            new SchemaMapping().mapping(newquery);
+            List<Query> queries = new EdgeMappingSchema().process(newquery, db);
+            this.queries.addAll(queries);
             return;
         }
         boolean flag = false;
@@ -110,38 +128,18 @@ public class NLPInterpreter {
                 if (!(token.mapping instanceof NLPVertexSchemaMapping) ||
                         !((NLPVertexSchemaMapping) token.mapping).must) {
                     list.set(offset, -1);
-                    if (token.nomapping) DFS(query, offset + 1, list, no);
+                    if (token.nomapping) dfs(query, offset + 1, list, no);
                     else
-                        DFS(query, offset + 1, list, no + 1);
+                        dfs(query, offset + 1, list, no + 1);
                 }
                 for (int i = 0; i < token.mappingList.size(); i++) {
                     list.set(offset, i);
-                    DFS(query, offset + 1, list, no);
+                    dfs(query, offset + 1, list, no);
                 }
             }
         }
 
-        if (!flag) DFS(query, offset + 1, list, no);
-    }
-
-    private Query generatorTokens(String plainText) {
-        return TokensGenerator.generator(plainText, languageIdentifier);
-    }
-
-    private void mapTokensToNodeAndRelation(Query query) {
-        TokenMapping.process(query, languageIdentifier);
-    }
-
-    private void generatorInferenceLinks(Query query) {
-        InferenceLinksGenerator.generate(query);
-    }
-
-    private void mapToSchema(Query query) {
-        SchemaMapping.mapping(query);
-    }
-
-    private String generatorCyphers(Query query) {
-        return CyphersGenerator.generate(query);
+        if (!flag) dfs(query, offset + 1, list, no);
     }
 
 }

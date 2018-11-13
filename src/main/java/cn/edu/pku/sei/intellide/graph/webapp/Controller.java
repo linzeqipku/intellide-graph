@@ -52,7 +52,6 @@ public class Controller {
         }
 
         NLQueryEngine nlQueryEngine = new NLQueryEngine(getDb(project), context.dataDir + '/' + project, languageIdentifier);
-        nlQueryEngine.createIndex();
         Neo4jSubGraph r = nlQueryEngine.search(query);
 
         if (r.getNodes().size() > 0) {

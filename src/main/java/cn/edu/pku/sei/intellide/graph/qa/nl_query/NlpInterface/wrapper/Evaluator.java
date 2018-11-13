@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 public class Evaluator {
-    public static Query query;
-    public static boolean visited[] = new boolean[100];
-    public static Set<NLPNode> visitedNode = new HashSet<>();
-    public static Set<NLPRelation> visitedRelation = new HashSet<>();
+    private Query query;
+    private boolean visited[] = new boolean[100];
+    private Set<NLPNode> visitedNode = new HashSet<>();
+    private Set<NLPRelation> visitedRelation = new HashSet<>();
 
-    public static void evaluate(Query query) {
-        Evaluator.query = query;
+    public void evaluate(Query query) {
+        this.query = query;
         if (!isLink()) {
             query.score = -1;
             return;
@@ -29,7 +29,7 @@ public class Evaluator {
         query.score = val;
     }
 
-    public static int mappingNum() {
+    private int mappingNum() {
         int tot = 0;
         for (NLPToken token : query.tokens) {
             if (!token.nomapping) tot++;
@@ -38,7 +38,7 @@ public class Evaluator {
         return tot;
     }
 
-    public static double dfsNode(NLPNode start, NLPNode node, int len) {
+    private double dfsNode(NLPNode start, NLPNode node, int len) {
         double tot = 0;
         visitedNode.add(node);
         List<NLPNode> allNodes = new ArrayList<>();
@@ -70,7 +70,7 @@ public class Evaluator {
         return tot;
     }
 
-    public static double offsetValue() {
+    private double offsetValue() {
         double val = 0;
         for (NLPNode node : query.nodes) {
             if (!node.token.text.equals("what")) {
@@ -93,14 +93,13 @@ public class Evaluator {
         return val;
     }
 
-    public static double graphComplex() {
+    private double graphComplex() {
         double val = 0;
         for (NLPNode node : query.nodes) {
             if (node.token.text.equals("what")) {
                 val += 1;
             }
             for (int i = 0; i < node.nextNode.size(); i++) {
-                NLPNode n = node.nextNode.get(i);
                 NLPRelation r = node.nextRelation.get(i);
                 if (r.otherType != null && r.otherType.equals("hidden")) {
                     val += 1;
@@ -115,8 +114,7 @@ public class Evaluator {
         return val;
     }
 
-    public static double similar() {
-        double val = 0;
+    private double similar() {
         double nodeVal = 0;
         int nodeNum = 0;
         for (NLPNode node : query.nodes) {
@@ -138,8 +136,7 @@ public class Evaluator {
         return nodeVal / nodeNum;
     }
 
-    public static double linkEntity() {
-        double val = 0;
+    private double linkEntity() {
         double nodeVal = 0;
         int nodeNum = 0;
         for (NLPNode node : query.nodes) {
@@ -155,19 +152,7 @@ public class Evaluator {
         return nodeVal / nodeNum;
     }
 
-    public static double fakelink() {
-        double val = 0;
-        for (NLPNode node : query.nodes) {
-            if (node.token.text.equals("what") && node.token.offsetVal > 2) {
-                if (node.nextNode.size() + node.lastNode.size() == 1) {
-                    val++;
-                }
-            }
-        }
-        return val;
-    }
-
-    public static boolean isLink() {
+    private boolean isLink() {
         for (int i = 0; i < query.nodes.size(); i++) visited[i] = false;
         for (NLPNode node : query.nodes) {
             if (node.token.mapping instanceof NLPVertexSchemaMapping) {
@@ -182,7 +167,7 @@ public class Evaluator {
         return true;
     }
 
-    public static void visit(NLPNode node) {
+    private void visit(NLPNode node) {
         visited[node.id] = true;
         for (NLPNode nextNode : node.nextNode) {
             if (!visited[nextNode.id]) visit(nextNode);

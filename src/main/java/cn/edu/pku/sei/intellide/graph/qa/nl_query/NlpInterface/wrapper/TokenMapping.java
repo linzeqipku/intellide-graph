@@ -25,12 +25,12 @@ public class TokenMapping {
     public static double threshold = 0.5;
     public static double thresholdEdge = 0.5;
 
-    public static void process(Query query, String languageIdentifier) {
+    public void process(Query query, String languageIdentifier, GraphDatabaseService db) {
         /* 全文匹配，疑问词匹配 ，之后改成模糊匹配，*
         需要记录下AST/
          */
-        GraphSchema graphSchema = ExtractModel.getSingle().graphSchema;
-        Graph graph = ExtractModel.getSingle().graph;
+        GraphSchema graphSchema = ExtractModel.getInstance(db).getGraphSchema();
+        Graph graph = ExtractModel.getInstance(db).getGraph();
         for (NLPToken token : query.tokens) {
             /*先schema匹配，后实体匹配*/
             if (token.mapping != null) continue;
@@ -170,7 +170,6 @@ public class TokenMapping {
                 }
             }
         }
-        GraphDatabaseService db = ExtractModel.getSingle().db;
         try (Transaction tx = db.beginTx()) {
             for (NLPToken token : query.tokens) {
                 //if (token.mapping != null) continue;

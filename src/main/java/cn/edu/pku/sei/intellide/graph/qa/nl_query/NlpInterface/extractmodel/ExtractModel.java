@@ -2,38 +2,44 @@ package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.extractmodel;
 
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.rules.PathsJson;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.*;
+import lombok.Getter;
 import org.neo4j.graphdb.*;
 
 import java.util.*;
 
 public class ExtractModel {
-    public static ExtractModel single = null;
-    public static GraphDatabaseService db = null;
-    public Graph graph = null;
-    public GraphSchema graphSchema = null;
-    int n = 0;
-    int dis[][] = new int[100][100];
-    int fa[][] = new int[100][100];
-    GraphEdgeType edgePath[][] = new GraphEdgeType[100][100];
-    Map<Integer, String> id2str = new HashMap<>();
-    Map<String, Integer> str2id = new HashMap<>();
 
-    private ExtractModel() {
+    private static Map<GraphDatabaseService, ExtractModel> instances = new HashMap<>();
+
+    @Getter
+    private GraphDatabaseService db = null;
+    @Getter
+    private GraphSchema graphSchema = null;
+    @Getter
+    private Graph graph = null;
+
+    private int n = 0;
+    private int dis[][] = new int[100][100];
+    private int fa[][] = new int[100][100];
+    private GraphEdgeType edgePath[][] = new GraphEdgeType[100][100];
+    private Map<Integer, String> id2str = new HashMap<>();
+    private Map<String, Integer> str2id = new HashMap<>();
+
+    public static synchronized ExtractModel getInstance(GraphDatabaseService db){
+        ExtractModel instance = instances.get(db);
+        if (instance == null){
+            instance = new ExtractModel(db);
+            instances.put(db, instance);
+        }
+        return instance;
+    }
+
+    private ExtractModel(GraphDatabaseService db) {
+        this.db = db;
         graphSchema = new GraphSchema();
-        graph = pipeline();
+        graph = extractProgramAbstract();
         floyd();
         addPreDefined();
-    }
-
-    public static ExtractModel getSingle() {
-        if (single != null) return single;
-        single = new ExtractModel();
-        return single;
-    }
-
-    private Graph pipeline() {
-        Graph graph = extractProgramAbstract();
-        return graph;
     }
 
     private void addPreDefined() {
@@ -144,7 +150,6 @@ public class ExtractModel {
                 long dstId = rel.getEndNodeId();
                 String type = rel.getType().name();
                 if (graph.contains(srcId) && graph.contains(dstId)) {
-                    graph.addEdge(graph.get(srcId), graph.get(dstId), type);
                     String src_type = graph.vertexes.get(srcId).labels;
                     String dst_type = graph.vertexes.get(dstId).labels;
                     if (!graphSchema.vertexTypes.containsKey(src_type)) {

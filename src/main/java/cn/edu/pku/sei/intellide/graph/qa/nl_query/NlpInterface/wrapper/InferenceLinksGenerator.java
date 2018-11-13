@@ -8,13 +8,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class InferenceLinksGenerator {
-    public static NLPNode startNode;
-    public static Query query;
-    public static Set<Object> visited = new HashSet<>();
+    private NLPNode startNode;
+    private Query query;
+    private Set<Object> visited = new HashSet<>();
 
-    public static void generate(Query query) {
+    public void generate(Query query) {
         /*从多个tuples链接成一个link 按照顺序*/
-        InferenceLinksGenerator.query = query;
+        this.query = query;
         init();
         findStart();
         if (query.focusNode == null) return;
@@ -24,7 +24,7 @@ public class InferenceLinksGenerator {
         findLink(link.start);
     }
 
-    public static void init() {
+    private void init() {
         visited.clear();
         int cnt = 0;
         for (NLPNode node : query.nodes) {
@@ -37,7 +37,7 @@ public class InferenceLinksGenerator {
         }
     }
 
-    public static void findStart() {
+    private void findStart() {
         for (NLPNode node : query.nodes) {
             if (node.focus) {
                 query.focusNode = node;
@@ -46,21 +46,6 @@ public class InferenceLinksGenerator {
                 return;
             }
         }
-        /*long offsetmin = 100;
-        for (NLPNode node : query.nodes){
-            if (node.token.mapping instanceof NLPVertexSchemaMapping && !(node.token.mapping instanceof NLPVertexMapping) && !(node.token.text.equals("what"))
-                    && !node.hasattr) {
-                int nums = node.nextNode.size() + node.lastNode.size();
-                long offset = node.token.offset;
-
-                if (offset < offsetmin) {
-                    offsetmin = offset;
-                    query.focusNode = node;
-
-                }
-            }
-        }
-        if (offsetmin < 100) { query.focusNode.focus = true;startNode = query.focusNode; return;}*/
         for (NLPNode node : query.nodes) {
             if (node.token.mapping instanceof NLPVertexSchemaMapping && !(node.token.mapping instanceof NLPVertexMapping) && !node.hasattr) {
                 int nums = node.nextNode.size() + node.lastNode.size();
@@ -83,7 +68,7 @@ public class InferenceLinksGenerator {
         }
     }
 
-    public static void findLink(NLPInferenceNode _inferenceNode) {
+    private void findLink(NLPInferenceNode _inferenceNode) {
         NLPInferenceNode inferenceNode = _inferenceNode;
         NLPNode startNode = inferenceNode.node;
         visited.add(startNode);

@@ -25,14 +25,4 @@ public class Graph {
         return new HashSet<>(vertexes.values());
     }
 
-
-    public void addEdge(Vertex v1, Vertex v2, String type) {
-//		if (!v2.incomingEdges.containsKey(type))
-//			v2.incomingEdges.put(type, new HashSet<>());
-//		v2.incomingEdges.get(type).add(v1);
-//		if (!v1.outgoingEdges.containsKey(type))
-//			v1.outgoingEdges.put(type, new HashSet<>());
-//		v1.outgoingEdges.get(type).add(v2);
-    }
-
 }

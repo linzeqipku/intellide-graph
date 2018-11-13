@@ -1,9 +1,9 @@
 package cn.edu.pku.sei.intellide.graph.extraction.java;
 
+import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaClassInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaFieldInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaMethodInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaProjectInfo;
-import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaClassInfo;
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 
@@ -22,7 +22,17 @@ public class JavaASTVisitor extends ASTVisitor {
     public JavaASTVisitor(JavaProjectInfo javaProjectInfo, String sourceContent, BatchInserter inserter) {
         this.javaProjectInfo = javaProjectInfo;
         this.sourceContent = sourceContent;
-        this.inserter=inserter;
+        this.inserter = inserter;
+    }
+
+    private static String getVisibility(int modifiers) {
+        if (Modifier.isPrivate(modifiers))
+            return "private";
+        if (Modifier.isProtected(modifiers))
+            return "protected";
+        if (Modifier.isPublic(modifiers))
+            return "public";
+        return "package";
     }
 
     @Override
@@ -33,7 +43,7 @@ public class JavaASTVisitor extends ASTVisitor {
         MethodDeclaration[] methodDeclarations = node.getMethods();
         for (MethodDeclaration methodDeclaration : methodDeclarations) {
             JavaMethodInfo javaMethodInfo = createJavaMethodInfo(methodDeclaration, javaClassInfo.getFullName());
-            if (javaMethodInfo!=null)
+            if (javaMethodInfo != null)
                 javaProjectInfo.addMethodInfo(javaMethodInfo);
         }
 
@@ -47,25 +57,25 @@ public class JavaASTVisitor extends ASTVisitor {
         return false;
     }
 
-    private JavaClassInfo createJavaClassInfo(TypeDeclaration node){
+    private JavaClassInfo createJavaClassInfo(TypeDeclaration node) {
         String name = node.getName().getFullyQualifiedName();
         String fullName = NameResolver.getFullName(node);
         boolean isInterface = node.isInterface();
         String visibility = JavaASTVisitor.getVisibility(node.getModifiers());
         boolean isAbstract = Modifier.isAbstract(node.getModifiers());
         boolean isFinal = Modifier.isFinal(node.getModifiers());
-        String comment = node.getJavadoc()==null?"":sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
+        String comment = node.getJavadoc() == null ? "" : sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
 
         String content = sourceContent.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
         String superClassType = node.getSuperclassType() == null ? "java.lang.Object" : NameResolver.getFullName(node.getSuperclassType());
         String superInterfaceTypes = String.join(", ", (List<String>) node.superInterfaceTypes().stream().map(n -> NameResolver.getFullName((Type) n)).collect(Collectors.toList()));
-        return new JavaClassInfo(inserter,name,fullName,isInterface,visibility,isAbstract,isFinal,comment,content,superClassType,superInterfaceTypes);
+        return new JavaClassInfo(inserter, name, fullName, isInterface, visibility, isAbstract, isFinal, comment, content, superClassType, superInterfaceTypes);
 
     }
 
     private JavaMethodInfo createJavaMethodInfo(MethodDeclaration node, String belongTo) {
         IMethodBinding methodBinding = node.resolveBinding();
-        if (methodBinding==null)
+        if (methodBinding == null)
             return null;
         String name = node.getName().getFullyQualifiedName();
         Type type = node.getReturnType2();
@@ -78,40 +88,40 @@ public class JavaASTVisitor extends ASTVisitor {
         boolean isStatic = Modifier.isStatic(node.getModifiers());
         boolean isSynchronized = Modifier.isSynchronized(node.getModifiers());
         String content = sourceContent.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
-        String comment = node.getJavadoc()==null?"":sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
-        String params = String.join(", ", (List<String>)node.parameters().stream().map(n->{
-            SingleVariableDeclaration param=(SingleVariableDeclaration)n;
+        String comment = node.getJavadoc() == null ? "" : sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
+        String params = String.join(", ", (List<String>) node.parameters().stream().map(n -> {
+            SingleVariableDeclaration param = (SingleVariableDeclaration) n;
             return (Modifier.isFinal(param.getModifiers()) ? "final " : "") + param.getType().toString() + " " + param.getName().getFullyQualifiedName();
         }).collect(Collectors.toList()));
-        String fullName=belongTo+"."+name+"( "+params+" )";
-        String fullParams = String.join(", ", (List<String>)node.parameters().stream().map(n->{
-            SingleVariableDeclaration param=(SingleVariableDeclaration)n;
+        String fullName = belongTo + "." + name + "( " + params + " )";
+        String fullParams = String.join(", ", (List<String>) node.parameters().stream().map(n -> {
+            SingleVariableDeclaration param = (SingleVariableDeclaration) n;
             return NameResolver.getFullName(param.getType());
         }).collect(Collectors.toList()));
-        String throwTypes = String.join(", ", (List<String>)node.thrownExceptionTypes().stream().map(n-> NameResolver.getFullName((Type)n)).collect(Collectors.toList()));
-        Set<IMethodBinding> methodCalls=new HashSet<>();
-        StringBuilder fullVariables=new StringBuilder();
-        StringBuilder fieldAccesses=new StringBuilder();
+        String throwTypes = String.join(", ", (List<String>) node.thrownExceptionTypes().stream().map(n -> NameResolver.getFullName((Type) n)).collect(Collectors.toList()));
+        Set<IMethodBinding> methodCalls = new HashSet<>();
+        StringBuilder fullVariables = new StringBuilder();
+        StringBuilder fieldAccesses = new StringBuilder();
         parseMethodBody(methodCalls, fullVariables, fieldAccesses, node.getBody());
-        JavaMethodInfo info= new JavaMethodInfo(inserter,name,fullName,returnType,visibility,isConstruct,isAbstract,
-                isFinal,isStatic,isSynchronized,content,comment,params,methodBinding,
-                fullReturnType,belongTo,fullParams,fullVariables.toString(), methodCalls, fieldAccesses.toString(), throwTypes);
+        JavaMethodInfo info = new JavaMethodInfo(inserter, name, fullName, returnType, visibility, isConstruct, isAbstract,
+                isFinal, isStatic, isSynchronized, content, comment, params, methodBinding,
+                fullReturnType, belongTo, fullParams, fullVariables.toString(), methodCalls, fieldAccesses.toString(), throwTypes);
         return info;
     }
 
     private List<JavaFieldInfo> createJavaFieldInfos(FieldDeclaration node, String belongTo) {
-        List<JavaFieldInfo> r=new ArrayList<>();
-        String type=node.getType().toString();
-        String fullType= NameResolver.getFullName(node.getType());
-        String visibility=getVisibility(node.getModifiers());
-        boolean isStatic=Modifier.isStatic(node.getModifiers());
-        boolean isFinal=Modifier.isFinal(node.getModifiers());
-        String comment=node.getJavadoc()==null?"":sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
-        node.fragments().forEach(n->{
-            VariableDeclarationFragment fragment=(VariableDeclarationFragment)n;
-            String name=fragment.getName().getFullyQualifiedName();
-            String fullName=belongTo+"."+name;
-            r.add(new JavaFieldInfo(inserter,name,fullName,type,visibility,isStatic,isFinal,comment,belongTo,fullType));
+        List<JavaFieldInfo> r = new ArrayList<>();
+        String type = node.getType().toString();
+        String fullType = NameResolver.getFullName(node.getType());
+        String visibility = getVisibility(node.getModifiers());
+        boolean isStatic = Modifier.isStatic(node.getModifiers());
+        boolean isFinal = Modifier.isFinal(node.getModifiers());
+        String comment = node.getJavadoc() == null ? "" : sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
+        node.fragments().forEach(n -> {
+            VariableDeclarationFragment fragment = (VariableDeclarationFragment) n;
+            String name = fragment.getName().getFullyQualifiedName();
+            String fullName = belongTo + "." + name;
+            r.add(new JavaFieldInfo(inserter, name, fullName, type, visibility, isStatic, isFinal, comment, belongTo, fullType));
         });
         return r;
     }
@@ -136,18 +146,18 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.ASSERT_STATEMENT) {
                 Expression expression = ((AssertStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 expression = ((AssertStatement) statements.get(i)).getMessage();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
             }
 
             if (statements.get(i).getNodeType() == ASTNode.DO_STATEMENT) {
                 Expression expression = ((DoStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 Statement doBody = ((DoStatement) statements.get(i)).getBody();
                 if (doBody != null) {
@@ -157,9 +167,9 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.ENHANCED_FOR_STATEMENT) {
                 Expression expression = ((EnhancedForStatement) statements.get(i)).getExpression();
                 Type type = ((EnhancedForStatement) statements.get(i)).getParameter().getType();
-                fullVariables.append(NameResolver.getFullName(type)+", ");
+                fullVariables.append(NameResolver.getFullName(type) + ", ");
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 Statement forBody = ((EnhancedForStatement) statements.get(i)).getBody();
                 if (forBody != null) {
@@ -169,17 +179,17 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.EXPRESSION_STATEMENT) {
                 Expression expression = ((ExpressionStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
             }
             if (statements.get(i).getNodeType() == ASTNode.FOR_STATEMENT) {
                 List<Expression> list = ((ForStatement) statements.get(i)).initializers();
                 for (int j = 0; j < list.size(); j++) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, list.get(j));
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, list.get(j));
                 }
                 Expression expression = ((ForStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 Statement forBody = ((ForStatement) statements.get(i)).getBody();
                 if (forBody != null) {
@@ -189,7 +199,7 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.IF_STATEMENT) {
                 Expression expression = ((IfStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 Statement thenStatement = ((IfStatement) statements.get(i)).getThenStatement();
                 Statement elseStatement = ((IfStatement) statements.get(i)).getElseStatement();
@@ -203,13 +213,13 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.RETURN_STATEMENT) {
                 Expression expression = ((ReturnStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
             }
             if (statements.get(i).getNodeType() == ASTNode.SWITCH_STATEMENT) {
                 Expression expression = ((SwitchStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 List<Statement> switchStatements = ((SwitchStatement) statements.get(i)).statements();
                 for (int j = 0; j < switchStatements.size(); j++) {
@@ -219,7 +229,7 @@ public class JavaASTVisitor extends ASTVisitor {
             if (statements.get(i).getNodeType() == ASTNode.THROW_STATEMENT) {
                 Expression expression = ((ThrowStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
             }
             if (statements.get(i).getNodeType() == ASTNode.TRY_STATEMENT) {
@@ -231,13 +241,13 @@ public class JavaASTVisitor extends ASTVisitor {
             }
             if (statements.get(i).getNodeType() == ASTNode.VARIABLE_DECLARATION_STATEMENT) {
                 Type type = ((VariableDeclarationStatement) statements.get(i)).getType();
-                fullVariables.append(NameResolver.getFullName(type)+", ");
-                ((VariableDeclarationStatement) statements.get(i)).fragments().forEach(n->parseExpression(methodCalls,fullVariables,fieldAccesses, ((VariableDeclaration)n).getInitializer()));
+                fullVariables.append(NameResolver.getFullName(type) + ", ");
+                ((VariableDeclarationStatement) statements.get(i)).fragments().forEach(n -> parseExpression(methodCalls, fullVariables, fieldAccesses, ((VariableDeclaration) n).getInitializer()));
             }
             if (statements.get(i).getNodeType() == ASTNode.WHILE_STATEMENT) {
                 Expression expression = ((WhileStatement) statements.get(i)).getExpression();
                 if (expression != null) {
-                    parseExpression(methodCalls,fullVariables,fieldAccesses, expression);
+                    parseExpression(methodCalls, fullVariables, fieldAccesses, expression);
                 }
                 Statement whileBody = ((WhileStatement) statements.get(i)).getBody();
                 if (whileBody != null) {
@@ -254,35 +264,35 @@ public class JavaASTVisitor extends ASTVisitor {
         if (expression.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
             List<Expression> expressions = ((ArrayInitializer) expression).expressions();
             for (Expression expression2 : expressions) {
-                parseExpression(methodCalls,fullVariables,fieldAccesses, expression2);
+                parseExpression(methodCalls, fullVariables, fieldAccesses, expression2);
             }
         }
         if (expression.getNodeType() == ASTNode.CAST_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((CastExpression) expression).getExpression());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((CastExpression) expression).getExpression());
         }
         if (expression.getNodeType() == ASTNode.CONDITIONAL_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((ConditionalExpression) expression).getExpression());
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((ConditionalExpression) expression).getElseExpression());
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((ConditionalExpression) expression).getThenExpression());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((ConditionalExpression) expression).getExpression());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((ConditionalExpression) expression).getElseExpression());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((ConditionalExpression) expression).getThenExpression());
         }
         if (expression.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((InfixExpression) expression).getLeftOperand());
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((InfixExpression) expression).getRightOperand());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((InfixExpression) expression).getLeftOperand());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((InfixExpression) expression).getRightOperand());
         }
         if (expression.getNodeType() == ASTNode.INSTANCEOF_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((InstanceofExpression) expression).getLeftOperand());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((InstanceofExpression) expression).getLeftOperand());
         }
         if (expression.getNodeType() == ASTNode.PARENTHESIZED_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((ParenthesizedExpression) expression).getExpression());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((ParenthesizedExpression) expression).getExpression());
         }
         if (expression.getNodeType() == ASTNode.POSTFIX_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((PostfixExpression) expression).getOperand());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((PostfixExpression) expression).getOperand());
         }
         if (expression.getNodeType() == ASTNode.PREFIX_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((PrefixExpression) expression).getOperand());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((PrefixExpression) expression).getOperand());
         }
         if (expression.getNodeType() == ASTNode.THIS_EXPRESSION) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((ThisExpression) expression).getQualifier());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((ThisExpression) expression).getQualifier());
         }
         if (expression.getNodeType() == ASTNode.METHOD_INVOCATION) {
             List<Expression> arguments = ((MethodInvocation) expression).arguments();
@@ -290,30 +300,20 @@ public class JavaASTVisitor extends ASTVisitor {
             if (methodBinding != null)
                 methodCalls.add(methodBinding);
             for (Expression exp : arguments)
-                parseExpression(methodCalls,fullVariables,fieldAccesses, exp);
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((MethodInvocation) expression).getExpression());
+                parseExpression(methodCalls, fullVariables, fieldAccesses, exp);
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((MethodInvocation) expression).getExpression());
         }
         if (expression.getNodeType() == ASTNode.ASSIGNMENT) {
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((Assignment) expression).getLeftHandSide());
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((Assignment) expression).getRightHandSide());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((Assignment) expression).getLeftHandSide());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((Assignment) expression).getRightHandSide());
         }
         if (expression.getNodeType() == ASTNode.QUALIFIED_NAME) {
             if (((QualifiedName) expression).getQualifier().resolveTypeBinding() != null) {
                 String name = ((QualifiedName) expression).getQualifier().resolveTypeBinding().getQualifiedName() + "." + ((QualifiedName) expression).getName().getIdentifier();
-                fieldAccesses.append(name+", ");
+                fieldAccesses.append(name + ", ");
             }
-            parseExpression(methodCalls,fullVariables,fieldAccesses, ((QualifiedName) expression).getQualifier());
+            parseExpression(methodCalls, fullVariables, fieldAccesses, ((QualifiedName) expression).getQualifier());
         }
-    }
-
-    private static String getVisibility(int modifiers){
-        if (Modifier.isPrivate(modifiers))
-            return "private";
-        if (Modifier.isProtected(modifiers))
-            return "protected";
-        if (Modifier.isPublic(modifiers))
-            return "public";
-        return "package";
     }
 
 }

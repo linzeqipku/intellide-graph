@@ -11,11 +11,22 @@ public class Neo4jNode {
 
     private final long id;
     private final String label;
-    private final Map properties=new HashMap<>();
+    private final Map properties = new HashMap<>();
 
-    public static Neo4jNode get(long id, GraphDatabaseService db){
-        Neo4jNode node=null;
-        try (Transaction tx=db.beginTx()) {
+    public Neo4jNode(long id, String label, Map properties) {
+        this.id = id;
+        this.label = label;
+        this.properties.putAll(properties);
+    }
+
+    private Neo4jNode(long id, String label) {
+        this.id = id;
+        this.label = label;
+    }
+
+    public static Neo4jNode get(long id, GraphDatabaseService db) {
+        Neo4jNode node = null;
+        try (Transaction tx = db.beginTx()) {
             Node oNode = db.getNodeById(id);
             node = new Neo4jNode(id, oNode.getLabels().iterator().next().name());
             node.properties.putAll(oNode.getAllProperties());
@@ -24,17 +35,6 @@ public class Neo4jNode {
             tx.success();
         }
         return node;
-    }
-
-    public Neo4jNode(long id,String label, Map properties){
-        this.id=id;
-        this.label=label;
-        this.properties.putAll(properties);
-    }
-
-    private Neo4jNode(long id, String label) {
-        this.id = id;
-        this.label = label;
     }
 
     public long getId() {

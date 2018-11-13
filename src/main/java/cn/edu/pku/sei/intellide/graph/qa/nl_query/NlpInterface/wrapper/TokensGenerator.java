@@ -13,27 +13,27 @@ import java.util.Map;
 
 public class TokensGenerator {
 
-    public static Query generator(String text, String languageIdentifier){
+    public static Query generator(String text, String languageIdentifier) {
         /*AST 匹配到*/
         Query query = new Query();
         boolean flag = false;
         String word = "";
         String tmptext = "";
-        Map<String,String> key = new HashMap();
-        for (int i = 0; i < text.length(); i++){
-            if (text.charAt(i) == '"' && flag){
-                String k = "TOKEN_"+key.size();
-                key.put(k,word);
+        Map<String, String> key = new HashMap();
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '"' && flag) {
+                String k = "TOKEN_" + key.size();
+                key.put(k, word);
                 tmptext += k;
                 flag = !flag;
                 continue;
-            }else if (text.charAt(i) == '"' && !flag){
+            } else if (text.charAt(i) == '"' && !flag) {
                 flag = !flag;
                 continue;
             }
-            if (flag){
+            if (flag) {
                 word += text.charAt(i);
-            }else{
+            } else {
                 tmptext += text.charAt(i);
             }
         }
@@ -41,13 +41,13 @@ public class TokensGenerator {
         query.text = text;
         long offset = -1;
         List<NLPToken> set = StanfordParser.getInstance(languageIdentifier).runAllAnnotators(text);
-        for (NLPToken token : set){
+        for (NLPToken token : set) {
             if (!StopWords.getInstance(languageIdentifier).isStopWord(token.text)) {
                 token.roffset = token.offset;
                 offset++;
                 token.offset = offset;
                 token.offsetVal = offset;
-                if (token.text.startsWith("TOKEN_")){
+                if (token.text.startsWith("TOKEN_")) {
                     List<LuceneSearchResult> l = LuceneIndex.query(key.get(token.text));
                     token.mapping = new NLPNoticeMapping(l);
                     token.mappingList.add(token.mapping);

@@ -1,16 +1,5 @@
 package cn.edu.pku.sei.intellide.graph.extraction.qa;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.qa.entity.AnswerInfo;
 import cn.edu.pku.sei.intellide.graph.extraction.qa.entity.QaCommentInfo;
@@ -21,6 +10,16 @@ import org.neo4j.graphdb.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 从StackOverflow的XML文件数据中生成图数据
@@ -85,15 +84,15 @@ public class StackOverflowExtractor extends KnowledgeExtractor {
     private String postLinkXmlPath = null;
 
     @Override
-    public void extraction(){
+    public void extraction() {
 
-        GraphDatabaseService db=this.getDb();
+        GraphDatabaseService db = this.getDb();
 
         this.questionXmlPath = this.getDataDir() + "/Questions.xml";
         this.answerXmlPath = this.getDataDir() + "/Answers.xml";
         this.commentXmlPath = this.getDataDir() + "/Comments.xml";
         this.userXmlPath = this.getDataDir() + "/Users.xml";
-        this.postLinkXmlPath = this.getDataDir() +"/PostLinks.xml";
+        this.postLinkXmlPath = this.getDataDir() + "/PostLinks.xml";
 
         SAXParser qParser = null;
         SAXParser aParser = null;

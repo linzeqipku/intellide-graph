@@ -6,8 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.ResourceUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SnowGraphProject {
 
@@ -19,26 +21,26 @@ public class SnowGraphProject {
         this.description = description;
     }
 
+    public static List<SnowGraphProject> getProjectList(String jsonPath) throws IOException, JSONException {
+        List<SnowGraphProject> projectList = new ArrayList<>();
+        File jsonFile = ResourceUtils.getFile(jsonPath);
+        String json = FileUtils.readFileToString(jsonFile, "utf-8");
+        JSONArray jsonArray = new JSONArray(json);
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jobj = jsonArray.getJSONObject(i);
+            String name = jobj.getString("name");
+            String description = jobj.getString("description");
+            projectList.add(new SnowGraphProject(name, description));
+        }
+        return projectList;
+    }
+
     public String getName() {
         return name;
     }
 
     public String getDescription() {
         return description;
-    }
-
-    public static List<SnowGraphProject> getProjectList(String jsonPath) throws IOException, JSONException {
-        List<SnowGraphProject> projectList = new ArrayList<>();
-        File jsonFile = ResourceUtils.getFile(jsonPath);
-        String json = FileUtils.readFileToString(jsonFile,"utf-8");
-        JSONArray jsonArray = new JSONArray(json);
-        for (int i = 0; i<jsonArray.length();i++) {
-            JSONObject jobj = jsonArray.getJSONObject(i);
-            String name = jobj.getString("name");
-            String description = jobj.getString("description");
-            projectList.add(new SnowGraphProject(name,description));
-        }
-        return projectList;
     }
 
 }

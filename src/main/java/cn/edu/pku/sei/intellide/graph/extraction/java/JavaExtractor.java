@@ -18,24 +18,23 @@ import java.util.*;
 
 /**
  * 解析java源代码，抽取出代码实体以及这些代码实体之间的静态依赖关系，并将它们存储到neo4j图数据库中。
- *
+ * <p>
  * Class实体示例：
- *     name: UnixStat
- *     fullName: zstorg.apache.tools.zip.UnixStat
- *     content, comment, isAbstract, isFinal, isInterface, visibility
- *
+ * name: UnixStat
+ * fullName: zstorg.apache.tools.zip.UnixStat
+ * content, comment, isAbstract, isFinal, isInterface, visibility
+ * <p>
  * Method实体示例：
- *     name: error
- *     fullName: cn.edu.pku.sei.tsr.service.ras.util.ZipGenerator.error( String msg, boolean quit )
- *     paramType: String msg, boolean quit
- *     returnType: void
- *     content, comment, isAbstract, isConstructor, isFinal, isStatic, isSynchronized, visibility
- *
- *  Field实体示例：
- *      name: STRATEGY_ASSIGN
- *      fullName: cn.edu.pku.sei.tsr.entity.ConfigurationItem.STRATEGY_ASSIGN
- *      isFinal, isStatic, type, visibility
- *
+ * name: error
+ * fullName: cn.edu.pku.sei.tsr.service.ras.util.ZipGenerator.error( String msg, boolean quit )
+ * paramType: String msg, boolean quit
+ * returnType: void
+ * content, comment, isAbstract, isConstructor, isFinal, isStatic, isSynchronized, visibility
+ * <p>
+ * Field实体示例：
+ * name: STRATEGY_ASSIGN
+ * fullName: cn.edu.pku.sei.tsr.entity.ConfigurationItem.STRATEGY_ASSIGN
+ * isFinal, isStatic, type, visibility
  */
 
 public class JavaExtractor extends KnowledgeExtractor {
@@ -59,23 +58,23 @@ public class JavaExtractor extends KnowledgeExtractor {
     public static final String IS_INTERFACE = "isInterface";
     public static final String VISIBILITY = "visibility";
     public static final String IS_ABSTRACT = "isAbstract";
-    public static final String IS_FINAL="isFinal";
-    public static final String COMMENT="comment";
-    public static final String CONTENT="content";
-    public static final String RETURN_TYPE_STR="returnType";
-    public static final String TYPE_STR="type";
-    public static final String PARAM_TYPE_STR="paramType";
-    public static final String IS_CONSTRUCTOR="isConstructor";
-    public static final String IS_STATIC="isStatic";
-    public static final String IS_SYNCHRONIZED="isSynchronized";
+    public static final String IS_FINAL = "isFinal";
+    public static final String COMMENT = "comment";
+    public static final String CONTENT = "content";
+    public static final String RETURN_TYPE_STR = "returnType";
+    public static final String TYPE_STR = "type";
+    public static final String PARAM_TYPE_STR = "paramType";
+    public static final String IS_CONSTRUCTOR = "isConstructor";
+    public static final String IS_STATIC = "isStatic";
+    public static final String IS_SYNCHRONIZED = "isSynchronized";
 
     @Override
-    public boolean isBatchInsert(){
+    public boolean isBatchInsert() {
         return true;
     }
 
     @Override
-    public void extraction(){
+    public void extraction() {
         JavaProjectInfo javaProjectInfo = new JavaProjectInfo();
         Collection<File> javaFiles = FileUtils.listFiles(new File(this.getDataDir()), new String[]{"java"}, true);
         Set<String> srcPathSet = new HashSet<>();
@@ -104,13 +103,13 @@ public class JavaExtractor extends KnowledgeExtractor {
         parser.setBindingsRecovery(true);
         BatchInserter inserter = this.getInserter();
         String[] encodings = new String[srcPaths.length];
-        for (int i=0;i<srcPaths.length;i++)
+        for (int i = 0; i < srcPaths.length; i++)
             encodings[i] = "utf-8";
         parser.createASTs(srcPaths, encodings, new String[]{}, new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit javaUnit) {
                 try {
-                    javaUnit.accept(new JavaASTVisitor(javaProjectInfo, FileUtils.readFileToString(new File(sourceFilePath),"utf-8"),inserter));
+                    javaUnit.accept(new JavaASTVisitor(javaProjectInfo, FileUtils.readFileToString(new File(sourceFilePath), "utf-8"), inserter));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

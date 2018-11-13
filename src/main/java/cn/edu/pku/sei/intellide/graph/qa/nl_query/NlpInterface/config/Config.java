@@ -2,7 +2,6 @@ package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config;
 
 import org.apache.commons.io.FileUtils;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,10 +13,11 @@ public class Config {
     //private static Driver neo4jBoltConnection = null;
     private static String lucenePath = null;
     private static Config single = null;
+
     static {
         List<String> lines = new ArrayList<>();
         try {
-            lines = FileUtils.readLines(new File( cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath() + "conf"),"utf-8");
+            lines = FileUtils.readLines(new File(cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.config.Config.class.getResource("/").getPath() + "conf"), "utf-8");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -30,7 +30,7 @@ public class Config {
                 if (pre.equals("neo4jBoltUrl"))
                     neo4jBoltUrl = suf;
                 if (pre.equals("dataPath")) {
-                    lucenePath = suf+"/index";
+                    lucenePath = suf + "/index";
                 }
             }
         }

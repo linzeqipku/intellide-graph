@@ -3,9 +3,9 @@ package cn.edu.pku.sei.intellide.graph.extraction.code_mention;
 import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.code_mention.utils.CodeIndexes;
 import cn.edu.pku.sei.intellide.graph.extraction.git.GitExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.html.HtmlExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
-import cn.edu.pku.sei.intellide.graph.extraction.html.HtmlExtractor;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -32,22 +32,22 @@ import java.util.regex.Pattern;
 
 /**
  * 建立代码实体和其它类型的实体之间的关联关系
- *     detectCodeMentionInFlossDocuments: 建立英文文档和代码之间的关联关系
- *     detectCodeMentionInDocx: 建立中文文档和代码之间的关联关系（文档里面提到了这个代码）
- *     detectCodeMentionInDiff: 建立commits和代码之间的关联关系（add, modify, delete）
- *
+ * detectCodeMentionInFlossDocuments: 建立英文文档和代码之间的关联关系
+ * detectCodeMentionInDocx: 建立中文文档和代码之间的关联关系（文档里面提到了这个代码）
+ * detectCodeMentionInDiff: 建立commits和代码之间的关联关系（add, modify, delete）
+ * <p>
  * Preconditions: 已经运行过CodeTokenizer了。
  */
 
 public class CodeMentionExtractor extends KnowledgeExtractor {
 
-    public static final RelationshipType CODE_MENTION=RelationshipType.withName("codeMention");
-    public static final RelationshipType ADD=RelationshipType.withName("add");
-    public static final RelationshipType MODIFY=RelationshipType.withName("modify");
-    public static final RelationshipType DELETE=RelationshipType.withName("delete");
+    public static final RelationshipType CODE_MENTION = RelationshipType.withName("codeMention");
+    public static final RelationshipType ADD = RelationshipType.withName("add");
+    public static final RelationshipType MODIFY = RelationshipType.withName("modify");
+    public static final RelationshipType DELETE = RelationshipType.withName("delete");
 
     @Override
-    public void extraction(){
+    public void extraction() {
         this.detectCodeMentionInFlossDocuments();
         try {
             this.detectCodeMentionInDocx();
@@ -61,10 +61,10 @@ public class CodeMentionExtractor extends KnowledgeExtractor {
         CodeIndexes codeIndexes = new CodeIndexes(this.getDb());
         Set<Node> textNodes = new HashSet<>();
         try (Transaction tx = this.getDb().beginTx()) {
-            for (Node node:this.getDb().getAllNodes()){
-                if (!node.hasProperty(TokenExtractor.IS_TEXT)||!(boolean)node.getProperty(TokenExtractor.IS_TEXT))
+            for (Node node : this.getDb().getAllNodes()) {
+                if (!node.hasProperty(TokenExtractor.IS_TEXT) || !(boolean) node.getProperty(TokenExtractor.IS_TEXT))
                     continue;
-                if (node.hasLabel(JavaExtractor.CLASS)||node.hasLabel(JavaExtractor.METHOD)||node.hasLabel(JavaExtractor.FIELD))
+                if (node.hasLabel(JavaExtractor.CLASS) || node.hasLabel(JavaExtractor.METHOD) || node.hasLabel(JavaExtractor.FIELD))
                     continue;
                 textNodes.add(node);
             }
@@ -144,16 +144,16 @@ public class CodeMentionExtractor extends KnowledgeExtractor {
             while (methodNodes.hasNext()) {
                 Node methodNode = methodNodes.next();
                 String name = (String) methodNode.getProperty(JavaExtractor.FULLNAME);
-                String[] eles=name.substring(0, name.indexOf("(")).split("\\.");
-                if (eles[eles.length-1].equals(eles[eles.length-2]))
+                String[] eles = name.substring(0, name.indexOf("(")).split("\\.");
+                if (eles[eles.length - 1].equals(eles[eles.length - 2]))
                     continue;
-                String q = eles[eles.length-1].toLowerCase()+" AND "+eles[eles.length-2].toLowerCase();
+                String q = eles[eles.length - 1].toLowerCase() + " AND " + eles[eles.length - 2].toLowerCase();
                 Query query = parser.parse(q);
                 ScoreDoc[] hits = isearcher.search(query, 10000).scoreDocs;
-                if (hits.length > 0 && hits.length<20) {
-                    for (ScoreDoc hit:hits) {
+                if (hits.length > 0 && hits.length < 20) {
+                    for (ScoreDoc hit : hits) {
                         Node docxNode = this.getDb().getNodeById(Long.parseLong(ireader.document(hit.doc).get(ID_FIELD)));
-                        methodNode.createRelationshipTo(docxNode,CODE_MENTION);
+                        methodNode.createRelationshipTo(docxNode, CODE_MENTION);
                     }
                 }
             }
@@ -167,10 +167,10 @@ public class CodeMentionExtractor extends KnowledgeExtractor {
                 String q = name.toLowerCase();
                 Query query = parser.parse(q);
                 ScoreDoc[] hits = isearcher.search(query, 10000).scoreDocs;
-                if (hits.length > 0 && hits.length<20) {
-                    for (ScoreDoc hit:hits) {
+                if (hits.length > 0 && hits.length < 20) {
+                    for (ScoreDoc hit : hits) {
                         Node docxNode = this.getDb().getNodeById(Long.parseLong(ireader.document(hit.doc).get(ID_FIELD)));
-                        classNode.createRelationshipTo(docxNode,CODE_MENTION);
+                        classNode.createRelationshipTo(docxNode, CODE_MENTION);
                     }
                 }
             }
@@ -178,30 +178,30 @@ public class CodeMentionExtractor extends KnowledgeExtractor {
         }
     }
 
-    private void detectCodeMentionInDiff(){
-        Map<String,Node> classMap=new HashMap<>();
-        Pattern pattern=Pattern.compile("(ADD|MODIFY|DELETE)\\s+(\\S+)\\s+to\\s+(\\S+)");
+    private void detectCodeMentionInDiff() {
+        Map<String, Node> classMap = new HashMap<>();
+        Pattern pattern = Pattern.compile("(ADD|MODIFY|DELETE)\\s+(\\S+)\\s+to\\s+(\\S+)");
         try (Transaction tx = this.getDb().beginTx()) {
-            ResourceIterator<Node> classNodes=this.getDb().findNodes(JavaExtractor.CLASS);
-            while (classNodes.hasNext()){
-                Node classNode=classNodes.next();
+            ResourceIterator<Node> classNodes = this.getDb().findNodes(JavaExtractor.CLASS);
+            while (classNodes.hasNext()) {
+                Node classNode = classNodes.next();
                 String fullName = (String) classNode.getProperty(JavaExtractor.FULLNAME);
-                String sig = fullName.replace('.','/')+".java";
-                classMap.put(sig,classNode);
+                String sig = fullName.replace('.', '/') + ".java";
+                classMap.put(sig, classNode);
             }
-            ResourceIterator<Node> commits=this.getDb().findNodes(GitExtractor.COMMIT);
-            while (commits.hasNext()){
-                Node commit=commits.next();
-                String diffSummary= (String) commit.getProperty(GitExtractor.DIFF_SUMMARY);
-                Matcher matcher=pattern.matcher(diffSummary);
-                while (matcher.find()){
-                    String relStr=matcher.group(1);
-                    String srcPath=matcher.group(2);
-                    String dstPath=matcher.group(3);
-                    RelationshipType relType=relStr.equals("ADD")?ADD:relStr.equals("MODIFY")?MODIFY:DELETE;
-                    for (String sig:classMap.keySet())
-                        if (srcPath.contains(sig)||dstPath.contains(sig))
-                            commit.createRelationshipTo(classMap.get(sig),relType);
+            ResourceIterator<Node> commits = this.getDb().findNodes(GitExtractor.COMMIT);
+            while (commits.hasNext()) {
+                Node commit = commits.next();
+                String diffSummary = (String) commit.getProperty(GitExtractor.DIFF_SUMMARY);
+                Matcher matcher = pattern.matcher(diffSummary);
+                while (matcher.find()) {
+                    String relStr = matcher.group(1);
+                    String srcPath = matcher.group(2);
+                    String dstPath = matcher.group(3);
+                    RelationshipType relType = relStr.equals("ADD") ? ADD : relStr.equals("MODIFY") ? MODIFY : DELETE;
+                    for (String sig : classMap.keySet())
+                        if (srcPath.contains(sig) || dstPath.contains(sig))
+                            commit.createRelationshipTo(classMap.get(sig), relType);
                 }
             }
             tx.success();

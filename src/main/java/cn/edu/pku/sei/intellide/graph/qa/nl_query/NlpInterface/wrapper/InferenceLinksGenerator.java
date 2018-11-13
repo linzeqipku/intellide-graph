@@ -11,7 +11,8 @@ public class InferenceLinksGenerator {
     public static NLPNode startNode;
     public static Query query;
     public static Set<Object> visited = new HashSet<>();
-    public static void generate(Query query){
+
+    public static void generate(Query query) {
         /*从多个tuples链接成一个link 按照顺序*/
         InferenceLinksGenerator.query = query;
         init();
@@ -22,21 +23,23 @@ public class InferenceLinksGenerator {
         link.start = new NLPInferenceNode(startNode);
         findLink(link.start);
     }
-    public static void init(){
+
+    public static void init() {
         visited.clear();
         int cnt = 0;
-        for (NLPNode node : query.nodes){
+        for (NLPNode node : query.nodes) {
             if (node.token.mapping instanceof NLPVertexSchemaMapping)
                 node.id = cnt++;
         }
-        for (NLPNode node : query.nodes){
+        for (NLPNode node : query.nodes) {
             if (!(node.token.mapping instanceof NLPVertexSchemaMapping))
                 node.id = cnt++;
         }
     }
-    public static void findStart(){
-        for (NLPNode node : query.nodes){
-            if (node.focus){
+
+    public static void findStart() {
+        for (NLPNode node : query.nodes) {
+            if (node.focus) {
                 query.focusNode = node;
                 node.focus = true;
                 startNode = node;
@@ -58,8 +61,8 @@ public class InferenceLinksGenerator {
             }
         }
         if (offsetmin < 100) { query.focusNode.focus = true;startNode = query.focusNode; return;}*/
-        for (NLPNode node : query.nodes){
-            if (node.token.mapping instanceof NLPVertexSchemaMapping && !(node.token.mapping instanceof NLPVertexMapping) && !node.hasattr){
+        for (NLPNode node : query.nodes) {
+            if (node.token.mapping instanceof NLPVertexSchemaMapping && !(node.token.mapping instanceof NLPVertexMapping) && !node.hasattr) {
                 int nums = node.nextNode.size() + node.lastNode.size();
                 if (nums == 1) {
                     query.focusNode = node;
@@ -69,8 +72,8 @@ public class InferenceLinksGenerator {
                 }
             }
         }
-        for (NLPNode node : query.nodes){
-            if (node.token.mapping instanceof NLPVertexSchemaMapping){
+        for (NLPNode node : query.nodes) {
+            if (node.token.mapping instanceof NLPVertexSchemaMapping) {
                 query.focusNode = node;
                 node.focus = true;
                 startNode = node;
@@ -79,17 +82,18 @@ public class InferenceLinksGenerator {
             }
         }
     }
-    public static void findLink(NLPInferenceNode _inferenceNode){
+
+    public static void findLink(NLPInferenceNode _inferenceNode) {
         NLPInferenceNode inferenceNode = _inferenceNode;
         NLPNode startNode = inferenceNode.node;
         visited.add(startNode);
         boolean flag = false;
-        for (int i = 0; i < startNode.nextNode.size(); i++){
+        for (int i = 0; i < startNode.nextNode.size(); i++) {
             NLPNode node = startNode.nextNode.get(i);
             NLPRelation relation = startNode.nextRelation.get(i);
             if (relation.edgeType == null && !relation.otherType.equals("hidden")) continue;
             if (visited.contains(relation) || visited.contains(relation.mirror)) continue;
-            if (flag){
+            if (flag) {
                 NLPInferenceLink link = new NLPInferenceLink();
                 inferenceNode = new NLPInferenceNode(startNode);
                 link.start = inferenceNode;
@@ -107,12 +111,12 @@ public class InferenceLinksGenerator {
             }
             findLink(inferenceNode.nextInferNode);
         }
-        for (int i = 0; i < startNode.lastNode.size(); i++){
+        for (int i = 0; i < startNode.lastNode.size(); i++) {
             NLPNode node = startNode.lastNode.get(i);
             NLPRelation relation = startNode.lastRelation.get(i);
             if (relation.edgeType == null && !relation.otherType.equals("hidden")) continue;
             if (visited.contains(relation) || visited.contains(relation.mirror)) continue;
-            if (flag){
+            if (flag) {
                 NLPInferenceLink link = new NLPInferenceLink();
                 inferenceNode = new NLPInferenceNode(startNode);
                 link.start = inferenceNode;

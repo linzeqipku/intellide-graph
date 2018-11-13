@@ -10,8 +10,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties
 public class Conf {
 
-    @Getter @Setter
-    private String graphDir,dataDir,infoDir;
+    @Getter
+    @Setter
+    private String graphDir, dataDir, infoDir;
 
 }
 

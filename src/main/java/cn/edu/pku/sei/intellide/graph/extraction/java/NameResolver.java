@@ -9,7 +9,7 @@ import java.util.Set;
  */
 public class NameResolver {
 
-    private static Set<String> srcPathSet=null;
+    private static Set<String> srcPathSet = null;
 
     /**
      * Evaluates fully qualified name of the TypeDeclaration object.
@@ -40,46 +40,46 @@ public class NameResolver {
         if (t == null)
             return "";
 
-        if (t.isNameQualifiedType()){
-            return ((NameQualifiedType)t).getQualifier().getFullyQualifiedName();
+        if (t.isNameQualifiedType()) {
+            return ((NameQualifiedType) t).getQualifier().getFullyQualifiedName();
         }
-        if (t.isPrimitiveType()){
-            return ((PrimitiveType)t).toString();
+        if (t.isPrimitiveType()) {
+            return ((PrimitiveType) t).toString();
         }
-        if (t.isQualifiedType()){
+        if (t.isQualifiedType()) {
             QualifiedType t0 = (QualifiedType) t;
             return getFullName(t0.getQualifier()) + "." + t0.getName().getIdentifier();
         }
-        if (t.isSimpleType()){
-            return getFullName(((SimpleType)t).getName());
+        if (t.isSimpleType()) {
+            return getFullName(((SimpleType) t).getName());
         }
-        if (t.isWildcardType()){
-            return "? (extends|super) "+getFullName(((WildcardType)t).getBound());
+        if (t.isWildcardType()) {
+            return "? (extends|super) " + getFullName(((WildcardType) t).getBound());
         }
 
         if (t.isParameterizedType()) {
-            ParameterizedType t0=((ParameterizedType) t);
-            String s=getFullName(t0.getType())+"<";
-            for (Object type:t0.typeArguments())
-                s+=getFullName((Type)type)+",";
-            return s.substring(0,s.length()-1)+">";
+            ParameterizedType t0 = ((ParameterizedType) t);
+            String s = getFullName(t0.getType()) + "<";
+            for (Object type : t0.typeArguments())
+                s += getFullName((Type) type) + ",";
+            return s.substring(0, s.length() - 1) + ">";
         }
         if (t.isUnionType()) {
-            UnionType t0=(UnionType)t;
-            String s="";
-            for (Object type:t0.types())
-                s+=getFullName((Type)type)+"|";
-            return s.substring(0,s.length()-1);
+            UnionType t0 = (UnionType) t;
+            String s = "";
+            for (Object type : t0.types())
+                s += getFullName((Type) type) + "|";
+            return s.substring(0, s.length() - 1);
         }
-        if (t.isIntersectionType()){
-            IntersectionType t0=(IntersectionType)t;
-            String s="";
-            for (Object type:t0.types())
-                s+=getFullName((Type)type)+"&";
-            return s.substring(0,s.length()-1);
+        if (t.isIntersectionType()) {
+            IntersectionType t0 = (IntersectionType) t;
+            String s = "";
+            for (Object type : t0.types())
+                s += getFullName((Type) type) + "&";
+            return s.substring(0, s.length() - 1);
         }
-        if (t.isArrayType()){
-            return getFullName(((ArrayType)t).getElementType())+"[]";
+        if (t.isArrayType()) {
+            return getFullName(((ArrayType) t).getElementType()) + "[]";
         }
         return "";
     }
@@ -113,11 +113,11 @@ public class NameResolver {
         return name.getFullyQualifiedName();
     }
 
-	public static void setSrcPathSet(Set<String> srcPathSet) {
-		NameResolver.srcPathSet = srcPathSet;
-	}
+    public static void setSrcPathSet(Set<String> srcPathSet) {
+        NameResolver.srcPathSet = srcPathSet;
+    }
 
-	private static class PckgImprtVisitor extends ASTVisitor {
+    private static class PckgImprtVisitor extends ASTVisitor {
         private boolean found = false;
         private String fullName;
         private String name;
@@ -130,16 +130,16 @@ public class NameResolver {
         }
 
         private void checkInDir(String dirName) {
-            String name=dirName+"."+nameParts[0] + ".java";
-            for (String fileName:srcPathSet){
-            	fileName=fileName.replace("\\", ".").replace("/", ".");
-            	if (fileName.contains(name)){
-            		fullName = dirName;
+            String name = dirName + "." + nameParts[0] + ".java";
+            for (String fileName : srcPathSet) {
+                fileName = fileName.replace("\\", ".").replace("/", ".");
+                if (fileName.contains(name)) {
+                    fullName = dirName;
                     for (String namePart : nameParts) {
                         fullName += "." + namePart;
                     }
                     found = true;
-            	}
+                }
             }
         }
 

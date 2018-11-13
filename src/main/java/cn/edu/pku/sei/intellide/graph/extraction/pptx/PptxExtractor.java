@@ -1,18 +1,23 @@
 package cn.edu.pku.sei.intellide.graph.extraction.pptx;
 
 
-import java.io.*;
+import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.xslf.usermodel.XMLSlideShow;
+import org.apache.poi.xslf.usermodel.XSLFShape;
+import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.xslf.usermodel.XSLFTextShape;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.unsafe.batchinsert.BatchInserter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
-import org.apache.commons.io.FileUtils;
-import org.apache.poi.xslf.usermodel.*;
-
-import org.neo4j.graphdb.*;
-import org.neo4j.unsafe.batchinsert.BatchInserter;
 
 
 public class PptxExtractor extends KnowledgeExtractor {
@@ -24,12 +29,12 @@ public class PptxExtractor extends KnowledgeExtractor {
     public static final String SERIAL_NUMBER = "serialNumber";
 
     @Override
-    public boolean isBatchInsert(){
+    public boolean isBatchInsert() {
         return true;
     }
 
     @Override
-    public void extraction(){
+    public void extraction() {
         Map<File, PptSection> map = new HashMap<>();
         for (File file : FileUtils.listFiles(new File(this.getDataDir()), new String[]{"pptx"}, true)) {
             XMLSlideShow pptx = null;
@@ -71,14 +76,14 @@ public class PptxExtractor extends KnowledgeExtractor {
         List<PptSection> children = new ArrayList<>();
 
         public long toNeo4j(BatchInserter inserter) {
-            Map<String,Object> map=new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put(PptxExtractor.TITLE, title);
             map.put(PptxExtractor.CONTENT, content);
             long node = inserter.createNode(map, new Label[]{PptxExtractor.PPTX});
-            for (int i=0;i<children.size();i++) {
+            for (int i = 0; i < children.size(); i++) {
                 PptSection child = children.get(i);
                 long childId = child.toNeo4j(inserter);
-                Map<String,Object> rMap = new HashMap<>();
+                Map<String, Object> rMap = new HashMap<>();
                 rMap.put(PptxExtractor.SERIAL_NUMBER, i);
                 inserter.createRelationship(node, childId, PptxExtractor.SUB_PPTX_ELEMENT, rMap);
             }

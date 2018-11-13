@@ -3,7 +3,7 @@ package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.wrapper;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.Query;
 
 public class TuplesGenerator {
-    public static void generate(Query query){
+    public static void generate(Query query) {
         /* 能连就连，一个relation用一次
         * 应该根据得到的语法树构成tuples（临近就可以了）*/
         /*

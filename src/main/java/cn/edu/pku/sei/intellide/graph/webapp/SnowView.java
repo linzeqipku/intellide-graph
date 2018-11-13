@@ -21,23 +21,22 @@ public class SnowView {
 
         try {
 
-            if (args.length == 0){
+            if (args.length == 0) {
                 showHelp(parser);
                 return;
             }
             parser.parseArgument(args);
-            if (option.exec){
+            if (option.exec) {
                 SpringApplication.run(SnowView.class, args);
-            }
-            else if (option.genConfigPath != null){
+            } else if (option.genConfigPath != null) {
                 KnowledgeExtractor.executeFromYaml(FileUtils.readFileToString(new File(option.genConfigPath), "utf-8"));
             }
 
-        }catch (CmdLineException cle){
+        } catch (CmdLineException cle) {
             System.out.println("Command line error: " + cle.getMessage());
             showHelp(parser);
             return;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error in main: " + e.getMessage());
             e.printStackTrace();
             return;
@@ -45,7 +44,7 @@ public class SnowView {
 
     }
 
-    public static void showHelp(CmdLineParser parser){
+    public static void showHelp(CmdLineParser parser) {
         System.out.println("SnowGraph [options ...] [arguments...]");
         parser.printUsage(System.out);
     }
@@ -54,10 +53,10 @@ public class SnowView {
 
 class CmdOption {
 
-    @Option(name="-gen", usage="Generate a knowledge graph according to the yaml configure file")
+    @Option(name = "-gen", usage = "Generate a knowledge graph according to the yaml configure file")
     public String genConfigPath = null;
 
-    @Option(name="-exec", usage="Run the web application in localhost")
+    @Option(name = "-exec", usage = "Run the web application in localhost")
     public boolean exec = false;
 
 }

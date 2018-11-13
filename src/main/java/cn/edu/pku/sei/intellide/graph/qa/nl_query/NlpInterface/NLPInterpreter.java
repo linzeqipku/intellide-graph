@@ -16,9 +16,13 @@ public class NLPInterpreter {
     private List<Query> queries = new ArrayList<>();
     private int offsetMax;
 
-    public synchronized static NLPInterpreter getInstance(String languageIdentifier){
+    private NLPInterpreter(String languageIdentifier) {
+        this.languageIdentifier = languageIdentifier;
+    }
+
+    public synchronized static NLPInterpreter getInstance(String languageIdentifier) {
         NLPInterpreter instance = instances.get(languageIdentifier);
-        if (instance != null){
+        if (instance != null) {
             return instance;
         }
         instance = new NLPInterpreter(languageIdentifier);
@@ -26,11 +30,7 @@ public class NLPInterpreter {
         return instance;
     }
 
-    private NLPInterpreter(String languageIdentifier){
-        this.languageIdentifier = languageIdentifier;
-    }
-
-    public synchronized List<String> pipeline(String plainText){
+    public synchronized List<String> pipeline(String plainText) {
         try {
             queries.clear();
             Query query = generatorTokens(plainText);
@@ -83,18 +83,19 @@ public class NLPInterpreter {
                 ans.add(q.cypher);
             }
             return ans;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public void DFS(Query query, int offset, List<Integer> list, int no){
+    public void DFS(Query query, int offset, List<Integer> list, int no) {
         if (no > 1) return;
-        if (offset == offsetMax){
-            for (NLPToken token : query.tokens){
-                if (list.get((int)token.offset) < 0) token.mapping = null; else
-                token.mapping = token.mappingList.get(list.get((int)token.offset));
+        if (offset == offsetMax) {
+            for (NLPToken token : query.tokens) {
+                if (list.get((int) token.offset) < 0) token.mapping = null;
+                else
+                    token.mapping = token.mappingList.get(list.get((int) token.offset));
             }
             Query newquery = query.copyOut();
             mapToSchema(newquery);
@@ -103,42 +104,43 @@ public class NLPInterpreter {
             return;
         }
         boolean flag = false;
-        for (NLPToken token : query.tokens){
-            if (token.offset == offset){
+        for (NLPToken token : query.tokens) {
+            if (token.offset == offset) {
                 flag = true;
                 if (!(token.mapping instanceof NLPVertexSchemaMapping) ||
-                        !((NLPVertexSchemaMapping)token.mapping).must) {
+                        !((NLPVertexSchemaMapping) token.mapping).must) {
                     list.set(offset, -1);
-                    if (token.nomapping)DFS(query, offset + 1, list, no);else
-                    DFS(query, offset + 1, list, no + 1);
+                    if (token.nomapping) DFS(query, offset + 1, list, no);
+                    else
+                        DFS(query, offset + 1, list, no + 1);
                 }
-                for (int i = 0; i < token.mappingList.size(); i++){
-                    list.set(offset,i);
-                    DFS(query,offset+1, list, no);
+                for (int i = 0; i < token.mappingList.size(); i++) {
+                    list.set(offset, i);
+                    DFS(query, offset + 1, list, no);
                 }
             }
         }
 
-        if (!flag) DFS(query,offset+1, list, no);
+        if (!flag) DFS(query, offset + 1, list, no);
     }
 
-    private Query generatorTokens(String plainText){
+    private Query generatorTokens(String plainText) {
         return TokensGenerator.generator(plainText, languageIdentifier);
     }
 
-    private void mapTokensToNodeAndRelation(Query query){
+    private void mapTokensToNodeAndRelation(Query query) {
         TokenMapping.process(query, languageIdentifier);
     }
 
-    private void generatorInferenceLinks(Query query){
+    private void generatorInferenceLinks(Query query) {
         InferenceLinksGenerator.generate(query);
     }
 
-    private void mapToSchema(Query query){
+    private void mapToSchema(Query query) {
         SchemaMapping.mapping(query);
     }
 
-    private String generatorCyphers(Query query){
+    private String generatorCyphers(Query query) {
         return CyphersGenerator.generate(query);
     }
 

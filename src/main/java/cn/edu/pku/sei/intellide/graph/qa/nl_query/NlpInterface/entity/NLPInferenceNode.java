@@ -6,7 +6,8 @@ public class NLPInferenceNode {
     public NLPRelation nextRelation;
     public boolean direct = true;
     public boolean isEnd = false;
-    public NLPInferenceNode (NLPNode node) {
+
+    public NLPInferenceNode(NLPNode node) {
         this.node = node;
     }
 }

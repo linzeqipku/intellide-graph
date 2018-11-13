@@ -9,14 +9,24 @@ import java.util.*;
 
 public class StopWords {
 
+    public static Map<String, StopWords> instances = new HashMap<>();
     public Set<String> stopWords = new HashSet<>();
 
-    public static Map<String, StopWords> instances = new HashMap<>();
+    private StopWords(String languageIdentifier) {
+        List<String> lines = new ArrayList<>();
+        try {
+            InputStream in = CnToEnDirectory.class.getResourceAsStream("/nli/stopwords/" + languageIdentifier + ".txt");
+            lines = IOUtils.readLines(in, "utf-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        stopWords.addAll(lines);
+    }
 
-    public synchronized static StopWords getInstance(String languageIdentifier){
+    public synchronized static StopWords getInstance(String languageIdentifier) {
 
         StopWords instance = instances.get(languageIdentifier);
-        if (instance != null){
+        if (instance != null) {
             return instance;
         }
         instance = new StopWords(languageIdentifier);
@@ -24,18 +34,7 @@ public class StopWords {
         return instance;
     }
 
-    private StopWords(String languageIdentifier){
-        List<String> lines=new ArrayList<>();
-        try {
-            InputStream in = CnToEnDirectory.class.getResourceAsStream("/nli/stopwords/"+languageIdentifier+".txt");
-            lines= IOUtils.readLines(in, "utf-8");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        stopWords.addAll(lines);
-    }
-
-    public boolean isStopWord(String word){
+    public boolean isStopWord(String word) {
         return stopWords.contains(word);
     }
 

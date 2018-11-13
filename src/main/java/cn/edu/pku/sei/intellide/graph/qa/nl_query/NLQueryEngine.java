@@ -33,7 +33,7 @@ public class NLQueryEngine {
 
     private static boolean isNlpSolver(String query) {
         for (String indicator : englishQuestionIndicators){
-            if (indicator.trim().toLowerCase().startsWith(indicator+" ")){
+            if (query.trim().toLowerCase().startsWith(indicator+" ")){
                 return true;
             }
         }

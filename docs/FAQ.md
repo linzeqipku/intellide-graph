@@ -16,6 +16,11 @@
 <a name="developer"></a>
 ## 开发者相关
 
+- **如何配置开发环境.**
+
+    - [IntelliJ IDEA](https://www.jetbrains.com/idea/)
+    - [Lombok插件](https://projectlombok.org/)
+
 - **对更多数据格式的解析支持（以C#源代码数据为例）.**
 
     有时，我们需要提供对更多类型的数据格式的支持. 例如，对于源代码，当前只支持解析Java，暂时无法解析C#源代码数据.

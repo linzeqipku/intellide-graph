@@ -76,7 +76,6 @@ public class StanfordParser {
                     name = "";
                 }
                 NLPToken nlptoken = new NLPToken(word, pos, ne);
-                //System.out.println(pos +" " + word);
                 nlptoken.offset = offset++;
                 set.add(nlptoken);
             }

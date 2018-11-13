@@ -81,7 +81,6 @@ public class JavaExtractor extends KnowledgeExtractor {
         Set<String> srcFolderSet = new HashSet<>();
         for (File javaFile : javaFiles) {
             String srcPath = javaFile.getAbsolutePath();
-            //System.out.println(srcPath);
             String srcFolderPath = javaFile.getParentFile().getAbsolutePath();
             srcPathSet.add(srcPath);
             srcFolderSet.add(srcFolderPath);

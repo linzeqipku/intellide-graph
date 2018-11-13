@@ -55,8 +55,6 @@ public class Controller {
         Neo4jSubGraph r = nlQueryEngine.search(query);
 
         if (r.getNodes().size() > 0) {
-            System.out.println("success");
-            System.out.println(r.getNodes().toString());
             return r;
         }
 
@@ -65,7 +63,6 @@ public class Controller {
         }
 
         CodeSearch codeSearch = codeSearchMap.get(project);
-        System.out.println("开始CodeSearch...");
         return codeSearch.search(query);
     }
 

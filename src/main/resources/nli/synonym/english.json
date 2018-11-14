@@ -20,7 +20,8 @@
         "Commit"
       ],
       "similar": [
-        "commit"
+        "commit",
+        "change"
       ]
     },
     {
@@ -28,7 +29,8 @@
         "JiraIssue"
       ],
       "similar": [
-        "issue"
+        "issue",
+        "bug"
       ]
     },
     {
@@ -87,7 +89,8 @@
         "methodCall"
       ],
       "similar": [
-        "call"
+        "call",
+        "invoke"
       ]
     },
     {
@@ -97,7 +100,8 @@
       ],
       "similar": [
         "have",
-        "belong"
+        "belong",
+        "contain"
       ]
     },
     {
@@ -112,8 +116,6 @@
     {
       "relationName": [
         "committer",
-        "delete",
-        "add",
         "modify"
       ],
       "similar": [
@@ -163,7 +165,8 @@
         "codeMention"
       ],
       "similar": [
-        "mention"
+        "mention",
+        "related"
       ]
     },
     {

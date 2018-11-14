@@ -47,9 +47,9 @@ public class NLPInterpreter {
      * 1. 使用TokensGenerator，对输入的句子进行切词、词性标注、命名实体识别等预处理；
      * 2. 使用TokenMapping，给每个token识别出相应的graph schema元素；
      * 3. 使用SchemaMapping和EdgeMappingSchema，给每个token识别出相应的graph entity元素；
-     * 4. ...
+     * 4. 使用LinkAllNodes，把识别出的元素关联形成一个推理子图；
      * @param plainText
-     * @return
+     * @return 评分排名前20的推理子图
      */
     public synchronized List<String> pipeline(String plainText) {
         log.debug("开始解析问句的语义.");
@@ -62,6 +62,7 @@ public class NLPInterpreter {
             for (int i = 0; i < offsetMax; i++) list.add(0);
 
             dfs(query, 0, list, 0);
+
             int tot = 0;
             List<Query> answers = new ArrayList<>();
             for (Query query1 : queries) {

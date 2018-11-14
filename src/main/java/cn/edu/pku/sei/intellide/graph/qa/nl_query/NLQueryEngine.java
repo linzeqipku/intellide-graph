@@ -23,7 +23,7 @@ public class NLQueryEngine {
     private String languageIdentifier;
     private GraphDatabaseService db;
     private String dataDirPath;
-    private static final String[] englishQuestionIndicators = new String[]{"who", "what", "which", "when", "list"};
+    private static final String[] englishQuestionIndicators = new String[]{"who", "what", "which", "when", "list", "show"};
 
     public NLQueryEngine(GraphDatabaseService db, String dataDirPath, String languageIdentifier) {
         this.db = db;

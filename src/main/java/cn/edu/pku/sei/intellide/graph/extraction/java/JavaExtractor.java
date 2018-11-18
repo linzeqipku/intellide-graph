@@ -2,6 +2,7 @@ package cn.edu.pku.sei.intellide.graph.extraction.java;
 
 import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.java.infos.JavaProjectInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -37,6 +38,7 @@ import java.util.*;
  * isFinal, isStatic, type, visibility
  */
 
+@Slf4j
 public class JavaExtractor extends KnowledgeExtractor {
 
     public static final Label CLASS = Label.label("Class");
@@ -75,6 +77,7 @@ public class JavaExtractor extends KnowledgeExtractor {
 
     @Override
     public void extraction() {
+
         JavaProjectInfo javaProjectInfo = new JavaProjectInfo();
         Collection<File> javaFiles = FileUtils.listFiles(new File(this.getDataDir()), new String[]{"java"}, true);
         Set<String> srcPathSet = new HashSet<>();
@@ -87,33 +90,45 @@ public class JavaExtractor extends KnowledgeExtractor {
         }
         String[] srcPaths = new String[srcPathSet.size()];
         srcPathSet.toArray(srcPaths);
+
         NameResolver.setSrcPathSet(srcPathSet);
         String[] srcFolderPaths = new String[srcFolderSet.size()];
         srcFolderSet.toArray(srcFolderPaths);
-        ASTParser parser = ASTParser.newParser(AST.JLS8);
-        parser.setKind(ASTParser.K_COMPILATION_UNIT);
-        parser.setEnvironment(null, srcFolderPaths, null, true);
-        parser.setResolveBindings(true);
-        Map<String, String> options = new Hashtable<>();
-        options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-        options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-        options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
-        parser.setCompilerOptions(options);
-        parser.setBindingsRecovery(true);
+
         BatchInserter inserter = this.getInserter();
-        String[] encodings = new String[srcPaths.length];
+        for (String path:srcPaths){
+            System.out.println(path);
+            try {
+                ASTParser parser = ASTParser.newParser(AST.JLS10);
+                parser.setResolveBindings(true);
+                parser.setKind(ASTParser.K_COMPILATION_UNIT);
+                parser.setBindingsRecovery(true);
+                parser.setEnvironment(null, new String[]{this.getDataDir()}, new String[]{"utf-8"}, true);
+                parser.setCompilerOptions(JavaCore.getOptions());
+                String source = FileUtils.readFileToString(new File(path), "utf-8");
+                parser.setSource(source.toCharArray());
+                parser.setUnitName(path);
+                CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+                cu.accept(new JavaASTVisitor(javaProjectInfo, source, inserter));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        /*
+        String[] encodings2 = new String[srcPaths.length];
         for (int i = 0; i < srcPaths.length; i++)
-            encodings[i] = "utf-8";
-        parser.createASTs(srcPaths, encodings, new String[]{}, new FileASTRequestor() {
+            encodings2[i] = "utf-8";
+        parser.createASTs(srcPaths, encodings2, new String[]{}, new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit javaUnit) {
                 try {
+                    log.debug("AST parsing: " + sourceFilePath);
                     javaUnit.accept(new JavaASTVisitor(javaProjectInfo, FileUtils.readFileToString(new File(sourceFilePath), "utf-8"), inserter));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }, null);
+        }, null);*/
         javaProjectInfo.parseRels(this.getInserter());
     }
 

@@ -59,6 +59,13 @@ public abstract class KnowledgeExtractor {
         for (String key : ret.keySet()) {
             configs.add(new ExtractorConfig(key, graphDir, ret.get(key)));
         }
+        if (new File(graphDir).exists()){
+            try {
+                FileUtils.deleteDirectory(new File(graphDir));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         execute(configs);
     }
 

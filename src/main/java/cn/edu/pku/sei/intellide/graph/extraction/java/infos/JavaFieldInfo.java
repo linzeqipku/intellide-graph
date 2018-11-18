@@ -50,6 +50,7 @@ public class JavaFieldInfo {
         Preconditions.checkArgument(fullType != null);
         this.fullType = fullType;
         nodeId = createNode(inserter);
+        this.comment = null;
     }
 
     private long createNode(BatchInserter inserter) {

@@ -11,26 +11,26 @@ import java.util.Map;
 public class JavaClassInfo {
 
     @Getter
-    private final String name;
+    private String name;
     @Getter
-    private final String fullName;
+    private String fullName;
     @Getter
-    private final boolean isInterface;
+    private boolean isInterface;
     @Getter
-    private final String visibility;
+    private String visibility;
     @Getter
-    private final boolean isAbstract;
+    private boolean isAbstract;
     @Getter
-    private final boolean isFinal;
+    private boolean isFinal;
     @Getter
-    private final String comment;
+    private String comment;
     @Getter
-    private final String content;
+    private String content;
 
     @Getter
-    private final String superClassType;
+    private String superClassType;
     @Getter
-    private final String superInterfaceTypes;
+    private String superInterfaceTypes;
     @Getter
     private long nodeId;
 
@@ -53,6 +53,8 @@ public class JavaClassInfo {
         Preconditions.checkArgument(superInterfaceTypes != null);
         this.superInterfaceTypes = superInterfaceTypes;
         nodeId = createNode(inserter);
+        this.content = null;
+        this.comment = null;
     }
 
     private long createNode(BatchInserter inserter) {

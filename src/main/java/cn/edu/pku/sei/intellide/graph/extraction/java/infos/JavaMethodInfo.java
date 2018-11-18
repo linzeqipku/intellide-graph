@@ -95,6 +95,8 @@ public class JavaMethodInfo {
         Preconditions.checkArgument(throwTypes != null);
         this.throwTypes = throwTypes;
         nodeId = createNode(inserter);
+        this.content = null;
+        this.comment = null;
     }
 
     private long createNode(BatchInserter inserter) {

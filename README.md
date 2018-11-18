@@ -64,12 +64,7 @@
 mvn package
 ```
 
-或者可以使用已编译好的jar包:
-
-```
-链接：https://pan.baidu.com/s/1uDLKt56avxbjjByAyXZskQ 
-提取码：irdj
-```
+或在[此处](https://github.com/linzeqipku/intellide-graph/releases)下载已编译好的jar包.
 
 ### 数据准备
 

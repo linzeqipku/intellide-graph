@@ -91,34 +91,21 @@ public class JavaExtractor extends KnowledgeExtractor {
         String[] srcPaths = new String[srcPathSet.size()];
         srcPathSet.toArray(srcPaths);
 
-        NameResolver.setSrcPathSet(srcPathSet);
         String[] srcFolderPaths = new String[srcFolderSet.size()];
         srcFolderSet.toArray(srcFolderPaths);
 
         BatchInserter inserter = this.getInserter();
-        for (String path:srcPaths){
-            System.out.println(path);
-            try {
-                ASTParser parser = ASTParser.newParser(AST.JLS10);
-                parser.setResolveBindings(true);
-                parser.setKind(ASTParser.K_COMPILATION_UNIT);
-                parser.setBindingsRecovery(true);
-                parser.setEnvironment(null, new String[]{this.getDataDir()}, new String[]{"utf-8"}, true);
-                parser.setCompilerOptions(JavaCore.getOptions());
-                String source = FileUtils.readFileToString(new File(path), "utf-8");
-                parser.setSource(source.toCharArray());
-                parser.setUnitName(path);
-                CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-                cu.accept(new JavaASTVisitor(javaProjectInfo, source, inserter));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        /*
-        String[] encodings2 = new String[srcPaths.length];
+
+        ASTParser parser = ASTParser.newParser(AST.JLS10);
+        parser.setResolveBindings(true);
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setBindingsRecovery(true);
+        parser.setEnvironment(null, new String[]{this.getDataDir()}, new String[]{"utf-8"}, true);
+        parser.setCompilerOptions(JavaCore.getOptions());
+        String[] encodings = new String[srcPaths.length];
         for (int i = 0; i < srcPaths.length; i++)
-            encodings2[i] = "utf-8";
-        parser.createASTs(srcPaths, encodings2, new String[]{}, new FileASTRequestor() {
+            encodings[i] = "utf-8";
+        parser.createASTs(srcPaths, encodings, new String[]{}, new FileASTRequestor() {
             @Override
             public void acceptAST(String sourceFilePath, CompilationUnit javaUnit) {
                 try {
@@ -128,7 +115,7 @@ public class JavaExtractor extends KnowledgeExtractor {
                     e.printStackTrace();
                 }
             }
-        }, null);*/
+        }, null);
         javaProjectInfo.parseRels(this.getInserter());
     }
 

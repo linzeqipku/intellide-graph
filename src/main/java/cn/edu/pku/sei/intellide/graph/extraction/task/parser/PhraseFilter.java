@@ -13,9 +13,7 @@ import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterPhrase;
 import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterPronoun;
 import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterVerb;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.simple.Document;
-import edu.stanford.nlp.simple.Sentence;
-import java.util.*;
+
 
 public class PhraseFilter {
     public static final Logger logger = Logger.getLogger(PhraseFilter.class);
@@ -116,64 +114,38 @@ public class PhraseFilter {
         // farmer, his family
         // will never be Chinese.";
 
+//        String str = "I have Java code that converts CSV to xlsx. It works fine with a small file size. Now I have a CSV file " +
+//                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error. I tried changing the " +
+//                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G. Even this " +
+//                "did not work. I tried it on a UNIX box. On searching, I got some code about using BigGridDemo. Can anyone " +
+//                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution";
+//        String[] sentences = {"I have Java code that converts CSV to xlsx.", "It works fine with a small file size.", "Now I have a CSV file " +
+//                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error.", "I tried changing the " +
+//                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G.", "Even this " +
+//                "did not work.", "I tried it on a UNIX box.", "On searching, I got some code about using BigGridDemo.", "Can anyone " +
+//                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution"};
 
-//		Tree t = NLPParser.parseGrammaticalTree(string);
-//		t.pennPrint();
-//		PhraseInfo[] ps = PhraseExtractor.extractVerbPhrases(t);
-//
-//		for (PhraseInfo phrase : ps) {
-//			System.out.println("==================");
-//			phrase.getSyntaxTree();
-//			filter(phrase, string);
-//			if (phrase.getProofScore() <= 0)
-//				continue;
-//			System.out.println(phrase.getText());
-//			System.out.println("proofScore: " + phrase.getProofScore());
-////			System.out.println(phrase.getSyntaxTree());
-////			System.out.println(phrase.getProofString());
-////			System.out.println();
-////			for (Proof prf : phrase.getProofs()) {
-////				String str = prf.toString();
-////				Proof p2 = Proof.of(str);
-////				System.out.println(p2.toString());
-////			}
-//		}
+		Tree t = NLPParser.parseGrammaticalTree(string);
+		t.pennPrint();
+		PhraseInfo[] ps = PhraseExtractor.extractVerbPhrases(t);
 
-        String str = "I have Java code that converts CSV to xlsx. It works fine with a small file size. Now I have a CSV file " +
-                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error. I tried changing the " +
-                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G. Even this " +
-                "did not work. I tried it on a UNIX box. On searching, I got some code about using BigGridDemo. Can anyone " +
-                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution";
-        String[] sentences = {"I have Java code that converts CSV to xlsx.", "It works fine with a small file size.", "Now I have a CSV file " +
-                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error.", "I tried changing the " +
-                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G.", "Even this " +
-                "did not work.", "I tried it on a UNIX box.", "On searching, I got some code about using BigGridDemo.", "Can anyone " +
-                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution"};
-//		Document doc = new Document(string);
-//		List<Sentence> sentences = doc.sentences();
-//        for (String sentence: sentences) {
-            Tree t = NLPParser.parseGrammaticalTree(string);
-//			t.pennPrint();
-            PhraseInfo[] ps = PhraseExtractor.extractVerbPhrases(t);
-
-            for (PhraseInfo phrase : ps) {
-                System.out.println("==================");
-                phrase.getSyntaxTree();
-                filter(phrase, string);
-//				if (phrase.getProofScore() < -5)
-//					continue;
-                System.out.println(phrase.getText());
-                System.out.println("proofScore: " + phrase.getProofScore());
-                System.out.println(phrase.getSyntaxTree());
-                System.out.println(phrase.getProofString());
-                System.out.println();
-//				for (Proof prf : phrase.getProofs()) {
-//					String str = prf.toString();
-//					Proof p2 = Proof.of(str);
-//					System.out.println(p2.toString());
-//				}
-            }
-//        }
+		for (PhraseInfo phrase : ps) {
+			System.out.println("==================");
+			phrase.getSyntaxTree();
+			filter(phrase, string);
+			if (phrase.getProofScore() <= 0)
+				continue;
+			System.out.println(phrase.getText());
+			System.out.println("proofScore: " + phrase.getProofScore());
+			System.out.println(phrase.getSyntaxTree());
+			System.out.println(phrase.getProofString());
+			System.out.println();
+			for (Proof prf : phrase.getProofs()) {
+				String str = prf.toString();
+				Proof p2 = Proof.of(str);
+				System.out.println(p2.toString());
+			}
+		}
     }
 
 }

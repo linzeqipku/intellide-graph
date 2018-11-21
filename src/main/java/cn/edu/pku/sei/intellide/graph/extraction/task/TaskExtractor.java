@@ -1,75 +1,109 @@
 package cn.edu.pku.sei.intellide.graph.extraction.task;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.io.File;
 
-import org.apache.log4j.Logger;
+import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
+import edu.stanford.nlp.util.CoreMap;
 
 import cn.edu.pku.sei.intellide.graph.extraction.task.entity.PhraseInfo;
-import cn.edu.pku.sei.intellide.graph.extraction.task.utils.NLPParser;
-import cn.edu.pku.sei.intellide.graph.extraction.task.utils.TreeUtils;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.Proof;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.ProofType;
+import cn.edu.pku.sei.intellide.graph.extraction.task.parser.*;
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.tregex.TregexMatcher;
-import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 
-public class TaskExtractor {
-    //public static final Logger logger = Logger.getLogger(PhraseExtractor.class);
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
-    public static void main(String[] args) {
-//		String str = "Pass the stemmed tree to clusterer, finding out centralized tasks.";
-//		String str = "How to convert a huge .csv file to excel using POI";
-        String str = "I'm trying to develop a complex report, and I need to set up the print areas for the excel file.";
-        Tree tree = NLPParser.parseGrammaticalTree(str);
-        PhraseInfo[] verbPhrases = extractVerbPhrases(tree);
-        for (PhraseInfo phraseInfo : verbPhrases) {
-            System.out.println();
-            System.out.println(phraseInfo.getText());
-            System.out.println(phraseInfo.getSyntaxTree());
-            System.out.println(Tree.valueOf(phraseInfo.getSyntaxTree()));
-            System.out.println(phraseInfo.getProofs());
+
+public class TaskExtractor extends KnowledgeExtractor{
+    public static final Label QUESTION = Label.label("StackOverflowQuestion");
+    public static final Label ANSWER = Label.label("StackOverflowAnswer");
+    public static final Label TASK = Label.label("Task");
+    public static final String BODY = "body";
+    public static final String TEXT = "text";
+    public static final String PROOFSCORE = "proofScore";
+    public static final RelationshipType FUNCTIONALFEATURE = RelationshipType.withName("functionalFeature");
+
+    public GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File("E:/graphs/graph-lucene"));
+
+    @Override
+    public void extraction() {
+        Map<Long, String> questionMap = getNodesFromNeo4j(QUESTION);
+        Map<Long, String> answerMap = getNodesFromNeo4j(ANSWER);
+        for (Map.Entry<Long, String> entry : questionMap.entrySet()) {
+            extractTask(entry.getKey());
+        }
+        for (Map.Entry<Long, String> entry : answerMap.entrySet()) {
+            extractTask(entry.getKey());
         }
     }
 
-    public static PhraseInfo[] extractVerbPhrases(Tree sentenceTree) {
-        if (sentenceTree == null)
-            return null;
 
-        List<PhraseInfo> phraseList = new ArrayList<>();
-
-        // 提取VP短语最关键的一句，定义提取的正则式
-        String vpPattern = "VP < /VB.*/";
-
-        TregexPattern tregexPattern = TregexPattern.compile(vpPattern);
-        TregexMatcher matcher = tregexPattern.matcher(sentenceTree);
-
-        HashSet<Tree> treeSet = new HashSet<Tree>();
-        // 获取下一个不同的match节点
-        while (matcher.findNextMatchingNode()) {
-            // match到的新的子树
-            Tree matchedTree = matcher.getMatch();
-            if (treeSet.contains(matchedTree)) {
-                // System.err.println("Repeated tree！！");
-                // System.err.println(sentence.getContent());
-                // System.err.println(matchedTree);
-                continue;
+    public Map<Long,String> getNodesFromNeo4j(Label label) {
+        Map<Long,String> textMap = new LinkedHashMap<Long,String>();
+//        GraphDatabaseService db = this.getDb();
+        try(Transaction tx = db.beginTx()){
+            ResourceIterator<Node> nodes = db.findNodes(label);
+            while(nodes.hasNext()){
+                Node node = nodes.next();
+                String text = (String)node.getProperty(BODY);
+                if(!text.equals("")){
+                    textMap.put(node.getId(),text);
+                }
             }
-            treeSet.add(matchedTree);
+            tx.success();
+        }
+        return textMap;
+    }
 
-            // 新建一个phrase对象
-            PhraseInfo phrase = new PhraseInfo();
-            phrase.setPhraseType(PhraseInfo.PHRASE_TYPE_VP);
-            phrase.setText(TreeUtils.interpretTreeToString(matchedTree));
-            phrase.setSyntaxTree(matchedTree.toString());
 
-            phrase.addProof(new Proof(ProofType.INIT_EXTRACTION_VP));
-
-            phraseList.add(phrase);
+    public void extractTask(long id) {
+//        GraphDatabaseService db = this.getDb();
+        try(Transaction tx = db.beginTx()){
+            Node textNode = db.getNodeById(id);
+            String body = textNode.getProperty("body").toString();
+            Document doc = Jsoup.parse(body);
+            doc.select("code").remove();
+            String text = doc.text();
+            List<String> sentences = splitText(text);
+            for (String sentence: sentences) {
+                Tree tree = NLPParser.parseGrammaticalTree(sentence);
+                PhraseInfo[] verbPhrases = PhraseExtractor.extractVerbPhrases(tree);
+                for (PhraseInfo phraseInfo : verbPhrases) {
+                    PhraseFilter.filter(phraseInfo, sentence);
+                    if (phraseInfo.getProofScore() > 0) {
+                        Node taskNode = db.createNode(TASK);
+                        taskNode.setProperty(TEXT, phraseInfo.getText());
+                        taskNode.setProperty(PROOFSCORE, phraseInfo.getText());
+                        textNode.createRelationshipTo(taskNode, FUNCTIONALFEATURE);
+                        System.out.println(phraseInfo.getText());
+//                        System.out.println("proofScore: " + phraseInfo.getProofScore());
+//                        System.out.println(phraseInfo.getProofString());
+                    }
+                }
+            }
+            tx.success();
         }
 
-        return phraseList.toArray(new PhraseInfo[phraseList.size()]);
+    }
+
+
+    public static List<String> splitText(String text) {
+        Properties props = new Properties();
+        props.setProperty("annotators", "tokenize, ssplit");
+        StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
+        Annotation document = new Annotation(text);
+        pipeline.annotate(document);
+        List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+        List<String> sentencesText = new ArrayList<>();
+        for (CoreMap sentence: sentences) {
+            sentencesText.add(sentence.toString());
+        }
+        return sentencesText;
     }
 
 }

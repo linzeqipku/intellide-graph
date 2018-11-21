@@ -1,4 +1,4 @@
-package cn.edu.pku.sei.intellide.graph.extraction.task.utils;
+package cn.edu.pku.sei.intellide.graph.extraction.task.parser;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -13,7 +13,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 
 import cn.edu.pku.sei.intellide.graph.extraction.task.entity.PhraseInfo;
-import cn.edu.pku.sei.intellide.graph.extraction.task.utils.StanfordParser;
 import edu.stanford.nlp.trees.Tree;
 
 public class NLPParser {

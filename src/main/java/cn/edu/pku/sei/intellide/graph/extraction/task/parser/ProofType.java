@@ -1,4 +1,4 @@
-package cn.edu.pku.sei.intellide.graph.extraction.task.filters;
+package cn.edu.pku.sei.intellide.graph.extraction.task.parser;
 
 import java.util.HashMap;
 import java.util.Map;

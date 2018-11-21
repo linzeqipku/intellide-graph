@@ -1,4 +1,4 @@
-package cn.edu.pku.sei.intellide.graph.extraction.task.utils;
+package cn.edu.pku.sei.intellide.graph.extraction.task.parser;
 
 import java.io.StringReader;
 import java.util.List;
@@ -26,7 +26,7 @@ public class StanfordParser implements Callable<Tree> {
 
     static {
 //		lexicalizedParser = LexicalizedParser.loadModel(Config.getLexicalModelFile());
-        lexicalizedParser = LexicalizedParser.loadModel("src/main/resources/nlp/englishPCFG.ser.gz");
+        lexicalizedParser = LexicalizedParser.loadModel("src/main/resources/englishPCFG.ser.gz");
         tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "");
     }
 

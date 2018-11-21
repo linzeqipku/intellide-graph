@@ -1,4 +1,4 @@
-package cn.edu.pku.sei.intellide.graph.extraction.task.filters;
+package cn.edu.pku.sei.intellide.graph.extraction.task.parser;
 
 import java.io.Serializable;
 import java.util.ArrayList;

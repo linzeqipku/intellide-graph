@@ -10,8 +10,8 @@ import javax.swing.JPopupMenu.Separator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.Proof;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.ProofType;
+import cn.edu.pku.sei.intellide.graph.extraction.task.parser.Proof;
+import cn.edu.pku.sei.intellide.graph.extraction.task.parser.ProofType;
 
 public class PhraseInfo implements Serializable {
     private static final long	serialVersionUID	= -8383713376186053397L;

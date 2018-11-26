@@ -1,15 +1,19 @@
 package cn.edu.pku.sei.intellide.graph.qa.code_search;
 
 import javafx.util.Pair;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+@Slf4j
 public class APILocater {
 
     GraphReader graphReader;
     List<MyNode> graph; // 只读
 
-    public APILocater(GraphReader reader){
+    public APILocater(GraphReader reader) {
         this.graphReader = reader;
         this.graph = graphReader.getAjacentGraph();
     }
@@ -19,47 +23,43 @@ public class APILocater {
      * 从size最小的候选结点集合S开始，对于S中的每个结点，都生成一个包含所有query词的子图
      * 从这些子图中，选择最优的。目前的最优条件为子图越小越好，大小相同则结点的权重之和越大越好。
      */
-    public MySubgraph query(Set<String> queryList){
+    public MySubgraph query(Set<String> queryList) {
         List<Set<MyNode>> rootNodeSet = new ArrayList<>();
-        for (String word: queryList){
+        for (String word : queryList) {
             Set<MyNode> cur = new HashSet<>();
-            for (MyNode node: graph){
-                for (String nodeWord:node.cnWordSet)
-                    if (CnToEnDirectory.matches(word,nodeWord)) {
+            for (MyNode node : graph) {
+                for (String nodeWord : node.cnWordSet)
+                    if (CnToEnDirectory.matches(word, nodeWord)) {
                         cur.add(node);
                         break;
                     }
             }
             if (cur.size() > 0) {
-                //System.out.println("- " + word + "找到了rootNode");
+                log.debug("关键词 [" + word +"] 匹配到了 " + cur.size() + " 个代码实体.");
                 rootNodeSet.add(cur);
-                //System.out.println(word + " node set size: " + cur.size());
-            } else {
-                //System.out.println(word + " has relevant no node");
             }
         }
-        if (rootNodeSet.size() == 0){
-            //System.out.println("no matched nodes found");
+        if (rootNodeSet.size() == 0) {
             return null;
         }
         int minSize = Integer.MAX_VALUE;
         int startSetIndex = 0;
-        for (int i = 0; i < rootNodeSet.size(); ++i){ // find the smallest root set
-            if (rootNodeSet.get(i).size() < minSize){
+        for (int i = 0; i < rootNodeSet.size(); ++i) { // find the smallest root set
+            if (rootNodeSet.get(i).size() < minSize) {
                 minSize = rootNodeSet.get(i).size();
                 startSetIndex = i;
             }
         }
 
-        List<Pair<Integer,MySubgraph>> candidateList = new ArrayList<>();
+        List<Pair<Integer, MySubgraph>> candidateList = new ArrayList<>();
         minSize = Integer.MAX_VALUE;
         Set<MyNode> startSet = rootNodeSet.get(startSetIndex);
-        for (MyNode node : startSet){
+        for (MyNode node : startSet) {
             MySubgraph subgraph = BFS(node, rootNodeSet);
             if (subgraph == null)
                 continue;
             candidateList.add(new Pair<>(subgraph.nodes.size(), subgraph));
-            if (subgraph.nodes.size() < minSize){
+            if (subgraph.nodes.size() < minSize) {
                 minSize = subgraph.nodes.size();
             }
         }
@@ -67,24 +67,24 @@ public class APILocater {
             return null;
 
         List<MySubgraph> optimal = new ArrayList<>();
-        for (Pair<Integer, MySubgraph> pair : candidateList){ // get the minSize subgraph
+        for (Pair<Integer, MySubgraph> pair : candidateList) { // get the minSize subgraph
             if (pair.getKey() == minSize)
                 optimal.add(pair.getValue());
         }
         // if size equals, consider the node weight
-        optimal.sort(Comparator.comparingDouble(x->x.rootWeightSum));
-        return optimal.get(optimal.size()-1);
+        optimal.sort(Comparator.comparingDouble(x -> x.rootWeightSum));
+        return optimal.get(optimal.size() - 1);
     }
 
     /*
      * 从一个根节点集合中的一个结点开始，搜索一个包含所有根集的子图
      * 最多进行 rootNodeSet.size次广搜，每次广搜没有跳数限制，最坏O(n)时间
      */
-    public MySubgraph BFS(MyNode start, List<Set<MyNode>> rootNodeSet){
+    public MySubgraph BFS(MyNode start, List<Set<MyNode>> rootNodeSet) {
         boolean[] coveredRoot = new boolean[rootNodeSet.size()];
         int coveredCnt = 0;
-        for (int i = 0; i < coveredRoot.length; ++i){ // start node may cover several roots
-            if (rootNodeSet.get(i).contains(start)){
+        for (int i = 0; i < coveredRoot.length; ++i) { // start node may cover several roots
+            if (rootNodeSet.get(i).contains(start)) {
                 coveredRoot[i] = true;
                 coveredCnt++;
             }
@@ -96,7 +96,7 @@ public class APILocater {
         Queue<MyNode> Q = new LinkedList<>();
         Set<MyNode> visited = new HashSet<>();
 
-        while(coveredCnt < coveredRoot.length) { // until all roots are coverd
+        while (coveredCnt < coveredRoot.length) { // until all roots are coverd
             Q.clear();
             visited.clear();
             for (MyNode node : selected) {
@@ -114,7 +114,7 @@ public class APILocater {
                         found = true;
                     }
                 }
-                if (found){
+                if (found) {
                     selected.add(head);
                     MyNode tmp = head;
                     while (tmp.father != null) { // trace the father chain to recover the path
@@ -141,7 +141,7 @@ public class APILocater {
             subgraph.rootWeightSum += node.weight;
         }
         subgraph.nodes.addAll(subgraph.selectedRoot);
-        for (Pair<MyNode, MyNode> pair : paths){
+        for (Pair<MyNode, MyNode> pair : paths) {
             long n1 = pair.getKey().id;
             long n2 = pair.getValue().id;
             subgraph.nodes.add(n1);

@@ -6,21 +6,23 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.schema.GraphEdgeT
 public class NLPRelation {
     public NLPToken token;
     public GraphEdgeType edgeType;
-    public GraphAttribute attrType;
     public String otherType;
-    public boolean hidden = false;
     public NLPRelation mirror;
     public boolean direct = true;
-    public NLPRelation(){
+
+    public NLPRelation() {
     }
-    public NLPRelation(String type){
+
+    public NLPRelation(String type) {
         this.otherType = type;
     }
-    public NLPRelation(GraphEdgeType type, String name){
+
+    public NLPRelation(GraphEdgeType type, String name) {
         this.edgeType = type;
         this.otherType = name;
     }
-    public NLPRelation(GraphEdgeType type, NLPToken token){
+
+    public NLPRelation(GraphEdgeType type, NLPToken token) {
         this.edgeType = type;
         this.token = token;
     }

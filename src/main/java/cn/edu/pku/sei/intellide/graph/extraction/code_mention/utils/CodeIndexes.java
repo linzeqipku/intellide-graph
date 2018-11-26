@@ -1,22 +1,22 @@
 package cn.edu.pku.sei.intellide.graph.extraction.code_mention.utils;
 
+import cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor;
+import org.neo4j.graphdb.*;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor;
-import org.neo4j.graphdb.*;
-
 public class CodeIndexes {
 
     public Map<String, Long> typeMap = new HashMap<>();
+    public Map<String, Set<Long>> typeShortNameMap = new HashMap<>();
+    public Map<String, Set<Long>> methodShortNameMap = new HashMap<>();
     private Map<Long, String> idToTypeNameMap = new HashMap<>();
     private Map<String, Set<Long>> methodMap = new HashMap<>();
     private Map<Long, String> idToMethodNameMap = new HashMap<>();
-    public Map<String, Set<Long>> typeShortNameMap = new HashMap<>();
     private Map<String, Set<Long>> methodMidNameMap = new HashMap<>();
-    public Map<String, Set<Long>> methodShortNameMap = new HashMap<>();
 
     public CodeIndexes(GraphDatabaseService db) {
         try (Transaction tx = db.beginTx()) {
@@ -25,7 +25,7 @@ public class CodeIndexes {
             while (nodes.hasNext()) {
                 Node node = nodes.next();
                 if (node.hasLabel(JavaExtractor.CLASS) || node.hasLabel(JavaExtractor.METHOD)) {
-                        codeNodes.add(node);
+                    codeNodes.add(node);
                 }
             }
 
@@ -34,10 +34,10 @@ public class CodeIndexes {
                 boolean type = true;
                 if (codeNode.hasLabel(JavaExtractor.CLASS))
                     name = (String) codeNode.getProperty(JavaExtractor.FULLNAME);
-                if (codeNode.hasLabel(JavaExtractor.METHOD)){
+                if (codeNode.hasLabel(JavaExtractor.METHOD)) {
                     //System.out.println(codeNode.getProperty("fullName"));
                     //TODO:存在重复节点没有任何边关系，出现异常需解决
-                    if(codeNode.hasRelationship(JavaExtractor.HAVE_METHOD, Direction.INCOMING)){
+                    if (codeNode.hasRelationship(JavaExtractor.HAVE_METHOD, Direction.INCOMING)) {
                         name = codeNode.getRelationships(JavaExtractor.HAVE_METHOD, Direction.INCOMING).iterator().next().getStartNode().getProperty(JavaExtractor.FULLNAME)
                                 + "." + codeNode.getProperty(JavaExtractor.NAME);
                         type = false;

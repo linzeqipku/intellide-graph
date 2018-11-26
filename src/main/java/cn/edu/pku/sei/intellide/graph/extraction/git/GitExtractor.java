@@ -17,7 +17,6 @@ import org.neo4j.graphdb.RelationshipType;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 
 public class GitExtractor extends KnowledgeExtractor {
 
@@ -37,12 +36,12 @@ public class GitExtractor extends KnowledgeExtractor {
     private Map<String, Set<String>> parentsMap = new HashMap<>();
 
     @Override
-    public boolean isBatchInsert(){
+    public boolean isBatchInsert() {
         return true;
     }
 
     @Override
-    public void extraction(){
+    public void extraction() {
         Repository repository = null;
         FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
         repositoryBuilder.setMustExist(true);

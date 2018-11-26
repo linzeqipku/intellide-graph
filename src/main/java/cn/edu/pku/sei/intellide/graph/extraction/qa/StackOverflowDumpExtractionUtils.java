@@ -11,8 +11,8 @@ import java.util.regex.Pattern;
  */
 class StackOverflowDumpExtractionUtils {
 
-    public static void main(String[] args){
-        extract("jfreechart","E:/stackoverflow",
+    public static void main(String[] args) {
+        extract("jfreechart", "E:/stackoverflow",
                 "E:/stackoverflow/jfreechart/Questions.xml",
                 "E:/stackoverflow/jfreechart/Answers.xml",
                 "E:/stackoverflow/jfreechart/Comments.xml",
@@ -21,84 +21,75 @@ class StackOverflowDumpExtractionUtils {
 
     }
 
-    private static void extract(String projectName, String remoteQaPath, String qPath, String aPath, String cPath, String uPath, String plPath){
-        QuestionExtractor qExtractor=new QuestionExtractor(projectName);
-        String postXmlPath=remoteQaPath+"/Posts.xml";
+    private static void extract(String projectName, String remoteQaPath, String qPath, String aPath, String cPath, String uPath, String plPath) {
+        QuestionExtractor qExtractor = new QuestionExtractor(projectName);
+        String postXmlPath = remoteQaPath + "/Posts.xml";
         qExtractor.extractQuestionXmlFile(postXmlPath, qPath);
-        AnswerExtractor aExtractor=new AnswerExtractor(qExtractor.questionIdSet);
+        AnswerExtractor aExtractor = new AnswerExtractor(qExtractor.questionIdSet);
         aExtractor.extractAnswerXmlFile(postXmlPath, aPath);
-        QaCommentExtractor cExtractor=new QaCommentExtractor(qExtractor.questionIdSet, aExtractor.answerIdSet);
-        String commentXmlPath=remoteQaPath+"/Comments.xml";
+        QaCommentExtractor cExtractor = new QaCommentExtractor(qExtractor.questionIdSet, aExtractor.answerIdSet);
+        String commentXmlPath = remoteQaPath + "/Comments.xml";
         cExtractor.extractQaCommentXmlFile(commentXmlPath, cPath);
 
         Set<Integer> allUserIdSet = new HashSet<>();
         allUserIdSet.addAll(qExtractor.userIdSet);
         allUserIdSet.addAll(aExtractor.userIdSet);
         allUserIdSet.addAll(cExtractor.userIdSet);
-        QaUserExtractor uExtractor=new QaUserExtractor(allUserIdSet);
-        String userXmlPath=remoteQaPath+"/Users.xml";
+        QaUserExtractor uExtractor = new QaUserExtractor(allUserIdSet);
+        String userXmlPath = remoteQaPath + "/Users.xml";
         uExtractor.extractQuestionXmlFile(userXmlPath, uPath);
 
         PostLinkExtractor plExtractor = new PostLinkExtractor(qExtractor.questionIdSet);
-        String postLinksXmlPath=remoteQaPath+"/PostLinks.xml";
+        String postLinksXmlPath = remoteQaPath + "/PostLinks.xml";
         plExtractor.extractQuestionXmlFile(postLinksXmlPath, plPath);
     }
 
 }
 
-class QuestionExtractor
-{
+class QuestionExtractor {
 
+    private static Pattern idRe = Pattern.compile("id=\"(\\d+)\"");
+    private static Pattern userIdRe = Pattern.compile("owneruserid=\"(\\d+)\"");
     Set<Integer> questionIdSet = new HashSet<>();
     Set<Integer> userIdSet = new HashSet<>();
-
-    private Pattern tagsRe=null;
-    private static Pattern idRe=Pattern.compile("id=\"(\\d+)\"");
-    private static Pattern userIdRe = Pattern.compile("owneruserid=\"(\\d+)\"");
+    private Pattern tagsRe = null;
     private String projectName = "";
 
-    public QuestionExtractor(String projectName)
-    {
+    public QuestionExtractor(String projectName) {
         this.projectName = projectName.toLowerCase();
-        tagsRe=Pattern.compile("tags=\"[^\"]*"+projectName);
+        tagsRe = Pattern.compile("tags=\"[^\"]*" + projectName);
     }
 
-    public void extractQuestionXmlFile(String postXmlPath, String dstXmlPath)
-    {
+    public void extractQuestionXmlFile(String postXmlPath, String dstXmlPath) {
 
         BufferedReader br = null;
         FileWriter bw = null;
-        try
-        {
+        try {
             //System.out.println(postXmlPath);
             br = new BufferedReader(new BufferedReader(new InputStreamReader(new FileInputStream(new File(postXmlPath)))));
             bw = new FileWriter(dstXmlPath);
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         String str = null;
-        int i=0;
-        try
-        {
+        int i = 0;
+        try {
             bw.write("<questions>\r\n");
-            while ((str = br.readLine()) != null)
-            {
+            while ((str = br.readLine()) != null) {
                 i++;
-                boolean flag=tagsRe.matcher(str.toLowerCase()).find()&&str.contains("PostTypeId=\"1\"");
-                if (flag){
-                    bw.write(str+"\r\n");
-                    Matcher matcher=idRe.matcher(str.toLowerCase());
+                boolean flag = tagsRe.matcher(str.toLowerCase()).find() && str.contains("PostTypeId=\"1\"");
+                if (flag) {
+                    bw.write(str + "\r\n");
+                    Matcher matcher = idRe.matcher(str.toLowerCase());
                     if (!matcher.find())
                         continue;
-                    int id=Integer.parseInt(matcher.group(1));
+                    int id = Integer.parseInt(matcher.group(1));
                     questionIdSet.add(id);
 
                     matcher = userIdRe.matcher(str.toLowerCase());
-                    if(!matcher.find()){
+                    if (!matcher.find()) {
                         continue;
                     }
                     int userId = Integer.parseInt(matcher.group(1));
@@ -108,9 +99,7 @@ class QuestionExtractor
             bw.write("</questions>");
             br.close();
             bw.close();
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -165,12 +154,11 @@ class QaUserExtractor {
 
 class QaCommentExtractor {
 
-    private Set<Integer> questionIdSet = new HashSet<>();
-    private Set<Integer> answerIdSet = new HashSet<>();
-    Set<Integer> userIdSet = new HashSet<>();
-
     private static Pattern postIdRe = Pattern.compile("postid=\"(\\d+)\"");
     private static Pattern userIdRe = Pattern.compile("userid=\"(\\d+)\"");
+    Set<Integer> userIdSet = new HashSet<>();
+    private Set<Integer> questionIdSet = new HashSet<>();
+    private Set<Integer> answerIdSet = new HashSet<>();
 
     public QaCommentExtractor(Set<Integer> questionIdSet, Set<Integer> answerIdSet) {
         this.questionIdSet = questionIdSet;
@@ -222,13 +210,12 @@ class QaCommentExtractor {
 
 class AnswerExtractor {
 
-    private Set<Integer> questionIdSet = new HashSet<>();
-    Set<Integer> answerIdSet = new HashSet<>();
-    Set<Integer> userIdSet = new HashSet<>();
-
     private static Pattern parentIdRe = Pattern.compile("parentid=\"(\\d+)\"");
     private static Pattern idRe = Pattern.compile("id=\"(\\d+)\"");
     private static Pattern userIdRe = Pattern.compile("owneruserid=\"(\\d+)\"");
+    Set<Integer> answerIdSet = new HashSet<>();
+    Set<Integer> userIdSet = new HashSet<>();
+    private Set<Integer> questionIdSet = new HashSet<>();
 
     public AnswerExtractor(Set<Integer> questionIdSet) {
         this.questionIdSet = questionIdSet;

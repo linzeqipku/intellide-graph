@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class JiraExtractor extends KnowledgeExtractor{
+public class JiraExtractor extends KnowledgeExtractor {
 
     public static final Label ISSUE = Label.label("JiraIssue");
     public static final String ISSUE_ID = "id";
@@ -82,19 +82,19 @@ public class JiraExtractor extends KnowledgeExtractor{
     private Map<String, Node> patchNodeMap = new HashMap<>();
 
     @Override
-    public void extraction(){
+    public void extraction() {
         GraphDatabaseService db = this.getDb();
         File issuesFolder = new File(this.getDataDir());
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
             //System.out.println(oneIssueFolder);
-            if(oneIssueFolder.isDirectory()){
+            if (oneIssueFolder.isDirectory()) {
                 for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
                     //System.out.println(issueFileOrPatchesFolder);
                     //String fileName = issueFileOrPatchesFolder.getName();
                     //System.out.println(fileName);
-                    if(issueFileOrPatchesFolder.isDirectory()){
-                        for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                    if (issueFileOrPatchesFolder.isDirectory()) {
+                        for (File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()) {
                             String fileName = issueFileOrPatchesFolder2.getName();
                             //System.out.println(fileName);
                             if (fileName.endsWith(".json")) {
@@ -116,18 +116,18 @@ public class JiraExtractor extends KnowledgeExtractor{
         //System.out.println("json文件处理完毕.");
 
         for (File oneIssueFolder : issuesFolder.listFiles()) {
-            if(oneIssueFolder.isDirectory()){
+            if (oneIssueFolder.isDirectory()) {
                 for (File issueFileOrPatchesFolder : oneIssueFolder.listFiles()) {
                     //String fileName = issueFileOrPatchesFolder.getName();
                     //System.out.println(fileName);
-                    if(issueFileOrPatchesFolder.isDirectory()){
-                        for(File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()){
+                    if (issueFileOrPatchesFolder.isDirectory()) {
+                        for (File issueFileOrPatchesFolder2 : issueFileOrPatchesFolder.listFiles()) {
                             String fileName = issueFileOrPatchesFolder2.getName();
                             //System.out.println(fileName);
                             if (fileName.equals("Patchs")) {
                                 for (File onePatchFolder : issueFileOrPatchesFolder2.listFiles()) {
                                     String onePatchFolderName = onePatchFolder.getName();
-                                    if(onePatchFolderName.endsWith(".patch")){
+                                    if (onePatchFolderName.endsWith(".patch")) {
                                         String patchId = onePatchFolder.getName();
                                         //System.out.println(patchId);
                                         //for (File patchFile : onePatchFolder.listFiles()) {
@@ -135,7 +135,7 @@ public class JiraExtractor extends KnowledgeExtractor{
                                         if (patchNodeMap.containsKey(patchId))
                                             try {
                                                 try (Transaction tx = db.beginTx()) {
-                                                    patchNodeMap.get(patchId).setProperty(JiraExtractor.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder,"utf-8"));
+                                                    patchNodeMap.get(patchId).setProperty(JiraExtractor.PATCH_CONTENT, FileUtils.readFileToString(onePatchFolder, "utf-8"));
                                                     tx.success();
                                                 }
                                             } catch (IOException e) {
@@ -191,7 +191,7 @@ public class JiraExtractor extends KnowledgeExtractor{
         JiraUtils.createIssueNode(issueInfo, node);
 
         // 建立用户实体
-        if(!TextUtils.isEmpty(jsonContent)){
+        if (!TextUtils.isEmpty(jsonContent)) {
             JSONObject fields = new JSONObject(jsonContent).getJSONObject("fields");
             Pair<String, Node> assignee = createUserNode(fields, "assignee");
             Pair<String, Node> creator = createUserNode(fields, "creator");
@@ -235,7 +235,7 @@ public class JiraExtractor extends KnowledgeExtractor{
                         Pair<String, Node> updateAuthor = createUserNode(jsonComment, "updateAuthor");
                         String createdDate = jsonComment.optString("created");
                         String updatedDate = jsonComment.optString("updated");
-                        if (author==null)
+                        if (author == null)
                             continue;
                         IssueCommentInfo comment = new IssueCommentInfo(id, body, author.getLeft(), updateAuthor.getLeft(), createdDate, updatedDate);
                         Node commentNode = this.getDb().createNode();
@@ -303,8 +303,7 @@ public class JiraExtractor extends KnowledgeExtractor{
     private IssueInfo getIssueInfo(String jsonContent) throws JSONException {
 
         IssueInfo issueInfo = new IssueInfo();
-        if(!TextUtils.isEmpty(jsonContent))
-        {
+        if (!TextUtils.isEmpty(jsonContent)) {
             JSONObject root = new JSONObject(jsonContent);
             String issueId = root.getString("id");
             String issueName = root.getString("key");

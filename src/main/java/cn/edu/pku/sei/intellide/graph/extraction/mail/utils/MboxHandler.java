@@ -1,27 +1,18 @@
 package cn.edu.pku.sei.intellide.graph.extraction.mail.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-
 import cn.edu.pku.sei.intellide.graph.extraction.mail.MailExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.mail.entity.MailInfo;
 import org.apache.commons.lang3.tuple.Pair;
-
-import org.apache.james.mime4j.stream.Field;
 import org.apache.james.mime4j.MimeException;
 import org.apache.james.mime4j.parser.AbstractContentHandler;
 import org.apache.james.mime4j.stream.BodyDescriptor;
-
-
+import org.apache.james.mime4j.stream.Field;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 
 public class MboxHandler extends AbstractContentHandler {
@@ -32,6 +23,20 @@ public class MboxHandler extends AbstractContentHandler {
     private Map<String, String> mailReplyMap = new HashMap<>();
     private Map<String, Set<String>> mailUserNameMap = new HashMap<>();
     private MailInfo mailInfo = new MailInfo();
+
+    private static void createMailNode(Node node, String subject, String id, String senderName, String senderMail,
+                                       String[] receiverNames, String[] receiverMails, String replyTo, String date, String body) {
+        node.addLabel(MailExtractor.MAIL);
+        node.setProperty(MailExtractor.MAIL_SUBJECT, subject);
+        node.setProperty(MailExtractor.MAIL_ID, id);
+        node.setProperty(MailExtractor.MAIL_SENDER_NAME, senderName);
+        node.setProperty(MailExtractor.MAIL_SENDER_MAIL, senderMail);
+        node.setProperty(MailExtractor.MAIL_RECEIVER_NAMES, String.join(", ", receiverNames));
+        node.setProperty(MailExtractor.MAIL_RECEIVER_MAILS, String.join(", ", receiverMails));
+        node.setProperty(MailExtractor.MAIL_DATE, date);
+        node.setProperty(MailExtractor.MAIL_BODY, body);
+        //node.setProperty(MailExtractor.MAIL_MAIN_TEXT,MailUtil.extractMainText(body));
+    }
 
     public void setDb(GraphDatabaseService db) {
         this.db = db;
@@ -181,20 +186,6 @@ public class MboxHandler extends AbstractContentHandler {
 
     @Override
     public void raw(InputStream is) throws MimeException {
-    }
-
-    private static void createMailNode(Node node, String subject, String id, String senderName, String senderMail,
-                                       String[] receiverNames, String[] receiverMails, String replyTo, String date, String body) {
-        node.addLabel(MailExtractor.MAIL);
-        node.setProperty(MailExtractor.MAIL_SUBJECT, subject);
-        node.setProperty(MailExtractor.MAIL_ID, id);
-        node.setProperty(MailExtractor.MAIL_SENDER_NAME, senderName);
-        node.setProperty(MailExtractor.MAIL_SENDER_MAIL, senderMail);
-        node.setProperty(MailExtractor.MAIL_RECEIVER_NAMES, String.join(", ", receiverNames));
-        node.setProperty(MailExtractor.MAIL_RECEIVER_MAILS, String.join(", ", receiverMails));
-        node.setProperty(MailExtractor.MAIL_DATE, date);
-        node.setProperty(MailExtractor.MAIL_BODY, body);
-        //node.setProperty(MailExtractor.MAIL_MAIN_TEXT,MailUtil.extractMainText(body));
     }
 
     public Map<String, Node> getMailMap() {

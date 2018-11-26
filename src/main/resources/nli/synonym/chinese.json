@@ -1,0 +1,156 @@
+{
+  "node": [
+    {
+      "nodeName": [
+        "Class"
+      ],
+      "similar": [
+        "类",
+        "接口"
+      ]
+    },
+    {
+      "nodeName": [
+        "Method"
+      ],
+      "similar": [
+        "方法",
+        "函数"
+      ]
+    },
+    {
+      "nodeName": [
+        "Field"
+      ],
+      "similar": [
+        "域",
+        "属性"
+      ]
+    },
+    {
+      "nodeName": [
+        "Docx"
+      ],
+      "similar": [
+        "文档",
+        "word"
+      ]
+    },
+    {
+      "nodeName": [
+        "Commit"
+      ],
+      "similar": [
+        "commit",
+        "版本",
+        "提交记录"
+      ]
+    },
+    {
+      "nodeName": [
+        "GitUser"
+      ],
+      "similar": [
+        "谁",
+        "开发者",
+        "人"
+      ]
+    }
+  ],
+  "attribute": [
+    {
+      "attributeName": [
+        "createDate",
+        "date",
+        "createdDate",
+        "updatedDate"
+      ],
+      "similar": [
+        "时间",
+        "日期",
+        "时候"
+      ]
+    },
+    {
+      "attributeName": [
+        "isInterface"
+      ],
+      "similar": [
+        "接口"
+      ]
+    },
+    {
+      "attributeName": [
+        "superclass"
+      ],
+      "similar": [
+        "父类"
+      ]
+    }
+  ],
+  "relation": [
+    {
+      "relationName": [
+        "methodCall"
+      ],
+      "similar": [
+        "调用"
+      ]
+    },
+    {
+      "relationName": [
+        "haveField",
+        "haveMethod"
+      ],
+      "similar": [
+        "有",
+        "具有",
+        "属于"
+      ]
+    },
+    {
+      "relationName": [
+        "modify",
+        "add"
+      ],
+      "similar": [
+        "修改",
+        "编辑"
+      ]
+    },
+    {
+      "relationName": [
+        "codeMention"
+      ],
+      "similar": [
+        "提到",
+        "提及"
+      ]
+    },
+    {
+      "relationName": [
+        "extend"
+      ],
+      "similar": [
+        "继承"
+      ]
+    },
+    {
+      "relationName": [
+        "implement"
+      ],
+      "similar": [
+        "实现"
+      ]
+    },
+    {
+      "relationName": [
+        "returnType"
+      ],
+      "similar": [
+        "返回",
+        "返回类型"
+      ]
+    }
+  ]
+}

@@ -1,21 +1,22 @@
 package cn.edu.pku.sei.intellide.graph.extraction.mail;
 
+import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.CharBufferWrapper;
+import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.MboxHandler;
+import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.MboxIterator;
+import org.apache.james.mime4j.MimeException;
+import org.apache.james.mime4j.parser.MimeStreamParser;
+import org.apache.james.mime4j.stream.MimeConfig;
+import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Transaction;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-
-import cn.edu.pku.sei.intellide.graph.extraction.KnowledgeExtractor;
-import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.CharBufferWrapper;
-import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.MboxHandler;
-import cn.edu.pku.sei.intellide.graph.extraction.mail.utils.MboxIterator;
-
-import org.apache.james.mime4j.MimeException;
-import org.apache.james.mime4j.parser.MimeStreamParser;
-import org.apache.james.mime4j.stream.MimeConfig;
-import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 
 public class MailExtractor extends KnowledgeExtractor {
@@ -45,24 +46,18 @@ public class MailExtractor extends KnowledgeExtractor {
     public static final String MAILUSER_NAMES = "names";
 
     public static final String MAILUSER_MAIL = "mail";
-
-
-    private static final RelationshipType MAIL_IN_REPLY_TO = RelationshipType.withName("mailInReplyTo");
-
     public static final RelationshipType MAIL_SENDER = RelationshipType.withName("mailSender");
-
     public static final RelationshipType MAIL_RECEIVER = RelationshipType.withName("mailReceiver");
-
-    private MimeStreamParser parser = null;
+    private static final RelationshipType MAIL_IN_REPLY_TO = RelationshipType.withName("mailInReplyTo");
     private static Charset charset = Charset.forName("UTF-8");
     private final static CharsetDecoder DECODER = charset.newDecoder();
-
+    private MimeStreamParser parser = null;
 
     @Override
-    public void extraction(){
+    public void extraction() {
         MboxHandler myHandler = new MboxHandler();
         myHandler.setDb(this.getDb());
-        MimeConfig config=new MimeConfig();
+        MimeConfig config = new MimeConfig();
         config.setMaxLineLen(-1);
         parser = new MimeStreamParser(config);
         parser.setContentHandler(myHandler);

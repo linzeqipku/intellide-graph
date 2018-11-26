@@ -1,0 +1,82 @@
+[
+  {
+    "start": [
+      "Class"
+    ],
+    "end": [
+      "Method"
+    ],
+    "length": 2,
+    "relations": [
+      {
+        "from": [
+          "Class"
+        ],
+        "to": [
+          "Method"
+        ],
+        "via": "haveMethod",
+        "direct": true
+      },
+      {
+        "from": [
+          "Method"
+        ],
+        "to": [
+          "Method"
+        ],
+        "via": "methodCall",
+        "direct": true
+      }
+    ],
+    "keywords": [
+      "调用",
+      "call"
+    ]
+  },
+  {
+    "start": [
+      "Class"
+    ],
+    "end": [
+      "Class"
+    ],
+    "length": 3,
+    "relations": [
+      {
+        "from": [
+          "Class"
+        ],
+        "to": [
+          "Method"
+        ],
+        "via": "haveMethod",
+        "direct": true
+      },
+      {
+        "from": [
+          "Method"
+        ],
+        "to": [
+          "Method"
+        ],
+        "via": "methodCall",
+        "direct": true
+      },
+      {
+        "from": [
+          "Method"
+        ],
+        "to": [
+          "Class"
+        ],
+        "via": "haveMethod",
+        "direct": false
+      }
+    ],
+    "keywords": [
+      "调用",
+      "call"
+    ]
+  }
+]

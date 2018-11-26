@@ -6,9 +6,10 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.ir.LuceneSearchRe
 import java.util.ArrayList;
 import java.util.List;
 
-public class NLPNoticeMapping extends NLPMapping{
+public class NLPNoticeMapping extends NLPMapping {
     public List<LuceneSearchResult> list;
-    public NLPNoticeMapping(List<LuceneSearchResult>l) {
+
+    public NLPNoticeMapping(List<LuceneSearchResult> l) {
         list = list = new ArrayList<>();
         list.addAll(l);
     }

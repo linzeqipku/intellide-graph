@@ -1,5 +1,8 @@
 package cn.edu.pku.sei.intellide.graph.extraction.mail.utils;
 
+import com.google.common.collect.ImmutableList;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -11,9 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
-import org.apache.commons.lang3.tuple.Pair;
-
 class MailUtil {
 
     private static final String MAIL_REGEX = "[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+";
@@ -22,8 +22,8 @@ class MailUtil {
     private static final String SIGNATURE_LINE = "--";
     private static final String SIGNATURE_LINE2 = "__";
 
-    private static final String	REF_LINE	= "wrote:";
-    private static final String	REF_TAG		= ">";
+    private static final String REF_LINE = "wrote:";
+    private static final String REF_TAG = ">";
 
     /*
      * 从包含用户邮件地址和用户名称的字符串中，提取出用户的邮件地址和用户名称。
@@ -119,7 +119,7 @@ class MailUtil {
         return userMailList;
     }
 
-    public static String extractMainText(String body){
+    public static String extractMainText(String body) {
         BufferedReader in = new BufferedReader(new StringReader(body));
         ArrayList<String> lineList = new ArrayList<>();
         try {
@@ -154,9 +154,9 @@ class MailUtil {
         }
         filterReference(segmentList);
         filterSignature(segmentList);
-        String r="";
-        for (MailSegment segment:segmentList)
-            r+=segment.getText()+"\r\n";
+        String r = "";
+        for (MailSegment segment : segmentList)
+            r += segment.getText() + "\r\n";
         return r;
     }
 
@@ -244,12 +244,12 @@ class MailSegment {
         return sentences.iterator();
     }
 
-    public void setCode(boolean code) {
-        isCode = code;
-    }
-
     public boolean isCode() {
         return isCode;
+    }
+
+    public void setCode(boolean code) {
+        isCode = code;
     }
 
     public int getSentenceNumber() {

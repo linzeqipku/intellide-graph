@@ -1,67 +1,87 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface;
 
-
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.NLPToken;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.Query;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.entity.TokenMapping.NLPVertexSchemaMapping;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.NlpInterface.wrapper.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.neo4j.graphdb.GraphDatabaseService;
 
+import java.io.IOException;
 import java.util.*;
 
+@Slf4j
 public class NLPInterpreter {
-    public static String cypherStr = "";
-    public static Query ansQuery;
-    public static List<Query> queries = new ArrayList<>();
-    private static int offsetMax;
-    public static synchronized List<String> pipeline(String plainText){
+
+    private static Map<GraphDatabaseService, NLPInterpreter> instances = new HashMap<>();
+
+    private GraphDatabaseService db;
+    private String languageIdentifier = "english";
+    private List<Query> queries = new ArrayList<>();
+    private int offsetMax;
+
+    private NLPInterpreter(GraphDatabaseService db, String languageIdentifier) {
+        this.db = db;
+        this.languageIdentifier = languageIdentifier;
+    }
+
+    public synchronized static NLPInterpreter getInstance(GraphDatabaseService db) throws IOException {
+        NLPInterpreter instance = instances.get(db);
+        if (instance == null) {
+            throw new IOException("NLPInterpreter not found");
+        }
+        return instance;
+    }
+
+    public synchronized static NLPInterpreter createInstance(GraphDatabaseService db, String languageIdentifier){
+        NLPInterpreter instance = instances.get(db);
+        if (instance != null){
+            return instance;
+        }
+        instance = new NLPInterpreter(db, languageIdentifier);
+        instances.put(db, instance);
+        return instance;
+    }
+
+    /**
+     * 1. 使用TokensGenerator，对输入的句子进行切词、词性标注、命名实体识别等预处理；
+     * 2. 使用TokenMapping，给每个token识别出相应的graph schema元素；
+     * 3. 使用SchemaMapping和EdgeMappingSchema，给每个token识别出相应的graph entity元素；
+     * 4. 使用LinkAllNodes，把识别出的元素关联形成一个推理子图；
+     * @param plainText
+     * @return 评分排名前20的推理子图
+     */
+    public synchronized List<String> pipeline(String plainText) {
+        log.debug("开始解析问句的语义.");
         try {
-            long startTime = System.currentTimeMillis();
             queries.clear();
-            Query query = generatorTokens(plainText);
-            mapTokensToNodeAndRelation(query);
-            List<NLPToken> tmp = new ArrayList<>();
+            Query query = new TokensGenerator().generator(plainText, languageIdentifier, db);
+            new TokenMapping().process(query, languageIdentifier, db);
             offsetMax = query.tokens.size();
-//        for (NLPToken token : query.tokens){
-//            if (token.mapping != null){
-//                tmp.add(token);
-//            }
-//        }
-            //query.tokens = tmp;
             List<Integer> list = new ArrayList<>();
             for (int i = 0; i < offsetMax; i++) list.add(0);
-            cypherStr = "";
-            JSONObject obj = new JSONObject();
-            JSONArray arr = new JSONArray();
 
-            DFS(query, 0, list, arr, 0);
-            //generatorTuples(query);
-            //generatorTupleLinks(query);
+            dfs(query, 0, list, 0);
+
             int tot = 0;
             List<Query> answers = new ArrayList<>();
-            //System.out.println(queries.size());
             for (Query query1 : queries) {
                 if (query1.nodes.size() == 0) continue;
                 List<Query> listq = new ArrayList<>();
-                listq.addAll(LinkAllNodes.process(query1));
+                listq.addAll(new LinkAllNodes(languageIdentifier).process(query1));
                 for (Query q : listq) {
-                    Evaluator.evaluate(q);
+                    new Evaluator().evaluate(q);
                     if (q.score < -0.1) continue;
-                    generatorInferenceLinks(q);
-                    String s = generatorCyphers(q);
+                    new InferenceLinksGenerator().generate(q);
+                    String s = new CyphersGenerator().generate(q);
                     q.cypher = s;
                     if (!s.equals("")) {
-                        cypherStr += s + "</br>";
                         q.rank = tot;
                         tot++;
-                        //arr.put(q.toJsonQuery());
                         answers.add(q);
                     }
                 }
             }
-            //System.out.println(answers.size());
             answers.sort(Comparator.comparing(p -> p.score));
             Set<Query> anstmp = new HashSet<>();
             for (Query q : answers) {
@@ -84,79 +104,47 @@ public class NLPInterpreter {
                 ans.add(q.cypher);
             }
             return ans;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
-
-//        for (Query q : answers) {
-//            arr.put(q.toJsonQuery());
-//        }
-//        try {
-//            obj.put("rankedResults", arr);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        long endTime = System.currentTimeMillis();
-//        System.out.println(endTime-startTime);
-//        return obj;
-        /*CypherSet cyphers = generatorCyphers(query);
-        for (Cypher cypher : cyphers.sets){
-            System.out.println(cypher.text);
-        }*/
     }
 
-    public static void DFS(Query query, int offset, List<Integer> list, JSONArray arr, int no){
+    private void dfs(Query query, int offset, List<Integer> list, int no) {
         if (no > 1) return;
-        if (offset == offsetMax){
-            for (NLPToken token : query.tokens){
-                if (list.get((int)token.offset) < 0) token.mapping = null; else
-                token.mapping = token.mappingList.get(list.get((int)token.offset));
+        if (offset == offsetMax) {
+            for (NLPToken token : query.tokens) {
+                if (list.get((int) token.offset) < 0)
+                    token.mapping = null;
+                else
+                    token.mapping = token.mappingList.get(list.get((int) token.offset));
             }
             Query newquery = query.copyOut();
-            mapToSchema(newquery);
-            List<Query> querys = EdgeMappingSchema.process(newquery);
-            queries.addAll(querys);
+            new SchemaMapping().mapping(newquery);
+            List<Query> queries = new EdgeMappingSchema().process(newquery, db);
+            this.queries.addAll(queries);
             return;
         }
         boolean flag = false;
-        for (NLPToken token : query.tokens){
-            if (token.offset == offset){
+        for (NLPToken token : query.tokens) {
+            if (token.offset == offset) {
                 flag = true;
                 if (!(token.mapping instanceof NLPVertexSchemaMapping) ||
-                        !((NLPVertexSchemaMapping)token.mapping).must) {
+                        !((NLPVertexSchemaMapping) token.mapping).must) {
                     list.set(offset, -1);
-                    if (token.nomapping)DFS(query, offset + 1, list, arr, no);else
-                    DFS(query, offset + 1, list, arr, no + 1);
+                    if (token.nomapping) dfs(query, offset + 1, list, no);
+                    else
+                        dfs(query, offset + 1, list, no + 1);
                 }
-                for (int i = 0; i < token.mappingList.size(); i++){
-                    list.set(offset,i);
-                    DFS(query,offset+1, list,arr,no);
+                for (int i = 0; i < token.mappingList.size(); i++) {
+                    list.set(offset, i);
+                    dfs(query, offset + 1, list, no);
                 }
             }
         }
 
-        if (!flag) DFS(query,offset+1, list,arr,no);
+        if (!flag) dfs(query, offset + 1, list, no);
     }
 
-    public static Query generatorTokens(String plainText){
-        return TokensGenerator.generator(plainText);
-    }
-
-
-    public static void mapTokensToNodeAndRelation(Query query){
-        TokenMapping.process(query);
-    }
-
-    public static void generatorInferenceLinks(Query query){
-        InferenceLinksGenerator.generate(query);
-    }
-
-    public static void mapToSchema(Query query){
-        SchemaMapping.mapping(query);
-    }
-    public static String generatorCyphers(Query query){
-        return CyphersGenerator.generate(query);
-    }
 }
 

@@ -13,10 +13,14 @@ public class Neo4jSubGraph {
 
     private String cypher = "";
 
-    public Neo4jSubGraph(List<Long> nodeIds, List<Long> relIds, GraphDatabaseService db){
-        for (long node:nodeIds)
+    public Neo4jSubGraph() {
+
+    }
+
+    public Neo4jSubGraph(List<Long> nodeIds, List<Long> relIds, GraphDatabaseService db) {
+        for (long node : nodeIds)
             nodes.add(Neo4jNode.get(node, db));
-        for (long edge:relIds)
+        for (long edge : relIds)
             relationships.add(Neo4jRelation.get(edge, db));
     }
 

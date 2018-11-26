@@ -12,5 +12,4 @@ public class GraphPath {
     public String name;
     public double score;
     public int length;
-    public boolean ispreDefine = false;
 }

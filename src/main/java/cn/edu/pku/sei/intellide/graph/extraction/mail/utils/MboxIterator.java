@@ -19,11 +19,7 @@ package cn.edu.pku.sei.intellide.graph.extraction.mail.utils;
  under the License.                                           *
  */
 
-import java.io.CharConversionException;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.nio.MappedByteBuffer;
@@ -39,20 +35,20 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
 
     private final FileInputStream theFile;
     private final CharBuffer mboxCharBuffer;
-    private Matcher fromLineMatcher;
-    private boolean fromLineFound;
     private final MappedByteBuffer byteBuffer;
     private final CharsetDecoder DECODER;
+    private final int maxMessageSize;
+    private final Pattern MESSAGE_START;
+    private final File mbox;
+    private Matcher fromLineMatcher;
+    private boolean fromLineFound;
     /**
      * Flag to signal end of input to {@link CharsetDecoder#decode(java.nio.ByteBuffer)}
      * .
      */
     private boolean endOfInputFlag = false;
-    private final int maxMessageSize;
-    private final Pattern MESSAGE_START;
     private int findStart = -1;
     private int findEnd = -1;
-    private final File mbox;
 
     private MboxIterator(final File mbox,
                          final Charset charset,
@@ -69,6 +65,26 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
         this.theFile = new FileInputStream(mbox);
         this.byteBuffer = theFile.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, theFile.getChannel().size());
         initMboxIterator();
+    }
+
+    public static Builder fromFile(File filePath) {
+        return new Builder(filePath);
+    }
+
+    public static Builder fromFile(String file) {
+        return new Builder(file);
+    }
+
+    /**
+     * Utility method to log important details about buffers.
+     */
+    public static String bufferDetailsToString(final Buffer buffer) {
+        return "Buffer details: " + "\ncapacity:\t" + buffer.capacity() +
+                "\nlimit:\t" + buffer.limit() +
+                "\nremaining:\t" + buffer.remaining() +
+                "\nposition:\t" + buffer.position() +
+                "\nbuffer:\t" + buffer.isReadOnly() +
+                "\nclass:\t" + buffer.getClass();
     }
 
     /**
@@ -114,6 +130,51 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
     @Override
     public void close() throws IOException {
         theFile.close();
+    }
+
+    public static class Builder {
+
+        private final File file;
+        private Charset charset = Charset.forName("UTF-8");
+        private String regexpPattern = FromLinePatterns.DEFAULT;
+        private int flags = Pattern.MULTILINE;
+        /**
+         * Default max message size in chars: ~ 10MB chars. If the mbox file contains larger
+         * messages they will not be decoded correctly.
+         */
+        private int maxMessageSize = 10 * 1024 * 1024;
+
+        private Builder(String filePath) {
+            this(new File(filePath));
+        }
+
+        private Builder(File file) {
+            this.file = file;
+        }
+
+        public Builder charset(Charset charset) {
+            this.charset = charset;
+            return this;
+        }
+
+        public Builder fromLine(String fromLine) {
+            this.regexpPattern = fromLine;
+            return this;
+        }
+
+        public Builder flags(int flags) {
+            this.flags = flags;
+            return this;
+        }
+
+        public Builder maxMessageSize(int maxMessageSize) {
+            this.maxMessageSize = maxMessageSize;
+            return this;
+        }
+
+        public MboxIterator build() throws IOException {
+            return new MboxIterator(file, charset, regexpPattern, flags, maxMessageSize);
+        }
     }
 
     private class MessageIterator implements Iterator<CharBufferWrapper> {
@@ -188,70 +249,5 @@ public class MboxIterator implements Iterable<CharBufferWrapper>, Closeable {
         public void remove() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
-    }
-
-    public static Builder fromFile(File filePath) {
-        return new Builder(filePath);
-    }
-
-    public static Builder fromFile(String file) {
-        return new Builder(file);
-    }
-
-    public static class Builder {
-
-        private final File file;
-        private Charset charset = Charset.forName("UTF-8");
-        private String regexpPattern = FromLinePatterns.DEFAULT;
-        private int flags = Pattern.MULTILINE;
-        /**
-         * Default max message size in chars: ~ 10MB chars. If the mbox file contains larger
-         * messages they will not be decoded correctly.
-         */
-        private int maxMessageSize = 10 * 1024 * 1024;
-
-        private Builder(String filePath) {
-            this(new File(filePath));
-        }
-
-        private Builder(File file) {
-            this.file = file;
-        }
-
-        public Builder charset(Charset charset) {
-            this.charset = charset;
-            return this;
-        }
-
-        public Builder fromLine(String fromLine) {
-            this.regexpPattern = fromLine;
-            return this;
-        }
-
-        public Builder flags(int flags) {
-            this.flags = flags;
-            return this;
-        }
-
-        public Builder maxMessageSize(int maxMessageSize) {
-            this.maxMessageSize = maxMessageSize;
-            return this;
-        }
-
-        public MboxIterator build() throws IOException {
-            return new MboxIterator(file, charset, regexpPattern, flags, maxMessageSize);
-        }
-    }
-
-    /**
-     * Utility method to log important details about buffers.
-     */
-    public static String bufferDetailsToString(final Buffer buffer) {
-        return "Buffer details: " + "\ncapacity:\t" + buffer.capacity() +
-                "\nlimit:\t" + buffer.limit() +
-                "\nremaining:\t" + buffer.remaining() +
-                "\nposition:\t" + buffer.position() +
-                "\nbuffer:\t" + buffer.isReadOnly() +
-                "\nclass:\t" + buffer.getClass();
     }
 }

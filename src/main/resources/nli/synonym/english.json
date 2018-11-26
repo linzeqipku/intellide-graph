@@ -1,0 +1,181 @@
+{
+  "node": [
+    {
+      "nodeName": [
+        "StackOverflowUser",
+        "JiraIssueUser",
+        "StackOverflowUser",
+        "MailUser",
+        "GitUser"
+      ],
+      "similar": [
+        "user",
+        "person",
+        "who",
+        "author"
+      ]
+    },
+    {
+      "nodeName": [
+        "Commit"
+      ],
+      "similar": [
+        "commit",
+        "change"
+      ]
+    },
+    {
+      "nodeName": [
+        "JiraIssue"
+      ],
+      "similar": [
+        "issue",
+        "bug"
+      ]
+    },
+    {
+      "nodeName": [
+        "StackOverflowQuestion"
+      ],
+      "similar": [
+        "question"
+      ]
+    },
+    {
+      "nodeName": [
+        "StackOverflowAnswer"
+      ],
+      "similar": [
+        "answer"
+      ]
+    },
+    {
+      "nodeName": [
+        "StackOverflowComment"
+      ],
+      "similar": [
+        "comment"
+      ]
+    }
+  ],
+  "attribute": [
+    {
+      "attributeName": [
+        "createDate",
+        "date",
+        "createdDate",
+        "updatedDate"
+      ],
+      "similar": [
+        "when",
+        "date",
+        "time"
+      ]
+    },
+    {
+      "attributeName": [
+        "crearorName",
+        "creatorName"
+      ],
+      "similar": [
+        "user",
+        "who"
+      ]
+    }
+  ],
+  "relation": [
+    {
+      "relationName": [
+        "methodCall"
+      ],
+      "similar": [
+        "call",
+        "invoke"
+      ]
+    },
+    {
+      "relationName": [
+        "haveMethod",
+        "haveField"
+      ],
+      "similar": [
+        "have",
+        "belong",
+        "contain"
+      ]
+    },
+    {
+      "relationName": [
+        "mailSender"
+      ],
+      "similar": [
+        "send",
+        "sent"
+      ]
+    },
+    {
+      "relationName": [
+        "committer",
+        "modify"
+      ],
+      "similar": [
+        "change",
+        "modify"
+      ]
+    },
+    {
+      "relationName": [
+        "soAuthor",
+        "jira_is_assignee_of_issue",
+        "jira_is_creator_of_issue",
+        "person_is_author_of_commit"
+      ],
+      "similar": [
+        "author",
+        "write",
+        "written"
+      ]
+    },
+    {
+      "relationName": [
+        "jira_is_creator_of_issue"
+      ],
+      "similar": [
+        "create"
+      ]
+    },
+    {
+      "relationName": [
+        "jira_is_reporter_of_issue"
+      ],
+      "similar": [
+        "report"
+      ]
+    },
+    {
+      "relationName": [
+        "returnType"
+      ],
+      "similar": [
+        "returnType"
+      ]
+    },
+    {
+      "relationName": [
+        "codeMention"
+      ],
+      "similar": [
+        "mention",
+        "related"
+      ]
+    },
+    {
+      "relationName": [
+        "mailInReplyTo"
+      ],
+      "similar": [
+        "reply"
+      ]
+    }
+  ]
+}

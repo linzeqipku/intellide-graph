@@ -65,58 +65,6 @@ public class FilterBeVerb {
 		return true;
 	}
 
-	// public static boolean filterRoot(PhraseInfo phrase) {
-	// if (phrase == null || phrase.getStemmedTree() == null)
-	// return false;
-	//
-	// Tree phraseTree = phrase.getStemmedTree();
-	//
-	// // __ < ( /VB.*/ = vb !< be|am|is|are|was|were|being|been|'m|'s|'re )
-	// String filterPattern = "__ < ( /VB.*/ = vb < " +
-	// Rules.ruleWordsConjuctionForTregex(Rules.BE_VERBS)
-	// + " ) ";
-	// // System.out.println(filterPattern);
-	//
-	// TregexPattern tregexPattern = TregexPattern.compile(filterPattern);
-	// TregexMatcher matcher = tregexPattern.matcher(phraseTree);
-	//
-	// // 如果按照过滤be动词的pattern无法匹配，则短语应被过滤掉
-	// if (matcher.matches()) {
-	// Proof proof = new Proof(ProofType.FAIL_BE_VERB_ROOT);
-	// Tree evdTree = matcher.getNode("vb");
-	// proof.setEvidenceTree(evdTree);
-	// phrase.addProof(proof);
-	// return false;
-	// }
-	//
-	// return true;
-	// }
-	//
-	// public static boolean filterAll(PhraseInfo phrase) {
-	// if (phrase == null || phrase.getStemmedTree() == null)
-	// return false;
-	// Tree phraseTree = phrase.getStemmedTree();
-	//
-	// // __ !<< be|am|is|are|was|were|being|been|'m|'s|'re
-	// String filterPattern = "__ << ( /VB.*/=vb <" +
-	// Rules.ruleWordsConjuctionForTregex(Rules.BE_VERBS)
-	// + " ) ";
-	//
-	// TregexPattern tregexPattern =
-	// TregexPattern.compile(filterPattern.toString());
-	// TregexMatcher matcher = tregexPattern.matcher(phraseTree);
-	//
-	// // 如果按照过滤be动词的pattern无法匹配，则短语应被过滤掉
-	// if (matcher.matches()) {
-	// Proof proof = new Proof(ProofType.FAIL_BE_VERB_ALL);
-	// Tree evdTree = matcher.getNode("vb");
-	// proof.setEvidenceTree(evdTree);
-	// phrase.addProof(proof);
-	// return false;
-	// }
-	//
-	// return true;
-	// }
 
 	public static void main(String args[]) {
 		String string = "I have been a doctor, he being a dancer, and he said that his father was a farmer, his family are Chinese.";

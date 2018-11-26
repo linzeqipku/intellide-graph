@@ -6,9 +6,6 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-//import cn.edu.pku.sei.tsr.dragon.content.SentenceParser;
-//import cn.edu.pku.sei.tsr.dragon.content.entity.SentenceInfo;
-//import cn.edu.pku.sei.tsr.dragon.nlp.parser.PhraseExtractor;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -53,31 +50,6 @@ public class TreeUtils {
 
     }
 
-    public static String getLeafString(Tree tree) {
-        if (tree.isPreTerminal()) {
-            // 树的下一层节点是终结符(leaf)，也就是说，树是pos tag，下一层是一个单词
-            Tree leaf = tree.getChild(0);
-            if (leaf != null && leaf.isLeaf()) {
-                // 叶子结点
-                return leaf.value();
-            }
-        }
-        return null;
-    }
-
-    public static List<Pair<String, String>> getWordsWithSpeech(Tree tree) {
-        List<Pair<String, String>> result = new ArrayList<>();
-        if (tree.depth() == 1) {
-            String speech = tree.label().toString();
-            String word = tree.getChild(0).label().toString();
-            result.add(new ImmutablePair<>(speech, word));
-        }
-        else {
-
-        }
-        return result;
-    }
-
     public static void depthFirstTraversal(Tree tree) {
         if (tree == null)
             return;
@@ -106,37 +78,6 @@ public class TreeUtils {
         }
     }
 
-    public static void trimEmptyLeaf(Tree tree) {
-        if (tree.isLeaf())
-            return;
-        Tree[] children = tree.children();
-        for (int i = 0; i < children.length; i++) {
-            Tree child = children[i];
-            if (child.isPhrasal() && child.isLeaf()) {
-                removeSubTree(child, tree);
-                tree.pennPrint();
-            }
-            else if (!child.isLeaf()) {
-                trimEmptyLeaf(child);
-            }
-        }
-
-    }
-
-    public static boolean hasChild(Tree parent, Tree child) {
-        if (child == null || parent == null)
-            return false;
-
-        Tree[] children = parent.children();
-        for (int i = 0; i < children.length; i++) {
-            // @Deprecated
-            // if (children[i].equals(child))
-            if (children[i] == child)
-                return true;
-        }
-        return false;
-    }
-
     public static void removeSubTree(Tree child, Tree ancestor) {
         if (child == null || ancestor == null)
             return;
@@ -150,132 +91,6 @@ public class TreeUtils {
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    public static boolean matchPattern(Tree tree, String pattern) {
-        TregexPattern tregexPattern = TregexPattern.compile(pattern);
-        TregexMatcher matcher = tregexPattern.matcher(tree);
-        return matcher.matches();
-    }
-
-    // 助词短语
-    public static boolean isParticle(Tree tree) {
-        try {
-            return tree.label().toString().equals("PRT");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 助词单词
-    public static boolean isParticleWord(Tree tree) {
-        try {
-            return tree.label().toString().equals("RP");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 形容词
-    public static boolean isAdjective(Tree tree) {
-        try {
-            return tree.label().toString().startsWith("JJ");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 形容词
-    public static boolean isJJ(Tree tree) {
-        try {
-            return tree.label().toString().equals("JJ");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 介词或者连词
-    public static boolean isPrepOrConjunction(Tree tree) {
-        return isPreposition(tree) || isCC(tree);
-    }
-
-    // 连词
-    public static boolean isCC(Tree tree) {
-        try {
-            return tree.label().toString().equals("CC");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 介词或者 to
-    public static boolean isPreposition(Tree tree) {
-        try {
-            return tree.label().toString().equals("IN") || tree.label().toString().equals("TO");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean isVB(Tree tree) {
-        try {
-            return tree.label().toString().startsWith("VB");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean isVP(Tree tree) {
-        try {
-            return tree.label().toString().equals("VP");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean isNP(Tree tree) {
-        try {
-            return tree.label().toString().equals("NP");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean isPP(Tree tree) {
-        try {
-            return tree.label().toString().equals("PP");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    public static boolean isNN(Tree tree) {
-        try {
-            return tree.label().toString().startsWith("NN");
-        }
-        catch (NullPointerException e) {
-            return false;
-        }
-    }
-
-    // 冠词 determiner
-    public static boolean isDT(Tree tree) {
-        try {
-            return tree.label().toString().equals("DT") || tree.label().toString().equals("PDT");
-        }
-        catch (NullPointerException e) {
-            return false;
         }
     }
 

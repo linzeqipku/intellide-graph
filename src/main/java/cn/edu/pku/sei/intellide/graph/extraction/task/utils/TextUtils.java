@@ -5,19 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cn.edu.pku.sei.intellide.graph.extraction.task.entity.PhraseInfo;
-//import cn.edu.pku.sei.tsr.dragon.content.entity.SentenceInfo;
-//import cn.edu.pku.sei.tsr.dragon.wordscluster.StopwordsEnglish;
-
 public class TextUtils {
-
-//    public static String getPrecedingContext(PhraseInfo phrase, SentenceInfo sentence) {
-//        if (phrase == null || sentence == null)
-//            return null;
-//        String phraseStr = phrase.getContent();
-//        String sentenceStr = sentence.getContent();
-//        return getPrecedingContext(phraseStr, sentenceStr);
-//    }
 
     public static String getPrecedingContext(String phrase, String context) {
         // System.out.println(context + "\t" + phrase);
@@ -42,32 +30,6 @@ public class TextUtils {
 
     }
 
-//    public static List<String> allParser(String str){
-//        str = ignorePunctuation(str);
-//        String ret = "";
-//        for (String s : getWordList(str)){
-//            if (!isStopword(s)){
-//                ret = ret + " " + s;
-//            }
-//        }
-//        return getTwoGram(ret.trim());
-//    }
-
-//    public static boolean isStopword(String str) {
-//        return new StopwordsEnglish().isStopword(str);
-//    }
-
-//    public static String stopWordsParser(String str) {
-//        String[] s_arr = str.split("[ ]+");
-//        String ret = "";
-//        for (String s : s_arr) {
-//            if (!isStopword(s)) {
-//                ret = ret + s + " ";
-//            }
-//        }
-//        return ret.trim();
-//    }
-
     public static String ignorePunctuation(String str) {
         Matcher mat;
         mat = Pattern.compile("-[lrLR][rcsRCS][Bb]-").matcher(str);
@@ -87,16 +49,6 @@ public class TextUtils {
         for (String s : s_arr){
             if (s.toLowerCase().startsWith("http://") && s.length() > 14)
                 continue;
-            ret.add(s.trim());
-        }
-        return ret;
-    }
-
-    public static List<String> getTwoGram(String str){
-        String[] s_arr = str.split("[ ]+");
-        List<String> ret = new ArrayList<String>();
-        for (int i = 0; i < s_arr.length - 1; i++){
-            String s = s_arr[i] + " " + s_arr[i + 1];
             ret.add(s.trim());
         }
         return ret;

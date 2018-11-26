@@ -137,20 +137,6 @@ public class Proof implements Serializable {
         return proof;
     }
 
-    /**
-     * Read a string that represents a proof list, retrieve all proofs and
-     * recover the list
-     **/
-    public static List<Proof> extractProofs(String proofsString) {
-        List<Proof> proofs = new ArrayList<>();
-        String[] proofArray = proofsString.split("\\" + PROOF_SEPARATOR);
-        for (int i = 0; i < proofArray.length; i++) {
-            Proof proof = Proof.of(proofArray[i]);
-            proofs.add(proof);
-        }
-        return proofs;
-    }
-
     /** Concatenate multiple proofs and build a string representation **/
     public static String concatenateProofs(List<Proof> proofs) {
         StringBuilder str = new StringBuilder();
@@ -175,16 +161,8 @@ public class Proof implements Serializable {
         this.type = proofType;
     }
 
-    public String getEvidence() {
-        return evidence;
-    }
-
     public void setEvidence(String evidence) {
         this.evidence = evidence;
-    }
-
-    public String getEvidenceTree() {
-        return evidenceTree;
     }
 
     public void setEvidenceTree(String evidenceTree) {

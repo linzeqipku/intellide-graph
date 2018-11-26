@@ -58,51 +58,6 @@ public class FilterModalVerb {
 		return true;
 	}
 
-	// public static boolean filterRoot(PhraseInfo phrase) {
-	// if (phrase == null || phrase.getStemmedTree() == null)
-	// return false;
-	// Tree phraseTree = phrase.getStemmedTree();
-	//
-	// StringBuilder filterPattern = new StringBuilder("__ < MD=md");
-	//
-	// TregexPattern tregexPattern =
-	// TregexPattern.compile(filterPattern.toString());
-	// TregexMatcher matcher = tregexPattern.matcher(phraseTree);
-	//
-	// // 如果按照过滤情态动词的pattern无法匹配，则短语应被过滤掉
-	// if (matcher.matches()) {
-	// Proof proof = new Proof(ProofType.FAIL_MODAL_VERB_ROOT);
-	// Tree evdTree = matcher.getNode("md");
-	// proof.setEvidenceTree(evdTree);
-	// phrase.addProof(proof);
-	// return false;
-	// }
-	//
-	// return true;
-	// }
-	//
-	// public static boolean filterAll(PhraseInfo phrase) {
-	// if (phrase == null || phrase.getStemmedTree() == null)
-	// return false;
-	// Tree phraseTree = phrase.getStemmedTree();
-	//
-	// StringBuilder filterPattern = new StringBuilder("__ << MD=md");
-	//
-	// TregexPattern tregexPattern =
-	// TregexPattern.compile(filterPattern.toString());
-	// TregexMatcher matcher = tregexPattern.matcher(phraseTree);
-	//
-	// // 如果按照过滤情态动词的pattern无法匹配，则短语应被过滤掉
-	// if (matcher.matches()) {
-	// Proof proof = new Proof(ProofType.FAIL_MODAL_VERB_ALL);
-	// Tree evdTree = matcher.getNode("md");
-	// proof.setEvidenceTree(evdTree);
-	// phrase.addProof(proof);
-	// return false;
-	// }
-	//
-	// return true;
-	// }
 
 	public static void main(String args[]) {
 		String string = "I could not be a doctor, he'll be a dancer, and he wouldn't said that his father might be a farmer, his family will never be Chinese.";

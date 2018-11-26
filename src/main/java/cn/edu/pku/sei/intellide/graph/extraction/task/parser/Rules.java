@@ -11,8 +11,6 @@ import java.util.List;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
-//import cn.edu.pku.sei.tsr.dragon.utils.Config;
-
 public class Rules {
     public static final int			THRESHOLD				= 0;
 

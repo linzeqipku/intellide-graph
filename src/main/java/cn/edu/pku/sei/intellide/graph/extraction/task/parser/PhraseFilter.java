@@ -3,38 +3,18 @@ package cn.edu.pku.sei.intellide.graph.extraction.task.parser;
 import org.apache.log4j.Logger;
 
 import cn.edu.pku.sei.intellide.graph.extraction.task.entity.PhraseInfo;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.CheckerPhraseForm;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterBeVerb;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterContext;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterModalVerb;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterNegation;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterNoun;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterPhrase;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterPronoun;
-import cn.edu.pku.sei.intellide.graph.extraction.task.filters.FilterVerb;
+import cn.edu.pku.sei.intellide.graph.extraction.task.filters.*;
 import edu.stanford.nlp.trees.Tree;
 
 
 public class PhraseFilter {
-    public static final Logger logger = Logger.getLogger(PhraseFilter.class);
 
     public static void filter(PhraseInfo phrase, String sentence) {
-        // logger.info("[FilterPhrase] filtering...");
 
         if (phrase.getPhraseType() == PhraseInfo.PHRASE_TYPE_VP)
             CheckerPhraseForm.checkVP(phrase);
         else if (phrase.getPhraseType() == PhraseInfo.PHRASE_TYPE_NP)
             CheckerPhraseForm.checkNP(phrase);
-
-        // if (phrase.hasProof(ProofType.ILLEGAL_VP_PHRASE) ||
-        // phrase.hasProof(ProofType.ILLEGAL_NP_PHRASE))
-        // return;
-
-        // VP_NP_FormChecker.check(phrase);
-        // VP_NP_PP_FormChecker.check(phrase);
-        // VP_PP_FormChecker.check(phrase);
-        // VP_PRP_PP_FormChecker.check(phrase);
-        // VP_DT_PP_FormChecker.check(phrase);
 
         FilterBeVerb.filterInRootOnly(phrase);
         FilterModalVerb.filterInRootOnly(phrase);
@@ -53,50 +33,8 @@ public class PhraseFilter {
         FilterContext filterContext = new FilterContext(phrase, sentence);
         filterContext.filter();
 
-        // System.err.println("[FilterPhrase] filtering finished, time: " + (t2
-        // - t1) + "ms");
     }
 
-    // public static void filter(PhraseInfo phrase, SentenceInfo sentence) {
-    // // logger.info("[FilterPhrase] filtering...");
-    // long t1 = System.currentTimeMillis();
-    //
-    // if (phrase.isVP())
-    // CheckerPhraseForm.checkVP(phrase);
-    // else if (phrase.isNP())
-    // CheckerPhraseForm.checkNP(phrase);
-    //
-    // // if (phrase.hasProof(ProofType.ILLEGAL_VP_PHRASE) ||
-    // // phrase.hasProof(ProofType.ILLEGAL_NP_PHRASE))
-    // // return;
-    //
-    // // VP_NP_FormChecker.check(phrase);
-    // // VP_NP_PP_FormChecker.check(phrase);
-    // // VP_PP_FormChecker.check(phrase);
-    // // VP_PRP_PP_FormChecker.check(phrase);
-    // // VP_DT_PP_FormChecker.check(phrase);
-    //
-    // FilterBeVerb.filterRoot(phrase);
-    // FilterModalVerb.filterRoot(phrase);
-    //
-    // FilterNegation.filterRoot(phrase);
-    // FilterNegation.filterAll(phrase);
-    // FilterPronoun.filter(phrase);
-    //
-    // FilterVerb.filter(phrase);
-    //
-    // FilterNoun filterNoun = new FilterNoun(phrase);
-    // filterNoun.filter();
-    //
-    // FilterPhrase.filter(phrase);
-    //
-    // FilterContext filterContext = new FilterContext(phrase, sentence);
-    // filterContext.filter();
-    //
-    // long t2 = System.currentTimeMillis();
-    // // System.err.println("[FilterPhrase] filtering finished, time: " + (t2
-    // // - t1) + "ms");
-    // }
 
     public static void main(String[] args) {
         String string = "I'm trying to develop a complex report, and I need to set up the print areas for the excel file.";
@@ -113,17 +51,6 @@ public class PhraseFilter {
         // ", he'll be a dancer, and he wouldn't said that his father might be a
         // farmer, his family
         // will never be Chinese.";
-
-//        String str = "I have Java code that converts CSV to xlsx. It works fine with a small file size. Now I have a CSV file " +
-//                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error. I tried changing the " +
-//                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G. Even this " +
-//                "did not work. I tried it on a UNIX box. On searching, I got some code about using BigGridDemo. Can anyone " +
-//                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution";
-//        String[] sentences = {"I have Java code that converts CSV to xlsx.", "It works fine with a small file size.", "Now I have a CSV file " +
-//                "with 2 lakh records(200,000) and on conversion I am getting an out of memory error.", "I tried changing the " +
-//                "workbook to 3X33FWorkbook and increasing the heap size and Java memory size to -Xms8G -Xmx10G.", "Even this " +
-//                "did not work.", "I tried it on a UNIX box.", "On searching, I got some code about using BigGridDemo.", "Can anyone " +
-//                "help me in customizing that to reading a .csv file and then using its logic to write to xlsx or any other solution"};
 
 		Tree t = NLPParser.parseGrammaticalTree(string);
 		t.pennPrint();

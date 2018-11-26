@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-//import cn.edu.pku.sei.tsr.dragon.utils.Config;
-//import cn.edu.pku.sei.tsr.dragon.utils.MonitorThread;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.process.CoreLabelTokenFactory;
@@ -29,12 +27,6 @@ public class StanfordParser implements Callable<Tree> {
         lexicalizedParser = LexicalizedParser.loadModel("src/main/resources/englishPCFG.ser.gz");
         tokenizerFactory = PTBTokenizer.factory(new CoreLabelTokenFactory(), "");
     }
-
-    // 删除了无参数的构造方法 2015-07-27 zhuzx
-    // 不能删？
-    // public StanfordParser() {
-    // super();
-    // }
 
     public StanfordParser(String strToParse) {
         super();
@@ -102,10 +94,6 @@ public class StanfordParser implements Callable<Tree> {
         long t2 = System.currentTimeMillis();
 
         return tree;
-    }
-
-    public Tree getParsedTree() {
-        return parsedTree;
     }
 
 }

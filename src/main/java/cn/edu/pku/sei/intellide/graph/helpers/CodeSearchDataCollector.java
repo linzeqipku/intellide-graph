@@ -1,6 +1,7 @@
 package cn.edu.pku.sei.intellide.graph.helpers;
 
 import cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -9,6 +10,7 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class CodeSearchDataCollector {
@@ -64,10 +66,20 @@ public class CodeSearchDataCollector {
         for (String nl : set){
             map.remove(nl);
         }
+        List<String> codes = new ArrayList<>();
+        List<String> nls = new ArrayList<>();
+        int c = 1;
         for (String key : map.keySet()){
-            System.out.println(key);
+            codes.add("" + c + "\t" + map.get(key));
+            nls.add("" + c + "\t" + key);
+            c++;
         }
-
+        try {
+            FileUtils.writeLines(new File(nlPath), nls);
+            FileUtils.writeLines(new File(codePath), codes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static String javadoc2nl(String javadoc){

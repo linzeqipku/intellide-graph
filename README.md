@@ -75,6 +75,7 @@ mvn package
 2. git版本库数据
 
     给出该项目的.git文件夹即可.
+    
     (SVN版本库数据的处理方式见FAQ)
     
 3. html文档数据

@@ -12,6 +12,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class CodeSearchDataCollector {
 
@@ -39,14 +40,15 @@ public class CodeSearchDataCollector {
                 }
                 String javadoc = (String) method.getProperty(JavaExtractor.COMMENT);
                 String content = ((String) method.getProperty(JavaExtractor.CONTENT)).trim();
+                System.out.println(content);
                 if (content.length() == 0){
                     continue;
                 }
-                String code = content.replace(javadoc, "").trim()
-                        .replace("\r", "").replace("\n","\\n");
-                if (code.contains("@Deprecated") || code.contains("@Override") || !code.endsWith("}")){
+                String code = content2code(content);
+                if (code.length() == 0 || !checkCode(code)){
                     continue;
                 }
+                code = code.replace("\n","\\n");
                 String nl = javadoc2nl(javadoc).replace("\n","\\n");
                 if (nl.length() == 0 || !checkNl(nl)){
                     continue;
@@ -82,6 +84,93 @@ public class CodeSearchDataCollector {
         }
     }
 
+    private static String content2code(String content){
+        content = content.trim();
+        content = content.replaceAll("^/\\*[\\s\\S]+?\\*/", "").trim();
+        content = removeComments(content);
+        content = content.replaceAll("\\r", "").trim();
+        return content;
+    }
+
+    private static String removeComments(String code) {
+        StringBuilder sb = new StringBuilder();
+        int cnt = 0;
+        boolean quoteFlag = false;
+        for (int i = 0; i < code.length(); i++) {
+            //如果没有开始双引号范围
+            if (!quoteFlag) {
+                //如果发现双引号开始
+                if (code.charAt(i) == '\"') {
+                    sb.append(code.charAt(i));
+                    quoteFlag = true;
+                    continue;
+                }
+                //处理双斜杠注释
+                else if (i + 1 < code.length() && code.charAt(i) == '/' && code.charAt(i + 1) == '/') {
+                    while (code.charAt(i) != '\n') {
+                        i++;
+                    }
+                    continue;
+                }
+                //不在双引号范围内
+                else {
+                    //处理/**/注释段
+                    if (cnt == 0) {
+                        if (i + 1 < code.length() && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
+                            cnt++;
+                            i++;
+                            continue;
+                        }
+                    } else {
+                        //发现"*/"结尾
+                        if (i + 1 < code.length() && code.charAt(i) == '*' && code.charAt(i + 1) == '/') {
+                            cnt--;
+                            i++;
+                            continue;
+                        }
+                        //发现"/*"嵌套
+                        if (i + 1 < code.length() && code.charAt(i) == '/' && code.charAt(i + 1) == '*') {
+                            cnt++;
+                            i++;
+                            continue;
+                        }
+                    }
+                    //如果没有发现/**/注释段或者已经处理完了嵌套的/**/注释段
+                    if (cnt == 0) {
+                        sb.append(code.charAt(i));
+                        continue;
+                    }
+                }
+            }
+            //处理双引号注释段
+            else {
+                //如果发现双引号结束(非转义形式的双引号)
+                if (code.charAt(i) == '\"' && code.charAt(i - 1) != '\\') {
+                    sb.append(code.charAt(i));
+                    quoteFlag = false;
+                }
+                //双引号开始了但是还没有结束
+                else {
+                    sb.append(code.charAt(i));
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private static boolean checkCode(String code){
+        code = code.trim();
+        if (code.contains("@Deprecated") || code.contains("@Override") || !code.endsWith("}")
+                || code.contains("0x")
+                || Pattern.compile("\\{\\s+}").matcher(code).find()){
+            return false;
+        }
+        if (code.split(";").length < 5){
+            return false;
+        }
+        return true;
+    }
+
     private static String javadoc2nl(String javadoc){
         String nl = "";
         String[] lines = javadoc.trim().split("[\\r\\n]+");
@@ -104,12 +193,12 @@ public class CodeSearchDataCollector {
     private static boolean checkNl(String nl){
         nl = nl.toLowerCase();
         if (nl.startsWith("return") || nl.startsWith("get") || nl.startsWith("set") || nl.startsWith("throw")
-                || nl.startsWith("method")
+                || nl.startsWith("method") || nl.contains("deprecated") || nl.contains("todo")
                 || nl.contains("<") || nl.contains(">") || nl.contains("?")){
             return false;
         }
         String[] tokens = nl.split("\\W+");
-        if (tokens.length <= 5){
+        if (tokens.length <= 5 || !nl.contains(" ")){
             return false;
         }
         return true;

@@ -64,7 +64,6 @@ public class JavaASTVisitor extends ASTVisitor {
         boolean isAbstract = Modifier.isAbstract(node.getModifiers());
         boolean isFinal = Modifier.isFinal(node.getModifiers());
         String comment = node.getJavadoc() == null ? "" : sourceContent.substring(node.getJavadoc().getStartPosition(), node.getJavadoc().getStartPosition() + node.getJavadoc().getLength());
-
         String content = sourceContent.substring(node.getStartPosition(), node.getStartPosition() + node.getLength());
         String superClassType = node.getSuperclassType() == null ? "java.lang.Object" : NameResolver.getFullName(node.getSuperclassType());
         String superInterfaceTypes = String.join(", ", (List<String>) node.superInterfaceTypes().stream().map(n -> NameResolver.getFullName((Type) n)).collect(Collectors.toList()));

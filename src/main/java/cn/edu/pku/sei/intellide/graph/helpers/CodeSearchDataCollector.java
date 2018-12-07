@@ -18,52 +18,55 @@ public class CodeSearchDataCollector {
 
     public static void main(String[] args){
 
-        String graphDir = "E:\\SnowGraphData\\poi\\graph.db";
-        String codePath = "E:\\SnowGraphData\\poi\\poi.code";
-        String nlPath = "E:\\SnowGraphData\\poi\\poi.nl";
-
-        GraphDatabaseService graphDB = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
+        String[] graphDirs = new String[]{"E:\\SnowGraphData\\poi\\graph.db",
+                "E:\\SnowGraphData\\jfreechart\\graph.db", "E:\\SnowGraphData\\lucene\\graph.db",};
+        String codePath = "E:\\SnowGraphData\\test.code";
+        String nlPath = "E:\\SnowGraphData\\test.nl";
 
         Map<String, String> map = new HashMap<>();
         Set<String> set = new HashSet<>();
 
-        try (Transaction tx = graphDB.beginTx()){
-            ResourceIterator<Node> methods = graphDB.findNodes(JavaExtractor.METHOD);
-            while (methods.hasNext()){
-                Node method = methods.next();
-                String fullName = (String) method.getProperty(JavaExtractor.FULLNAME);
-                if (fullName.toLowerCase().contains("test")){
-                    continue;
+        for (String graphDir : graphDirs) {
+            GraphDatabaseService graphDB = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
+
+            try (Transaction tx = graphDB.beginTx()){
+                ResourceIterator<Node> methods = graphDB.findNodes(JavaExtractor.METHOD);
+                while (methods.hasNext()){
+                    Node method = methods.next();
+                    String fullName = (String) method.getProperty(JavaExtractor.FULLNAME);
+                    if (fullName.toLowerCase().contains("test")){
+                        continue;
+                    }
+                    if ((boolean)method.getProperty(JavaExtractor.IS_CONSTRUCTOR)){
+                        continue;
+                    }
+                    String javadoc = (String) method.getProperty(JavaExtractor.COMMENT);
+                    String content = ((String) method.getProperty(JavaExtractor.CONTENT)).trim();
+                    //System.out.println(content);
+                    if (content.length() == 0){
+                        continue;
+                    }
+                    String code = content2code(content);
+                    if (code.length() == 0 || !checkCode(code)){
+                        continue;
+                    }
+                    code = code.replace("\n","\\n");
+                    String nl = javadoc2nl(javadoc).replace("\n","\\n");
+                    if (nl.length() == 0 || !checkNl(nl)){
+                        continue;
+                    }
+                    nl = getFirstSentence(nl);
+                    if (!map.containsKey(nl)){
+                        map.put(nl, code);
+                    }
+                    else {
+                        set.add(nl);
+                    }
                 }
-                if ((boolean)method.getProperty(JavaExtractor.IS_CONSTRUCTOR)){
-                    continue;
-                }
-                String javadoc = (String) method.getProperty(JavaExtractor.COMMENT);
-                String content = ((String) method.getProperty(JavaExtractor.CONTENT)).trim();
-                System.out.println(content);
-                if (content.length() == 0){
-                    continue;
-                }
-                String code = content2code(content);
-                if (code.length() == 0 || !checkCode(code)){
-                    continue;
-                }
-                code = code.replace("\n","\\n");
-                String nl = javadoc2nl(javadoc).replace("\n","\\n");
-                if (nl.length() == 0 || !checkNl(nl)){
-                    continue;
-                }
-                nl = getFirstSentence(nl);
-                if (!map.containsKey(nl)){
-                    map.put(nl, code);
-                }
-                else {
-                    set.add(nl);
-                }
+                tx.success();
             }
-            tx.success();
+            graphDB.shutdown();
         }
-        graphDB.shutdown();
 
         for (String nl : set){
             map.remove(nl);
@@ -187,14 +190,15 @@ public class CodeSearchDataCollector {
         }
         nl = nl.replaceAll("(?<=[A-Za-z0-9])\\n(?=[A-Z]+)", ". ");
         nl = nl.replaceAll("\\n", " ");
+        nl = nl.replaceAll("[E|e]xpect:", "");
         return nl.trim();
     }
 
     private static boolean checkNl(String nl){
         nl = nl.toLowerCase();
         if (nl.startsWith("return") || nl.startsWith("get") || nl.startsWith("set") || nl.startsWith("throw")
-                || nl.startsWith("method") || nl.contains("deprecated") || nl.contains("todo")
-                || nl.contains("<") || nl.contains(">") || nl.contains("?")){
+                || nl.startsWith("method") || nl.contains("deprecated") || nl.contains("todo") || nl.contains("this")
+                || nl.contains("<") || nl.contains(">") || nl.contains("?") || nl.contains("eg") || nl.contains("unsupport")){
             return false;
         }
         String[] tokens = nl.split("\\W+");

@@ -16,7 +16,52 @@ import java.util.regex.Pattern;
 
 public class CodeSearchDataCollector {
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
+        runText("train"); runText("valid");
+        //runGraphDb();
+    }
+
+    public static void runText(String name) throws IOException {
+        String inCodePath = "E:\\drm_codesearch\\data\\hu18\\"+name+".code";
+        String inNlPath = "E:\\drm_codesearch\\data\\hu18\\"+name+".nl";
+        String outCodePath = "E:\\drm_codesearch\\data\\hu18\\"+name+"-fixed.code";
+        String outNlPath = "E:\\drm_codesearch\\data\\hu18\\"+name+"-fixed.nl";
+
+        Map<String, String> nlMap = new HashMap<>();
+        Map<String, String> codeMap = new HashMap<>();
+
+        List<String> lines = FileUtils.readLines(new File(inNlPath), "utf-8");
+        for (String line : lines){
+            if (line.length() > 0){
+                String[] eles = line.trim().split("\t");
+                nlMap.put(eles[0], eles[1]);
+            }
+        }
+        lines = FileUtils.readLines(new File(inCodePath), "utf-8");
+        for (String line : lines){
+            if (line.length() > 0){
+                String[] eles = line.trim().split("\t");
+                codeMap.put(eles[0], eles[1]);
+            }
+        }
+
+        Map<String, String> map = new HashMap<>();
+        Set<String> set = new HashSet<>();
+
+        for (String key : nlMap.keySet()){
+            String javadoc = nlMap.get(key);
+            String content = codeMap.get(key);
+            if (javadoc.contains("test") || javadoc.contains("Test")){
+                continue;
+            }
+            run(javadoc, content, map, set);
+        }
+
+        write(map, set, outNlPath, outCodePath);
+
+    }
+
+    public static void runGraphDb(){
 
         String[] graphDirs = new String[]{"E:\\SnowGraphData\\poi\\graph.db",
                 "E:\\SnowGraphData\\jfreechart\\graph.db", "E:\\SnowGraphData\\lucene\\graph.db",};
@@ -43,31 +88,16 @@ public class CodeSearchDataCollector {
                     String javadoc = (String) method.getProperty(JavaExtractor.COMMENT);
                     String content = ((String) method.getProperty(JavaExtractor.CONTENT)).trim();
                     //System.out.println(content);
-                    if (content.length() == 0){
-                        continue;
-                    }
-                    String code = content2code(content);
-                    if (code.length() == 0 || !checkCode(code)){
-                        continue;
-                    }
-                    code = code.replace("\n","\\n");
-                    String nl = javadoc2nl(javadoc).replace("\n","\\n");
-                    if (nl.length() == 0 || !checkNl(nl)){
-                        continue;
-                    }
-                    nl = getFirstSentence(nl);
-                    if (!map.containsKey(nl)){
-                        map.put(nl, code);
-                    }
-                    else {
-                        set.add(nl);
-                    }
+                    run(javadoc, content, map, set);
                 }
                 tx.success();
             }
             graphDB.shutdown();
         }
+        write(map, set, nlPath, codePath);
+    }
 
+    private static void write(Map<String, String> map, Set<String> set, String nlPath, String codePath){
         for (String nl : set){
             map.remove(nl);
         }
@@ -84,6 +114,32 @@ public class CodeSearchDataCollector {
             FileUtils.writeLines(new File(codePath), codes);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void run(String javadoc, String content, Map<String, String> map, Set<String> set){
+        if (content.length() == 0){
+            return;
+        }
+        String code = content2code(content);
+        if (code.length() == 0 || !checkCode(code)){
+            return;
+        }
+        code = code.replace("\n","\\n");
+        String nl = javadoc2nl(javadoc).replace("\n","\\n");
+        //System.out.println(nl);
+        //System.out.println(code);
+        //System.out.println("" + checkNl(nl) + ", " + checkCode(code));
+        //System.out.println();
+        nl = getFirstSentence(nl);
+        if (nl.length() == 0 || !checkNl(nl)){
+            return;
+        }
+        if (!map.containsKey(nl)){
+            map.put(nl, code);
+        }
+        else {
+            set.add(nl);
         }
     }
 
@@ -163,7 +219,7 @@ public class CodeSearchDataCollector {
 
     private static boolean checkCode(String code){
         code = code.trim();
-        if (code.contains("@Deprecated") || code.contains("@Override") || !code.endsWith("}")
+        if (code.contains("Deprecated") || code.contains("Override") || !code.endsWith("}")
                 || code.contains("0x")
                 || Pattern.compile("\\{\\s+}").matcher(code).find()){
             return false;
@@ -198,11 +254,12 @@ public class CodeSearchDataCollector {
         nl = nl.toLowerCase();
         if (nl.startsWith("return") || nl.startsWith("get") || nl.startsWith("set") || nl.startsWith("throw")
                 || nl.startsWith("method") || nl.contains("deprecated") || nl.contains("todo") || nl.contains("this")
-                || nl.contains("<") || nl.contains(">") || nl.contains("?") || nl.contains("eg") || nl.contains("unsupport")){
+                || nl.contains("<") || nl.contains(">") || nl.contains("?") || nl.contains("eg") || nl.contains("unsupport")
+                || nl.contains("see") || nl.contains("assumption")){
             return false;
         }
         String[] tokens = nl.split("\\W+");
-        if (tokens.length <= 5 || !nl.contains(" ")){
+        if (tokens.length <= 3 || !nl.contains(" ")){
             return false;
         }
         return true;

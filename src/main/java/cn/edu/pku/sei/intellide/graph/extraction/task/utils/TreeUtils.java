@@ -50,6 +50,18 @@ public class TreeUtils {
 
     }
 
+    public static String getLeafString(Tree tree) {
+        if (tree.isPreTerminal()) {
+            // 树的下一层节点是终结符(leaf)，也就是说，树是pos tag，下一层是一个单词
+            Tree leaf = tree.getChild(0);
+            if (leaf != null && leaf.isLeaf()) {
+                // 叶子结点
+                return leaf.value();
+            }
+        }
+        return null;
+    }
+
     public static void depthFirstTraversal(Tree tree) {
         if (tree == null)
             return;
@@ -91,6 +103,111 @@ public class TreeUtils {
         }
         catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    // 助词短语
+    public static boolean isParticle(Tree tree) {
+        try {
+            return tree.label().toString().equals("PRT");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    // 助词单词
+    public static boolean isParticleWord(Tree tree) {
+        try {
+            return tree.label().toString().equals("RP");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    // 形容词
+    public static boolean isAdjective(Tree tree) {
+        try {
+            return tree.label().toString().startsWith("JJ");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    // 连词
+    public static boolean isCC(Tree tree) {
+        try {
+            return tree.label().toString().equals("CC");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    // 介词或者 to
+    public static boolean isPreposition(Tree tree) {
+        try {
+            return tree.label().toString().equals("IN") || tree.label().toString().equals("TO");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public static boolean isVB(Tree tree) {
+        try {
+            return tree.label().toString().startsWith("VB");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public static boolean isVP(Tree tree) {
+        try {
+            return tree.label().toString().equals("VP");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public static boolean isNP(Tree tree) {
+        try {
+            return tree.label().toString().equals("NP");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public static boolean isPP(Tree tree) {
+        try {
+            return tree.label().toString().equals("PP");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    public static boolean isNN(Tree tree) {
+        try {
+            return tree.label().toString().startsWith("NN");
+        }
+        catch (NullPointerException e) {
+            return false;
+        }
+    }
+
+    // 冠词 determiner
+    public static boolean isDT(Tree tree) {
+        try {
+            return tree.label().toString().equals("DT") || tree.label().toString().equals("PDT");
+        }
+        catch (NullPointerException e) {
+            return false;
         }
     }
 

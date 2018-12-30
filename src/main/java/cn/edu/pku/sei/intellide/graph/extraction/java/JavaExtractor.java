@@ -101,7 +101,9 @@ public class JavaExtractor extends KnowledgeExtractor {
         parser.setKind(ASTParser.K_COMPILATION_UNIT);
         parser.setBindingsRecovery(true);
         parser.setEnvironment(null, new String[]{this.getDataDir()}, new String[]{"utf-8"}, true);
-        parser.setCompilerOptions(JavaCore.getOptions());
+        Map<String, String> options = JavaCore.getOptions();
+        options.put("org.eclipse.jdt.core.compiler.source", "1.8");
+        parser.setCompilerOptions(options);
         String[] encodings = new String[srcPaths.length];
         for (int i = 0; i < srcPaths.length; i++)
             encodings[i] = "utf-8";

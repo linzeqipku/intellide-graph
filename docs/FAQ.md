@@ -7,6 +7,10 @@
 <a name="install"></a>
 ## 构建与部署
 
+- **项目使用SVN做的版本控制，应该如何处理？**
+
+    将SVN仓库迁移成git仓库后进行解析：```git svn clone {svn_url}```
+
 - **打开页面后出现诸如```TS1005```等TypeScript编译错误提示.**
 
     原因：部署环境中已存在其它版本的TypeScript，与本系统所使用的TypeScript发生版本冲突.

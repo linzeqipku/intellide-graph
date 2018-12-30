@@ -71,7 +71,7 @@ public abstract class KnowledgeExtractor {
 
     public static void main(String[] args) {
         try {
-            KnowledgeExtractor.executeFromYaml(FileUtils.readFileToString(new File("E:/test.yml"), "utf-8"));
+            KnowledgeExtractor.executeFromYaml(FileUtils.readFileToString(new File(args[0]), "utf-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

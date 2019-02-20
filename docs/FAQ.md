@@ -80,4 +80,4 @@
 
     在实现JavaExtractor时，我们使用Eclipse AST Parser对Java源代码进行解析.
     然而，目前还没有比较成熟的可以解析C#源代码的Java工具包可以直接拿来用.
-    一种妥协方案是：可以先在外部使用其它语言的C# Parser（如[C# Parser and CodeDOM](http://www.inevitablesoftware.com/Products.aspx)）对C#源代码进行解析，并将抽取出来的实体与关联关系存储为json文件；CSharpExtractor读取该json文件，并将其内容写入到neo4j图数据库中.
+    一种妥协方案是：可以先在外部使用其它语言的C# Parser（如[Roslyn](https://github.com/dotnet/roslyn/wiki/Getting-Started-C%23-Semantic-Analysis)）对C#源代码进行解析，并将抽取出来的实体与关联关系存储为json文件；CSharpExtractor读取该json文件，并将其内容写入到neo4j图数据库中.

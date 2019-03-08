@@ -6,7 +6,7 @@
 
     <groupId>cn.edu.pku.sei</groupId>
     <artifactId>intellide-graph</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

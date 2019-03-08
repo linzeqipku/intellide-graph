@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
 public class CodeSearchDataCollector {
 
     public static void main(String[] args) throws IOException {
-        runText("train"); runText("valid");
-        //runGraphDb();
+        //runText("train"); runText("valid");
+        runGraphDb();
     }
 
     public static void runText(String name) throws IOException {
@@ -63,10 +63,9 @@ public class CodeSearchDataCollector {
 
     public static void runGraphDb(){
 
-        String[] graphDirs = new String[]{"E:\\SnowGraphData\\poi\\graph.db",
-                "E:\\SnowGraphData\\jfreechart\\graph.db", "E:\\SnowGraphData\\lucene\\graph.db",};
-        String codePath = "E:\\SnowGraphData\\test.code";
-        String nlPath = "E:\\SnowGraphData\\test.nl";
+        String[] graphDirs = new String[]{"E:\\SnowGraphData\\jfreechart\\graph.db"};
+        String codePath = "E:\\SnowGraphData\\jfreechart.code";
+        String nlPath = "E:\\SnowGraphData\\jfreechart.nl";
 
         Map<String, String> map = new HashMap<>();
         Set<String> set = new HashSet<>();

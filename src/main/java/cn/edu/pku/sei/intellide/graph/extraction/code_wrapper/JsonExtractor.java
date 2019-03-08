@@ -20,16 +20,16 @@ public class JsonExtractor extends KnowledgeExtractor{
     private static Map<String, String> labelMap = new HashMap<>();
 
     static {
-        labelMap.put("classes",JavaExtractor.CLASS.name());
-        labelMap.put("methods",JavaExtractor.METHOD.name());
-        labelMap.put("fields",JavaExtractor.FIELD.name());
+        labelMap.put("Classes",JavaExtractor.CLASS.name());
+        labelMap.put("Methods",JavaExtractor.METHOD.name());
+        labelMap.put("Fields",JavaExtractor.FIELD.name());
     }
 
-    private static String ID = "id";
-    private static String LINKS = "links";
-    private static String SRC = "src";
-    private static String DST = "dst";
-    private static String TYPE = "type";
+    private static String ID = "Id";
+    private static String LINKS = "Links";
+    private static String SRC = "Src";
+    private static String DST = "Dst";
+    private static String TYPE = "Type";
 
     @Override
     public boolean isBatchInsert() {
@@ -55,7 +55,7 @@ public class JsonExtractor extends KnowledgeExtractor{
             return;
         }
 
-        Map<Integer, Long> idMap = new HashMap<>();
+        Map<String, Long> idMap = new HashMap<>();
 
         for (Iterator it = jsonObject.keys(); it.hasNext(); ) {
             String key = (String) it.next();
@@ -67,7 +67,7 @@ public class JsonExtractor extends KnowledgeExtractor{
                 JSONArray jsonArray = jsonObject.getJSONArray(key);
                 for (int i = 0; i < jsonArray.length(); i++){
                     JSONObject item = jsonArray.getJSONObject(i);
-                    int id = item.getInt(ID);
+                    String id = item.getString(ID);
                     item.remove(ID);
                     long nodeId = this.getInserter().createNode(jsonObjectToMap(item), label);
                     idMap.put(id, nodeId);
@@ -81,8 +81,11 @@ public class JsonExtractor extends KnowledgeExtractor{
             JSONArray links = jsonObject.getJSONArray(LINKS);
             for (int i = 0;i < links.length(); i++){
                 JSONObject link = links.getJSONObject(i);
-                this.getInserter().createRelationship(idMap.get(link.getInt(SRC)),
-                        idMap.get(link.getInt(DST)),
+                if (!(idMap.containsKey(link.getString(SRC))&&idMap.containsKey(link.getString(DST)))){
+                    continue;
+                }
+                this.getInserter().createRelationship(idMap.get(link.getString(SRC)),
+                        idMap.get(link.getString(DST)),
                         RelationshipType.withName(link.getString(TYPE)),
                         new HashMap<>());
             }
@@ -97,12 +100,19 @@ public class JsonExtractor extends KnowledgeExtractor{
         for (Iterator it = jsonObject.keys(); it.hasNext(); ) {
             String key = (String) it.next();
             try {
-                map.put(key, jsonObject.get(key));
+                map.put(headLowercase(key), jsonObject.get(key));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
         return map;
+    }
+
+    private static String headLowercase(String s){
+        if (s==null){
+            return s;
+        }
+        return s.substring(0,1).toLowerCase()+s.substring(1);
     }
 
 }

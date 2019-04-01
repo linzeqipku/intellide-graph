@@ -1,0 +1,19 @@
+[
+  {
+    "lexicon": ["IndexReader"],
+    "atom": {
+      "type": "Class",
+      "name": "IndexReader",
+      "order": 1
+    }
+  },
+  {
+    "lexicon": ["extend", "extends", "extending", "subclass"],
+    "atom": {
+      "type": "extend",
+      "name": "extend",
+      "order": 2
+    }
+  }
+
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "relation": "extends",
+    "left": "Class",
+    "right": "Class"
+  },
+  {
+    "relation": "haveMethod",
+    "left": "Class",
+    "right": "Method"
+  },
+  {
+    "relation": "call",
+    "left": "Method",
+    "right": "Method"
+  }
+]

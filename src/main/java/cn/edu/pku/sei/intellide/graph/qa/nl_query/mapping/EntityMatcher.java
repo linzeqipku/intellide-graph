@@ -51,7 +51,7 @@ public class EntityMatcher {
 
     public List<Atom> getEntities(String queryString){
         String[] query = queryString.trim().split("\\s+");
-        List<Atom> entities = new ArrayList<>(8);
+        List<Atom> entities = new ArrayList<>(query.length);
         for (String token: query){
             Atom atom = triggers.get(token);
             if (atom != null){

@@ -16,7 +16,11 @@ public class Schema {
 
     public static Map<String, Pair<String, String>> relations = new HashMap<>();
 
-    private void readFile(){
+    static {
+        readFile();
+    }
+
+    private static void readFile(){
          try {
             InputStream in = Schema.class.getResourceAsStream("/nli/schema.json");
             String content = StringUtils.join(IOUtils.readLines(in, "utf-8"), "\n");

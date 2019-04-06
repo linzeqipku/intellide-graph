@@ -33,4 +33,22 @@ public class AtomFactory {
         return atom;
     }
 
+    public static Atom createOp(String type){
+        Atom atom = new OperationAtom();
+        atom.setOrder(3);
+        atom.setType(type);
+        atom.setName(type);
+        return atom;
+    }
+
+    public static Atom createBinary(String type){
+        BinaryAtom atom = new BinaryAtom();
+        atom.setOrder(2);
+        atom.setType(type);
+        atom.setName(type);
+        Pair<String, String> p = Schema.relations.get(type);
+        atom.setLeftAtomType(p.getLeft());
+        atom.setRightAtomType(p.getRight());
+        return atom;
+    }
 }

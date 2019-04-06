@@ -5,6 +5,10 @@ import lombok.Setter;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 public class Atom {
@@ -35,6 +39,14 @@ public class Atom {
         return false;
     }
     public boolean isOperation(){
+        return false;
+    }
+
+    public boolean isAbstractEntity(){
+        String[] s = {Atom.CLASS, Atom.INTERFACE, Atom.METHOD};
+        Set<String> abstractName = new HashSet(Arrays.asList(s));
+        if (abstractName.contains(name))
+            return true;
         return false;
     }
 

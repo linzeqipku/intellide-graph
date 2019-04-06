@@ -1,5 +1,21 @@
 [
   {
+    "lexicon": ["class", "classes"],
+    "atom": {
+      "type": "Class",
+      "name": "Class",
+      "order": 1
+    }
+  },
+  {
+    "lexicon": ["method"],
+    "atom": {
+      "type": "Method",
+      "name": "Method",
+      "order": 1
+    }
+  },
+  {
     "lexicon": ["IndexReader"],
     "atom": {
       "type": "Class",

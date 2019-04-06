@@ -1,5 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping;
 
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.parsing.SemanticParser;
 import jdk.nashorn.internal.parser.JSONParser;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,9 +64,11 @@ public class EntityMatcher {
 
     public static void main(String[] args){
         EntityMatcher matcher = EntityMatcher.getInstance();
-        List<Atom> seq = matcher.getEntities("list class extends IndexReader");
+        List<Atom> seq = matcher.getEntities("list method extends IndexReader");
         for (Atom atom: seq)
             System.out.println(atom);
+        SemanticParser parser = new SemanticParser();
+        parser.parse(seq);
     }
 }
 

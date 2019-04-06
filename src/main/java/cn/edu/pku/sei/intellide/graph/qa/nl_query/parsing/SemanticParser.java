@@ -1,21 +1,28 @@
 package cn.edu.pku.sei.intellide.graph.qa.nl_query.parsing;
 
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Atom;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.AtomFactory;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.OperationAtom;
+import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Schema;
+import org.apache.commons.lang3.tuple.Pair;
+import sun.reflect.generics.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SemanticParser {
+
     public SemanticParser(){
 
     }
+
     public String parse(List<Atom> sentence){
         String expr = "";
         int n = sentence.size();
         List<TreeNode>[][] table = new List[n][n];
         for (int i = 0; i < n; ++i){
             table[i][i] = new ArrayList<>(1);
-            table[i][i].add(new TreeNode(sentence.get(i), null, null));
+            table[i][i].add(new TreeNode(sentence.get(i)));
         }
         for (int len = 2; len <= n; ++len){
             for (int i = 0; i <= n - len; ++i){
@@ -28,24 +35,111 @@ public class SemanticParser {
                         continue;
                     for (TreeNode subtree1: span1){
                         for (TreeNode subtree2: span2){
-                            TreeNode newTree = join(subtree1, subtree2);
-                            if (newTree != null){
-                                table[i][j].add(newTree);
+                            List<TreeNode> newTree = join(subtree1, subtree2);
+                            if (newTree != null && newTree.size() > 0){
+                                table[i][j].addAll(newTree);
                             }
                         }
                     }
                 }
             }
         }
+        for (TreeNode root: table[0][n-1]){
+            System.out.println(root);
+        }
         return expr;
     }
-    public TreeNode join(TreeNode tree1, TreeNode tree2){
-        TreeNode newTree = null;
-        Atom atom1 = tree1.val;
-        Atom atom2 = tree2.val;
-        if (atom1.isBinary() && atom2.isBinary()){
+
+    public List<TreeNode> join(TreeNode tree1, TreeNode tree2){
+        if (tree1.treeOrder == TreeNode.ENTITY){
+            if (tree2.treeOrder == TreeNode.ENTITY)
+                return join2Entities(tree1, tree2);
+            else if (tree2.treeOrder == TreeNode.RELATION)
+                return joinEntityRelation(tree1, tree2);
+        }
+        else if (tree1.treeOrder == TreeNode.RELATION){
+            if (tree2.treeOrder == TreeNode.ENTITY)
+                return joinEntityRelation(tree2, tree1);
 
         }
-        return newTree;
+        else if (tree1.treeOrder == TreeNode.OPERATION){
+
+        }
+
+        return null;
+    }
+
+    public List<TreeNode> join2Entities(TreeNode leftTree, TreeNode rightTree){
+        List<TreeNode> res = new ArrayList<>(1);
+        String leftType = leftTree.treeType;
+        if (rightTree.treeType.equals(leftType)) {  // must have the same tree type (e.g. CLASS)
+            Atom atom = AtomFactory.createOp(Atom.AND);
+            TreeNode root = new TreeNode(atom, leftTree, rightTree);
+            root.treeOrder = TreeNode.ENTITY;
+            root.treeType = leftType;
+            res.add(root);
+        }
+        else {
+            String rel = oneHopConnectable(leftType, rightTree.treeType);
+            if (rel != null) {
+                Atom atom = AtomFactory.createOp(Atom.JOIN);
+                TreeNode bridge = new TreeNode(atom);
+                int index = rel.indexOf("-");
+                if (index != -1){  // it is a inverse relation
+                    rel = rel.substring(0, index);
+                    Atom biAtom = AtomFactory.createBinary(rel);
+                    bridge.leftChild = rightTree;
+                    bridge.rightChild = new TreeNode(biAtom);
+                }
+                else {
+                    Atom biAtom = AtomFactory.createBinary(rel);
+                    bridge.leftChild = new TreeNode(biAtom);
+                    bridge.rightChild = rightTree;
+                }
+                TreeNode root = new TreeNode(AtomFactory.createOp(Atom.AND), leftTree, bridge);
+                res.add(root);
+            }
+        }
+        return res;
+    }
+
+    public List<TreeNode> joinEntityRelation(TreeNode entTree, TreeNode relTree){
+        List<TreeNode> res = new ArrayList<>(2);
+        String enType = entTree.atom.getType();
+        String relType = relTree.atom.getType();
+        if (entTree.atom.isAbstractEntity()) // abstract entity cannot join with a relation
+            return res;
+
+        Pair<String, String> p = Schema.relations.get(relType);
+        if (enType.equals(p.getLeft())){
+            Atom atom = AtomFactory.createOp(Atom.JOIN);
+            // entity is the left child
+            TreeNode root = new TreeNode(atom, entTree, relTree);
+            root.treeOrder = TreeNode.ENTITY;
+            root.treeType = p.getRight();
+            res.add(root);
+        }
+        if (enType.equals(p.getRight())){
+            Atom atom = AtomFactory.createOp(Atom.JOIN);
+            // entity is the right child
+            TreeNode root = new TreeNode(atom, relTree, entTree);
+            root.treeOrder = TreeNode.ENTITY;
+            root.treeType = p.getLeft();
+            res.add(root);
+        }
+        return res;
+    }
+
+    public String oneHopConnectable(String leftType, String rightType){
+        for (String rel: Schema.relations.keySet()){
+            Pair<String, String> p = Schema.relations.get(rel);
+            if (p.getLeft().equals(leftType) && p.getRight().equals(rightType)){
+                return rel;
+            }
+            else if (p.getRight().equals(leftType) && p.getLeft().equals(rightType)){
+                return rel + "-1";
+            }
+        }
+        return null;
     }
 }

@@ -1,6 +1,6 @@
 [
   {
-    "relation": "extends",
+    "relation": "extend",
     "left": "Class",
     "right": "Class"
   },

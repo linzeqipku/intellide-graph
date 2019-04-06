@@ -5,15 +5,39 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Atom;
 public class TreeNode {
 
     public String treeType;
+    public int treeOrder;
 
-    public Atom val;
+    public static final int ENTITY = 1;
+    public static final int RELATION = 2;
+    public static final int OPERATION = 3;
+    public static final int HALF_OP = 4;
 
+    public Atom atom;
     public TreeNode leftChild = null;
     public TreeNode rightChild = null;
 
+    public TreeNode(Atom a){
+        atom = a;
+        treeOrder = a.getOrder();
+        treeType = a.getType();
+    }
+
     public TreeNode(Atom a, TreeNode l, TreeNode r){
-        val = a;
+        atom = a;
         leftChild = l;
         rightChild = r;
+        treeOrder = a.getOrder();
+        treeType = a.getType();
+    }
+
+    @Override
+    public String toString(){
+        String left = "NULL";
+        if (leftChild != null)
+            left = leftChild.toString();
+        String right = "NULL";
+        if (leftChild != null)
+            right = rightChild.toString();
+        return String.format("(%s: %s %s)", atom.getName(), left, right);
     }
 }

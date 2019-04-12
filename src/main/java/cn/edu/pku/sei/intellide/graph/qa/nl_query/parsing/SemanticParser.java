@@ -5,7 +5,6 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.AtomFactory;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.OperationAtom;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Schema;
 import org.apache.commons.lang3.tuple.Pair;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.List;

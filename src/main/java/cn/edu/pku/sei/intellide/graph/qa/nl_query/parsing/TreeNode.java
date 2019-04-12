@@ -16,6 +16,10 @@ public class TreeNode {
     public TreeNode leftChild = null;
     public TreeNode rightChild = null;
 
+    // corresponding span of the original text sequence, default -1.
+    public int spanStart = -1;
+    public int spanEnd = -1;
+
     public TreeNode(Atom a){
         atom = a;
         treeOrder = a.getOrder();

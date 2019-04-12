@@ -16,13 +16,15 @@ public class SemanticParser {
 
     }
 
-    public String parse(List<Atom> sentence){
-        String expr = "";
+    public List<TreeNode> parse(List<Atom> sentence){
         int n = sentence.size();
         List<TreeNode>[][] table = new List[n][n];
         for (int i = 0; i < n; ++i){
             table[i][i] = new ArrayList<>(1);
-            table[i][i].add(new TreeNode(sentence.get(i)));
+            TreeNode node = new TreeNode(sentence.get(i));
+            node.spanStart = i;
+            node.spanEnd = i;
+            table[i][i].add(node);
         }
         for (int len = 2; len <= n; ++len){
             for (int i = 0; i <= n - len; ++i){
@@ -37,6 +39,10 @@ public class SemanticParser {
                         for (TreeNode subtree2: span2){
                             List<TreeNode> newTree = join(subtree1, subtree2);
                             if (newTree != null && newTree.size() > 0){
+                                for (TreeNode node : newTree){
+                                    node.spanStart = i;
+                                    node.spanEnd = j;
+                                }
                                 table[i][j].addAll(newTree);
                             }
                         }
@@ -47,7 +53,7 @@ public class SemanticParser {
         for (TreeNode root: table[0][n-1]){
             System.out.println(root);
         }
-        return expr;
+        return table[0][n-1];
     }
 
     public List<TreeNode> join(TreeNode tree1, TreeNode tree2){

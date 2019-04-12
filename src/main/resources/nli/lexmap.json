@@ -24,10 +24,26 @@
     }
   },
   {
+    "lexicon": ["updatependingmerge"],
+    "atom": {
+      "type": "Method",
+      "name": "updatependingmerge",
+      "order": 1
+    }
+  },
+  {
     "lexicon": ["extend", "extends", "extending", "subclass"],
     "atom": {
       "type": "extend",
       "name": "extend",
+      "order": 2
+    }
+  },
+  {
+    "lexicon": ["call", "calls", "calling"],
+    "atom": {
+      "type": "call",
+      "name": "call",
       "order": 2
     }
   }

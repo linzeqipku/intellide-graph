@@ -5,6 +5,7 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.AtomFactory;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.OperationAtom;
 import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Schema;
 import org.apache.commons.lang3.tuple.Pair;
+import sun.reflect.generics.tree.Tree;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,10 @@ public class SemanticParser {
                 return join2Entities(tree1, tree2);
             else if (tree2.treeOrder == TreeNode.RELATION)
                 return joinEntityRelation(tree1, tree2);
+            else if (tree2.treeOrder == TreeNode.OPERATION)
+                return joinOpEntity(tree2, tree1);
+            else if (tree2.treeOrder == TreeNode.HALF_OP)
+                return joinHalfOpEntity(tree2, tree1);
         }
         else if (tree1.treeOrder == TreeNode.RELATION){
             if (tree2.treeOrder == TreeNode.ENTITY)
@@ -68,10 +73,37 @@ public class SemanticParser {
 
         }
         else if (tree1.treeOrder == TreeNode.OPERATION){
-
+            if (tree2.treeOrder == TreeNode.ENTITY)
+                return joinOpEntity(tree1, tree2);
+        }
+        else if (tree1.treeOrder == TreeNode.HALF_OP){
+            if (tree2.treeOrder == TreeNode.ENTITY)
+                return joinHalfOpEntity(tree1, tree2);
         }
 
         return null;
+    }
+
+    public List<TreeNode> joinOpEntity(TreeNode optree, TreeNode entree){
+        List<TreeNode> res = new ArrayList<>(1);
+        if (entree.spanEnd <= optree.spanStart) {  // join with leftside first to avoid redundant tree
+            TreeNode root = new TreeNode(optree.atom, entree, null);  // add to left child
+            root.treeOrder = TreeNode.HALF_OP;
+            root.treeType = entree.treeType;
+            res.add(root);
+        }
+        return res;
+    }
+
+    public List<TreeNode> joinHalfOpEntity(TreeNode optree, TreeNode entree){
+        List<TreeNode> res = new ArrayList<>(1);
+        if (optree.treeType.equals(entree.treeType)) { // must and/or the same type node
+            TreeNode root = new TreeNode(optree.atom, optree.leftChild, entree);
+            root.treeOrder = 1;
+            root.treeType = optree.treeType;
+            res.add(root);
+        }
+        return res;
     }
 
     public List<TreeNode> join2Entities(TreeNode leftTree, TreeNode rightTree){

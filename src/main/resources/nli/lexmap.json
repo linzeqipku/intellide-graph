@@ -16,6 +16,14 @@
     }
   },
   {
+    "lexicon": ["and"],
+    "atom": {
+      "type": "and",
+      "name": "and",
+      "order": 3
+    }
+  },
+  {
     "lexicon": ["IndexReader"],
     "atom": {
       "type": "Class",
@@ -24,10 +32,34 @@
     }
   },
   {
+    "lexicon": ["QueryParser"],
+    "atom": {
+      "type": "Class",
+      "name": "QueryParser",
+      "order": 1
+    }
+  },
+  {
     "lexicon": ["updatependingmerge"],
     "atom": {
       "type": "Method",
       "name": "updatependingmerge",
+      "order": 1
+    }
+  },
+  {
+    "lexicon": ["getPrefixQuery"],
+    "atom": {
+      "type": "Method",
+      "name": "getPrefixQuery",
+      "order": 1
+    }
+  },
+  {
+    "lexicon": ["getTermQuery"],
+    "atom": {
+      "type": "Method",
+      "name": "getTermQuery",
       "order": 1
     }
   },
@@ -42,8 +74,8 @@
   {
     "lexicon": ["call", "calls", "calling"],
     "atom": {
-      "type": "call",
-      "name": "call",
+      "type": "call_method",
+      "name": "call_method",
       "order": 2
     }
   }

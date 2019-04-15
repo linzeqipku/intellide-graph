@@ -70,9 +70,10 @@ public class EntityMatcher {
 
     public static void main(String[] args){
         String[] text = {"list classes extends IndexReader",
-                "list classes calling updatependingmerge"};
+                "list classes calling getPrefixQuery",
+                "list class extend QueryParser and call getPrefixQuery"};
         EntityMatcher matcher = EntityMatcher.getInstance();
-        List<Atom> seq = matcher.getEntities(text[1]);
+        List<Atom> seq = matcher.getEntities(text[2]);
         for (Atom atom: seq)
             System.out.println(atom);
 
@@ -80,11 +81,11 @@ public class EntityMatcher {
         List<TreeNode> trees = parser.parse(seq);
 
         Scorer scorer = new Scorer(new SyntaxParser());
-        TreeNode root = scorer.bestTree(text[1], trees);
+        TreeNode root = scorer.bestTree(text[2], trees);
 
         System.out.println(root.toString());
 
-        String graphDir = "";
+        String graphDir = "E:\\neo4j-community-3.3.2\\data\\databases\\transr-lucene.db";
         GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
         Executor executor = new Executor(db);
         executor.execute(root);

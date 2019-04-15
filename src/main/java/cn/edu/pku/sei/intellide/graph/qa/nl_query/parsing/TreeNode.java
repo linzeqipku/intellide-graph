@@ -4,8 +4,8 @@ import cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping.Atom;
 
 public class TreeNode {
 
-    public String treeType;
-    public int treeOrder;
+    public String treeType;  // tree root's concrete type (a join TreeNode has a type of class or method, etc)
+    public int treeOrder;  // tree root's abstract order (a join TreeNode has a order of 1)
 
     public static final int ENTITY = 1;
     public static final int RELATION = 2;

@@ -44,8 +44,9 @@ public class Scorer {
         TreeNode node = null;
         int maxScore = Integer.MIN_VALUE;
         for (TreeNode root : treeList){
+            currentScore = 0;
             eval(root);
-            if (currentScore> maxScore){
+            if (currentScore >= maxScore){
                 maxScore = currentScore;
                 node = root;
             }

@@ -5,12 +5,12 @@
     "right": "Class"
   },
   {
-    "relation": "haveMethod",
+    "relation": "have_method",
     "left": "Class",
     "right": "Method"
   },
   {
-    "relation": "call",
+    "relation": "call_method",
     "left": "Method",
     "right": "Method"
   }

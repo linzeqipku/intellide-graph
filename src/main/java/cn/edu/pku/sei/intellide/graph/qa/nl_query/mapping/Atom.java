@@ -2,8 +2,6 @@ package cn.edu.pku.sei.intellide.graph.qa.nl_query.mapping;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -21,7 +19,7 @@ public class Atom {
     public static final String EXTEND = "extend";
     public static final String IMPLEMENT = "implement";
     public static final String HAVE_METHOD = "haveMethod";
-    public static final String CALL = "call";
+    public static final String CALL = "call_method";
 
     public static final String JOIN = "join";
     public static final String AND = "and";

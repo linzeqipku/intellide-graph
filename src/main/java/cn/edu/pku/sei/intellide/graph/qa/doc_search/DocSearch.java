@@ -73,6 +73,10 @@ public class DocSearch {
     }
 
     public List<Neo4jNode> search(String queryString, String project) throws IOException, ParseException {
+        return search(queryString, project);
+    }
+
+    public List<Neo4jNode> search(String queryString, String project, int returnNum) throws IOException, ParseException {
         createIndex();
         List<Neo4jNode> codeNodes = codeSearch.searchBaseNode(queryString).getNodes();
         Set<Long> nodeSet = new HashSet<>();
@@ -125,7 +129,7 @@ public class DocSearch {
         //System.out.println(""+r.size()+" documents raised.");
         try (Transaction tx = db.beginTx()) {
             for (int i = 0; i < hits.length; i++) {
-                if (r.size() >= 10)
+                if (r.size() >= returnNum)
                     return r;
                 Document doc = ireader.document(hits[i].doc);
                 long id = Long.parseLong(doc.getField(ID_FIELD).stringValue());

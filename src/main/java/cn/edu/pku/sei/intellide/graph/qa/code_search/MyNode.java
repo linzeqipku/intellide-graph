@@ -10,7 +10,7 @@ public class MyNode {
     public String fullName;
     public Set<String> cnWordSet = new HashSet<>();
     public List<MyNode> neighbors = new ArrayList<>();
-    long id;
+    public long id;
     MyNode father;
     double weight; // importance weight = 1/tokensize + whether has realtion with docs(0/1)
 

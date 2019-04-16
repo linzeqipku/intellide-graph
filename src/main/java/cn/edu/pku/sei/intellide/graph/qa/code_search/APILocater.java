@@ -18,12 +18,7 @@ public class APILocater {
         this.graph = graphReader.getAjacentGraph();
     }
 
-    /*
-     * 对于一个query词袋，首先找到每个词对应的候选结点结合，即List<Set<MyNode>> rootNodeSet
-     * 从size最小的候选结点集合S开始，对于S中的每个结点，都生成一个包含所有query词的子图
-     * 从这些子图中，选择最优的。目前的最优条件为子图越小越好，大小相同则结点的权重之和越大越好。
-     */
-    public MySubgraph query(Set<String> queryList) {
+    public List<Set<MyNode>> getRootNodeSet(Set<String> queryList){
         List<Set<MyNode>> rootNodeSet = new ArrayList<>();
         for (String word : queryList) {
             Set<MyNode> cur = new HashSet<>();
@@ -39,9 +34,11 @@ public class APILocater {
                 rootNodeSet.add(cur);
             }
         }
-        if (rootNodeSet.size() == 0) {
-            return null;
-        }
+        return rootNodeSet;
+    }
+
+    public Set<MyNode> getStartSet(List<Set<MyNode>> rootNodeSet){
+
         int minSize = Integer.MAX_VALUE;
         int startSetIndex = 0;
         for (int i = 0; i < rootNodeSet.size(); ++i) { // find the smallest root set
@@ -50,10 +47,25 @@ public class APILocater {
                 startSetIndex = i;
             }
         }
+        return rootNodeSet.get(startSetIndex);
+    }
+
+    /*
+     * 对于一个query词袋，首先找到每个词对应的候选结点结合，即List<Set<MyNode>> rootNodeSet
+     * 从size最小的候选结点集合S开始，对于S中的每个结点，都生成一个包含所有query词的子图
+     * 从这些子图中，选择最优的。目前的最优条件为子图越小越好，大小相同则结点的权重之和越大越好。
+     */
+    public MySubgraph query(Set<String> queryList) {
+
+        List<Set<MyNode>> rootNodeSet = getRootNodeSet(queryList);
+        if (rootNodeSet.size() == 0) {
+            return null;
+        }
+        Set<MyNode> startSet = getStartSet(rootNodeSet);
 
         List<Pair<Integer, MySubgraph>> candidateList = new ArrayList<>();
-        minSize = Integer.MAX_VALUE;
-        Set<MyNode> startSet = rootNodeSet.get(startSetIndex);
+        int minSize = Integer.MAX_VALUE;
+
         for (MyNode node : startSet) {
             MySubgraph subgraph = BFS(node, rootNodeSet);
             if (subgraph == null)

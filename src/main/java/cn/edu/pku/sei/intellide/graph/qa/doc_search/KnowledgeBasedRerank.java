@@ -1,5 +1,6 @@
 package cn.edu.pku.sei.intellide.graph.qa.doc_search;
 
+import cn.edu.pku.sei.intellide.graph.extraction.code_embedding.LineExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.code_mention.CodeMentionExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor;
 import cn.edu.pku.sei.intellide.graph.qa.code_search.APILocater;
@@ -39,7 +40,7 @@ public class KnowledgeBasedRerank {
                 Node node = db.getNodeById(myNode.id);
                 HashMap<String, List<Double>> map = new HashMap<>();
                 map.put("vec", new ArrayList<>());
-                for (String e : ((String)node.getProperty("XXX")).trim().split("\\s+")){
+                for (String e : ((String)node.getProperty(LineExtractor.LINE_VEC)).trim().split("\\s+")){
                     map.get("vec").add(Double.parseDouble(e));
                 }
                 qCodeElements.add(new Neo4jNode(node.getId(), "", map));
@@ -74,7 +75,7 @@ public class KnowledgeBasedRerank {
                 .forEach(x->{
                     HashMap<String, List<Double>> map = new HashMap<>();
                     map.put("vec", new ArrayList<>());
-                    for (String e : ((String)x.getProperty("XXX")).trim().split("\\s+")){
+                    for (String e : ((String)x.getProperty(LineExtractor.LINE_VEC)).trim().split("\\s+")){
                         map.get("vec").add(Double.parseDouble(e));
                     }
                     r.add(new Neo4jNode(x.getId(), "", map));

@@ -73,7 +73,20 @@ public class DocSearch {
     }
 
     public List<Neo4jNode> search(String queryString, String project) throws IOException, ParseException {
-        return search(queryString, project);
+        return search(queryString, project, false);
+    }
+
+    public List<Neo4jNode> search(String queryString, String project, boolean rerank) throws IOException, ParseException {
+        List<Neo4jNode> r = search(queryString, project, 100);
+        if (rerank){
+            r = new KnowledgeBasedRerank(db, project.contains("chinese")?"chinese":"english").rerank(queryString, r);
+        }
+        if (r.size()<=10){
+            return r.subList(0,10);
+        }
+        else {
+            return r;
+        }
     }
 
     public List<Neo4jNode> search(String queryString, String project, int returnNum) throws IOException, ParseException {

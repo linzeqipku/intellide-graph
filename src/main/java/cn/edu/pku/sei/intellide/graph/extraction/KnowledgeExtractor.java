@@ -55,11 +55,15 @@ public abstract class KnowledgeExtractor {
         Map<String, String> ret = yaml.load(yamlStr);
         String graphDir = ret.get("graphDir");
         ret.remove("graphDir");
+        boolean increment = false;
+        if (ret.containsKey("increment") && ret.get("increment").toLowerCase().equals("true")){
+            increment = true;
+        }
         List<ExtractorConfig> configs = new ArrayList<>();
         for (String key : ret.keySet()) {
             configs.add(new ExtractorConfig(key, graphDir, ret.get(key)));
         }
-        if (new File(graphDir).exists()){
+        if (new File(graphDir).exists() && !increment){
             try {
                 FileUtils.deleteDirectory(new File(graphDir));
             } catch (IOException e) {

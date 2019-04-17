@@ -52,16 +52,17 @@ public abstract class KnowledgeExtractor {
 
     public static void executeFromYaml(String yamlStr) {
         Yaml yaml = new Yaml();
-        Map<String, String> ret = yaml.load(yamlStr);
-        String graphDir = ret.get("graphDir");
+        Map<String, Object> ret = yaml.load(yamlStr);
+        String graphDir = (String) ret.get("graphDir");
         ret.remove("graphDir");
         boolean increment = false;
-        if (ret.containsKey("increment") && ret.get("increment").toLowerCase().equals("true")){
+        if (ret.containsKey("increment") && (boolean)ret.get("increment")){
             increment = true;
+            ret.remove("increment");
         }
         List<ExtractorConfig> configs = new ArrayList<>();
         for (String key : ret.keySet()) {
-            configs.add(new ExtractorConfig(key, graphDir, ret.get(key)));
+            configs.add(new ExtractorConfig(key, graphDir, (String) ret.get(key)));
         }
         if (new File(graphDir).exists() && !increment){
             try {

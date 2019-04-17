@@ -10,13 +10,16 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class DocSearchDataCollector {
 
     public static void main(String[] args) throws IOException, ParseException {
-        String graphDir = "";
-        String indexDirPath = "";
+        String graphDir = "E:/temp/lucene";
+        String indexDirPath = "E:/temp/index";
         String languageIdentifier = "english";
         String project = "lucene";
 
@@ -25,14 +28,14 @@ public class DocSearchDataCollector {
         DocSearch docSearch = new DocSearch(db, indexDirPath, codeSearch);
 
         Map<Node, Node> qaMap = new HashMap<>();
-        try (Transaction tx=db.beginTx()){
-            db.getAllNodes().forEach(n->{
-                if (n.hasLabel(StackOverflowExtractor.QUESTION)){
+        try (Transaction tx = db.beginTx()) {
+            db.getAllNodes().forEach(n -> {
+                if (n.hasLabel(StackOverflowExtractor.QUESTION)) {
                     Iterator<Relationship> rels = n.getRelationships(StackOverflowExtractor.HAVE_ANSWER, Direction.OUTGOING).iterator();
-                    if (rels.hasNext()){
+                    if (rels.hasNext()) {
                         Node aNode = rels.next().getEndNode();
-                        if ((boolean)aNode.getProperty(StackOverflowExtractor.ANSWER_ACCEPTED)){
-                            qaMap.put(n,aNode);
+                        if ((boolean) aNode.getProperty(StackOverflowExtractor.ANSWER_ACCEPTED)) {
+                            qaMap.put(n, aNode);
                         }
                     }
                 }
@@ -40,26 +43,31 @@ public class DocSearchDataCollector {
             tx.success();
         }
 
-        try (Transaction tx=db.beginTx()){
-            for (Node qNode:qaMap.keySet()){
-                String query = (String)qNode.getProperty(StackOverflowExtractor.QUESTION_TITLE);
-                List<Neo4jNode> irResult = docSearch.search(query, project, false);
-                List<Neo4jNode> snowResult = docSearch.search(query, project, true);
-                int irRank = irResult.size() + 1, snowRank = irRank;
-                long aId = qaMap.get(qNode).getId();
-                for (int i = 0; i < irResult.size(); i++){
-                    if (irResult.get(i).getId() == aId){
-                        irRank = i+1;
-                    }
-                    if (snowResult.get(i).getId() == aId){
-                        snowRank = i+1;
-                    }
+        int c = 0;
+        for (Node qNode : qaMap.keySet()) {
+            c++;
+            String query;
+            long qId,aId;
+            try (Transaction tx=db.beginTx()){
+                query = (String) qNode.getProperty(StackOverflowExtractor.QUESTION_TITLE);
+                qId = qNode.getId();
+                aId = qaMap.get(qNode).getId();
+                tx.success();
+            }
+            List<Neo4jNode> irResult = docSearch.search(query, project, false);
+            List<Neo4jNode> snowResult = docSearch.search(query, project, true);
+            int irRank = irResult.size() + 1, snowRank = irRank;
+            for (int i = 0; i < irResult.size(); i++) {
+                if (irResult.get(i).getId() == aId) {
+                    irRank = i + 1;
                 }
-                if (snowRank <= 20 && (irRank>snowRank || aId%7<2)){
-                    System.out.println(qNode.getId()+": "+irRank+", "+snowRank);
+                if (snowResult.get(i).getId() == aId) {
+                    snowRank = i + 1;
                 }
             }
-            tx.success();
+            if (snowRank <= 20 && (irRank > snowRank || aId % 7 < 2)) {
+                System.out.println(c + "/" + qaMap.size() + ": (" + query + "), qId=" + qId + ", " + irRank + "-->" + snowRank);
+            }
         }
 
     }

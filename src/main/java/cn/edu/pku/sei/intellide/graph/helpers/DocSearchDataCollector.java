@@ -32,7 +32,7 @@ public class DocSearchDataCollector {
             db.getAllNodes().forEach(n -> {
                 if (n.hasLabel(StackOverflowExtractor.QUESTION)) {
                     Iterator<Relationship> rels = n.getRelationships(StackOverflowExtractor.HAVE_ANSWER, Direction.OUTGOING).iterator();
-                    if (rels.hasNext()) {
+                    while (rels.hasNext()) {
                         Node aNode = rels.next().getEndNode();
                         if ((boolean) aNode.getProperty(StackOverflowExtractor.ANSWER_ACCEPTED)) {
                             qaMap.put(n, aNode);
@@ -69,7 +69,7 @@ public class DocSearchDataCollector {
                 System.out.println(c + "/" + qaMap.size() + ": (" + query + "), qId=" + qId + ", " + irRank + "-->" + snowRank);
             }
         }
-
+        db.shutdown();
     }
 
 }

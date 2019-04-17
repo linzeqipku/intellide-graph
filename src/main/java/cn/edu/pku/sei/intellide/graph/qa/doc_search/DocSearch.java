@@ -24,6 +24,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -239,6 +240,81 @@ public class DocSearch {
             return r;
         }
         return null;
+    }
+
+    public static DocSearchEvalInfo eval(GraphDatabaseService db, String indexDirPath, long nodeId, String project, String languageIdentifier) throws IOException, ParseException {
+        CodeSearch codeSearch = new CodeSearch(db, languageIdentifier);
+        DocSearch docSearch = new DocSearch(db, indexDirPath, codeSearch);
+        DocSearchEvalInfo r = new DocSearchEvalInfo();
+        Node qNode, aNode = null;
+        String query=null;
+        long qId=0,aId=0;
+        try (Transaction tx = db.beginTx()) {
+            qNode = db.getNodeById(nodeId);
+            Iterator<Relationship> rels = db.getNodeById(nodeId).getRelationships(StackOverflowExtractor.HAVE_ANSWER, Direction.OUTGOING).iterator();
+            while (rels.hasNext()) {
+                Node n = rels.next().getEndNode();
+                if ((boolean) n.getProperty(StackOverflowExtractor.ANSWER_ACCEPTED)) {
+                    aNode = n;
+                }
+            }
+            if (aNode!=null){
+                query = (String) qNode.getProperty(StackOverflowExtractor.QUESTION_TITLE);
+                qId = qNode.getId();
+                aId = aNode.getId();
+            }
+            tx.success();
+        }
+        if (query==null){
+            return null;
+        }
+        List<Neo4jNode> irResult = docSearch.search(query, project, false);
+        List<Neo4jNode> snowResult = docSearch.search(query, project, true);
+        int irRank = irResult.size() + 1, snowRank = irRank;
+        for (int i = 0; i < irResult.size(); i++) {
+            if (irResult.get(i).getId() == aId) {
+                irRank = i + 1;
+            }
+            if (snowResult.get(i).getId() == aId) {
+                snowRank = i + 1;
+            }
+        }
+        r.setNodeId(qId);
+        r.setQuery(query);
+        r.setIrRank(irRank);
+        r.setSnowRank(snowRank);
+        try (Transaction tx=db.beginTx()){
+            for (Neo4jNode nn:irResult){
+                Node node=db.getNodeById(nn.getId());
+                String text="";
+                if (node.hasProperty(TokenExtractor.TEXT)){
+                    text = (String) node.getProperty(TokenExtractor.TEXT);
+                }
+                r.getIrResult().add(text);
+            }
+            for (Neo4jNode nn:snowResult){
+                Node node=db.getNodeById(nn.getId());
+                String text="";
+                if (node.hasProperty(TokenExtractor.TEXT)){
+                    text = (String) node.getProperty(TokenExtractor.TEXT);
+                }
+                r.getSnowResult().add(text);
+            }
+            tx.success();
+        }
+        return r;
+    }
+
+    public static void main(String[] args) throws IOException, ParseException {
+        long nodeId = 303117;
+        String graphDir = "E:/temp/lucene";
+        String indexDirPath = "E:/temp/index";
+        String languageIdentifier = "english";
+        String project = "lucene";
+        GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(new File(graphDir));
+        DocSearchEvalInfo r = DocSearch.eval(db, indexDirPath, nodeId, project, languageIdentifier);
+        System.out.println(r.getQuery()+": "+r.getIrRank()+"-->"+r.getSnowRank());
+        db.shutdown();
     }
 
 }

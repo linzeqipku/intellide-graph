@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,6 +116,24 @@ public class Controller {
         return dbMap.get(project);
     }
 
+    @RequestMapping(value = "/viewCounter", method = {RequestMethod.GET, RequestMethod.POST})
+    synchronized public String viewCounter() {
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(context.counterDir));
+            String s = br.readLine().trim();
+            br.close();
+            int counter = Integer.parseInt(s);
+            counter = counter + 1;
+            BufferedWriter bw = new BufferedWriter(new FileWriter(context.counterDir));
+            bw.write(String.valueOf(counter));
+            bw.close();
+            return String.valueOf(counter);
+        } catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 }
 
 @Component
@@ -124,12 +141,14 @@ class Context {
     String graphDir = null;
     String dataDir = null;
     String infoDir = null;
+    String counterDir = null;
 
     @Autowired
     public Context(Conf conf) {
         this.graphDir = conf.getGraphDir();
         this.dataDir = conf.getDataDir();
         this.infoDir = conf.getInfoDir();
+        this.counterDir = conf.getCounterDir();
     }
 
 }

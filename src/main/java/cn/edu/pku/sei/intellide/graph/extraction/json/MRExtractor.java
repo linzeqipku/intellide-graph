@@ -24,6 +24,15 @@ public class MRExtractor extends KnowledgeExtractor {
     public static final RelationshipType ASSIGNEE = RelationshipType.withName("assignee");
 
     private static String DTSRegex = "DTS[A-Z0-9]+";
+    private static String ARRegex = "AR\\.[A-Za-z0-9\\.]+";
+
+    private static Pattern dtsPattern;
+    private static Pattern arPattern;
+
+    static {
+        dtsPattern = Pattern.compile(DTSRegex);
+        arPattern = Pattern.compile(ARRegex);
+    }
 
 
     @Override
@@ -68,12 +77,11 @@ public class MRExtractor extends KnowledgeExtractor {
         node.setProperty(MRExtractor.TITLE, MR.getString("title"));
         node.setProperty(MRExtractor.CONTENT, MR.getString("content"));
         node.setProperty(MRExtractor.URL, MR.getString("merge_request_url"));
-        System.out.println("create MR Node: " + MR.getString("id"));
+        //System.out.println("create MR Node: " + MR.getString("id"));
     }
 
     // 建立MR到DTS或AR的关联关系
     public void createMRRelationship(String content, Node mrNode) {
-        Pattern dtsPattern = Pattern.compile(DTSRegex);
         Matcher dtsMatcher = dtsPattern.matcher(content);
         while(dtsMatcher.find()){
             String dts_no = content.substring(dtsMatcher.start(), dtsMatcher.end());
@@ -84,7 +92,16 @@ public class MRExtractor extends KnowledgeExtractor {
                 mrNode.createRelationshipTo(dtsNode, MRExtractor.REFERENCE);
             }
         }
-        // TODO:AR
+
+        Matcher arMatcher = arPattern.matcher(content);
+        while(arMatcher.find()){
+            String ar_no = content.substring(arMatcher.start(), arMatcher.end());
+            Node arNode = this.getDb().findNode(RequirementExtractor.AR, "business_no", ar_no);
+            if(arNode != null) {
+                mrNode.createRelationshipTo(arNode, MRExtractor.REFERENCE);
+                System.out.println(ar_no);
+            }
+        }
     }
 
     // TODO: person name

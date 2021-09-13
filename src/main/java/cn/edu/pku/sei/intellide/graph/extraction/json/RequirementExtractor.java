@@ -31,6 +31,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
     @Override
     public void extraction() {
         for (File file : FileUtils.listFiles(new File(this.getDataDir()), new String[]{"json"}, true)) {
+            System.out.println(file.getName());
             String jsonContent = null;
             try {
                 jsonContent = FileUtils.readFileToString(file, "utf-8");
@@ -65,9 +66,10 @@ public class RequirementExtractor extends KnowledgeExtractor {
         String reqType = reqJson.getString("requirement_type");
         String id = reqJson.getString("business_no");
         Node parentNode;
-        // TODO: 要不要再加一个Requirement的标签
+        // TODO: 要不要再加一个Requirement标签
+        // TODO:
         switch (reqType) {
-            case "IR Node":
+            case "IR":
                 node.addLabel(RequirementExtractor.IR);
                 break;
             case "SR Node" :
@@ -83,7 +85,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
         }
         node.setProperty(RequirementExtractor.business_no, reqJson.getString("business_no"));
         node.setProperty(RequirementExtractor.name, reqJson.getString("name"));
-        node.setProperty(RequirementExtractor.detail_desc, reqJson.getString("details_desc"));
+        node.setProperty(RequirementExtractor.detail_desc, reqJson.getString("detail_desc"));
         node.setProperty(RequirementExtractor.details_url, reqJson.getString("details_url"));
 
     }
@@ -95,14 +97,26 @@ public class RequirementExtractor extends KnowledgeExtractor {
         else label = RequirementExtractor.IR;
         id = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
         parentNode = this.getDb().findNode(label, "business_no", id);
-        if (parentNode == null){
+        if (parentNode == null && id.lastIndexOf(".") > 0){
             id = id.substring(0, id.lastIndexOf("."));
             parentNode = this.getDb().findNode(label, "business_no", id);
         }
         return parentNode;
     }
 
-    public void createReq2PersonRelationship(Node reqNode, String personId, RelationshipType relationshipType)  {
+    public void createReq2PersonRelationship(Node reqNode, String persons, RelationshipType relationshipType) {
+        if (persons.contains(",")) {
+            String[] persons_id = persons.split(",");
+            for(String personId : persons_id){
+                createReq2OnePersonRelationship(reqNode, personId, relationshipType);
+            }
+        }
+        else {
+            createReq2OnePersonRelationship(reqNode, persons, relationshipType);
+        }
+    }
+
+    public void createReq2OnePersonRelationship(Node reqNode, String personId, RelationshipType relationshipType)  {
         if (personId.length() == 0)    return;
         if (personId.length() == 9){
             personId = personId.substring(1);

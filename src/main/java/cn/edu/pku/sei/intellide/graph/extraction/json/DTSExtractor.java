@@ -74,7 +74,7 @@ public class DTSExtractor extends KnowledgeExtractor {
         // 姓名 工号
         String[] person = personInfo.split("\\s");
         if (person.length != 2 || person[1].length() != 8)     return;
-        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, "id", person[1]);
+        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, PersonExtractor.ID, person[1]);
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);

@@ -86,7 +86,7 @@ public class MRExtractor extends KnowledgeExtractor {
         while(dtsMatcher.find()){
             String dts_no = content.substring(dtsMatcher.start(), dtsMatcher.end());
             //System.out.println(dts_no);
-            Node dtsNode = this.getDb().findNode(DTSExtractor.DTS, "dts_no", dts_no);
+            Node dtsNode = this.getDb().findNode(DTSExtractor.DTS, DTSExtractor.DTS_NO, dts_no);
             if(dtsNode != null) {
                 //System.out.println(dtsNode.getProperty("brief_desc"));
                 mrNode.createRelationshipTo(dtsNode, MRExtractor.REFERENCE);
@@ -96,7 +96,7 @@ public class MRExtractor extends KnowledgeExtractor {
         Matcher arMatcher = arPattern.matcher(content);
         while(arMatcher.find()){
             String ar_no = content.substring(arMatcher.start(), arMatcher.end());
-            Node arNode = this.getDb().findNode(RequirementExtractor.AR, "business_no", ar_no);
+            Node arNode = this.getDb().findNode(RequirementExtractor.AR, RequirementExtractor.BUSINESS_NO, ar_no);
             if(arNode != null) {
                 mrNode.createRelationshipTo(arNode, MRExtractor.REFERENCE);
                 System.out.println(ar_no);
@@ -110,7 +110,7 @@ public class MRExtractor extends KnowledgeExtractor {
         if (personId.length() == 9){
             personId = personId.substring(1);
         }
-        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, "id", personId);
+        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, PersonExtractor.ID, personId);
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);

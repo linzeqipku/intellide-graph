@@ -18,10 +18,10 @@ public class RequirementExtractor extends KnowledgeExtractor {
     public static final Label SR = Label.label("SR");
     public static final Label AR = Label.label("AR");
 
-    public static final String business_no = "business_no";
-    public static final String name = "name";
-    public static final String detail_desc = "detail_desc";
-    public static final String details_url = "details_url";
+    public static final String BUSINESS_NO = "business_no";
+    public static final String NAME = "name";
+    public static final String DETAIL_DESC = "detail_desc";
+    public static final String DETAILS_URL = "details_url";
 
     public static RelationshipType PARENT = RelationshipType.withName("parent");
     public static RelationshipType DESIGNER = RelationshipType.withName("designer");
@@ -51,8 +51,8 @@ public class RequirementExtractor extends KnowledgeExtractor {
                         // 建立需求实体
                         createReqNode(req, node);
                         // 建立需求到Person的链接关系
-                        createReq2PersonRelationship(node, req.getString("designer"), RequirementExtractor.DESIGNER);
-                        // createDTS2PersonRelationship(node, DTS.getString("current_handler"), DTSExtractor.HANDLER);
+                        // createReq2PersonRelationship(node, req.getString("designer"), RequirementExtractor.DESIGNER);
+
                     }
                     tx.success();
                 }
@@ -83,10 +83,10 @@ public class RequirementExtractor extends KnowledgeExtractor {
                 if (parentNode != null) node.createRelationshipTo(parentNode, RequirementExtractor.PARENT);
                 break;
         }
-        node.setProperty(RequirementExtractor.business_no, reqJson.getString("business_no"));
-        node.setProperty(RequirementExtractor.name, reqJson.getString("name"));
-        node.setProperty(RequirementExtractor.detail_desc, reqJson.getString("detail_desc"));
-        node.setProperty(RequirementExtractor.details_url, reqJson.getString("details_url"));
+        node.setProperty(RequirementExtractor.BUSINESS_NO, reqJson.getString("business_no"));
+        node.setProperty(RequirementExtractor.NAME, reqJson.getString("name"));
+        node.setProperty(RequirementExtractor.DETAIL_DESC, reqJson.getString("detail_desc"));
+        node.setProperty(RequirementExtractor.DETAILS_URL, reqJson.getString("details_url"));
 
     }
 
@@ -96,7 +96,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
         if (isAR) label = RequirementExtractor.SR;
         else label = RequirementExtractor.IR;
         id = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
-        parentNode = this.getDb().findNode(label, "business_no", id);
+        parentNode = this.getDb().findNode(label, RequirementExtractor.BUSINESS_NO, id);
         if (parentNode == null && id.lastIndexOf(".") > 0){
             id = id.substring(0, id.lastIndexOf("."));
             parentNode = this.getDb().findNode(label, "business_no", id);
@@ -121,7 +121,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
         if (personId.length() == 9){
             personId = personId.substring(1);
         }
-        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, "id", personId);
+        Node personNode = this.getDb().findNode(PersonExtractor.PERSON, PersonExtractor.ID, personId);
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);

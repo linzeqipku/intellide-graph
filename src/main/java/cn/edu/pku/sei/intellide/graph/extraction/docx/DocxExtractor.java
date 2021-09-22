@@ -11,17 +11,15 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 
-import org.json.JSONObject;
+import com.alibaba.fastjson.JSONObject;
+//import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.FileInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Iterator;
+import java.util.*;
 
 public class DocxExtractor extends KnowledgeExtractor {
 
@@ -138,8 +136,16 @@ public class DocxExtractor extends KnowledgeExtractor {
 
     }
 
+    public boolean validText(String text) {
+        if(text == null) return false;
+        text = text.replaceAll(" ", "");
+        if(text.length() == 0) return false;
+        return !text.equals("\t") && !text.equals("\r\n");
+    }
+
     public <T>void handleTitle4(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
         tmpKey = para.getText();
+        if(!validText(tmpKey)) return;
         tmpVal = "";
         IBodyElement tmpElement = null;
         while(bodyElementsIterator.hasNext()) {
@@ -169,7 +175,7 @@ public class DocxExtractor extends KnowledgeExtractor {
     }
 
     public <T>void handleParagraph_r(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
-        if (para.getText() == null) return;
+        if (!validText(para.getText())) return;
         // title of document
         if (!flag) {
             titles0.get(0).title = para.getText();
@@ -215,7 +221,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                     }
                     else {
                         // normal text content
-                        if(!para.getText().equals("")) titles0.get(3).content.put(String.valueOf(++nums[3]), para.getText());
+                        titles0.get(3).content.put(String.valueOf(++nums[3]), para.getText());
                     }
                 }
             }
@@ -223,7 +229,7 @@ public class DocxExtractor extends KnowledgeExtractor {
     }
 
     public <T>void handleParagraph_f(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
-        if (para.getText() == null) return;
+        if (!validText(para.getText())) return;
         // title of document
         if (!flag) {
             titles1.get(0).title = para.getText();
@@ -269,7 +275,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                     }
                     else {
                         // normal text content
-                        if(!para.getText().equals("")) titles1.get(3).content.put(String.valueOf(++nums[3]), para.getText());
+                        titles1.get(3).content.put(String.valueOf(++nums[3]), para.getText());
                     }
                 }
             }
@@ -342,7 +348,7 @@ public class DocxExtractor extends KnowledgeExtractor {
         String title = "";
         int level = -1;
         int serial = 0;
-        JSONObject content = new JSONObject();
+        JSONObject content = new JSONObject(new LinkedHashMap<>());
         ArrayList<JSONArray> table = new ArrayList<>();
         ArrayList<RequirementSection> children = new ArrayList<>();
 
@@ -372,7 +378,7 @@ public class DocxExtractor extends KnowledgeExtractor {
         String title = "";
         int level = -1;
         int serial = 0;
-        JSONObject content = new JSONObject();
+        JSONObject content = new JSONObject(new LinkedHashMap<>());
         ArrayList<JSONArray> table = new ArrayList<>();
         ArrayList<FeatureSection> children = new ArrayList<>();
 

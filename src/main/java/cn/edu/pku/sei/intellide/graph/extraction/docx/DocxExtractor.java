@@ -104,36 +104,33 @@ public class DocxExtractor extends KnowledgeExtractor {
         }
     }
 
-    public <T>void infoFill_r(int styleID, XWPFParagraph para, Map<String, T> map) {
-        for(int i = 1;i <= 3;i++) {
-            if(titles0.get(i) != null && !map.containsKey(titles0.get(i).title)) {
-                map.put(titles0.get(i).title, (T) titles0.get(i));
-                titles0.get(i-1).children.add(titles0.get(i));
-            }
-        }
-        titles0.set(styleID, new RequirementSection());
+    public <T>void infoFill(int styleID, XWPFParagraph para, Map<String, T> map) {
         levels[styleID]++; nums[styleID] = 0;
-        titles0.get(styleID).title = para.getText();
-        titles0.get(styleID).level = styleID;
-        titles0.get(styleID).serial = levels[styleID];
-        if(styleID < 3) levels[styleID+1] = 0;
-
-    }
-
-    public <T>void infoFill_f(int styleID, XWPFParagraph para, Map<String, T> map) {
-        for(int i = 1;i <= 3;i++) {
-            if(titles1.get(i) != null && !map.containsKey(titles1.get(i).title)) {
-                map.put(titles1.get(i).title, (T) titles1.get(i));
-                titles1.get(i-1).children.add(titles1.get(i));
+        if(docType == 0) {
+            for(int i = 1;i <= 3;i++) {
+                if(titles0.get(i) != null && !map.containsKey(titles0.get(i).title)) {
+                    map.put(titles0.get(i).title, (T) titles0.get(i));
+                    titles0.get(i-1).children.add(titles0.get(i));
+                }
             }
+            titles0.set(styleID, new RequirementSection());
+            titles0.get(styleID).title = para.getText();
+            titles0.get(styleID).level = styleID;
+            titles0.get(styleID).serial = levels[styleID];
         }
-        titles1.set(styleID, new FeatureSection());
-        levels[styleID]++; nums[styleID] = 0;
-        titles1.get(styleID).title = para.getText();
-        titles1.get(styleID).level = styleID;
-        titles1.get(styleID).serial = levels[styleID];
+        else if(docType == 1) {
+            for(int i = 1;i <= 3;i++) {
+                if(titles1.get(i) != null && !map.containsKey(titles1.get(i).title)) {
+                    map.put(titles1.get(i).title, (T) titles1.get(i));
+                    titles1.get(i-1).children.add(titles1.get(i));
+                }
+            }
+            titles1.set(styleID, new FeatureSection());
+            titles1.get(styleID).title = para.getText();
+            titles1.get(styleID).level = styleID;
+            titles1.get(styleID).serial = levels[styleID];
+        } 
         if(styleID < 3) levels[styleID+1] = 0;
-
     }
 
     public boolean validText(String text) {
@@ -143,7 +140,7 @@ public class DocxExtractor extends KnowledgeExtractor {
         return !text.equals("\t") && !text.equals("\r\n");
     }
 
-    public <T>void handleTitle4(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
+    public <T>void handleTitle(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
         tmpKey = para.getText();
         if(!validText(tmpKey)) return;
         tmpVal = "";
@@ -156,8 +153,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                     if(docType == 0) titles0.get(3).content.put(tmpKey, tmpVal);
                     else if(docType == 1) titles1.get(3).content.put(tmpKey, tmpVal);
                     tmpKey = "";
-                    if(docType == 0) handleParagraph_r(bodyElementsIterator, ((XWPFParagraph)(tmpElement)), map);
-                    else if(docType == 1) handleParagraph_f(bodyElementsIterator, ((XWPFParagraph)(tmpElement)), map);
+                    handleParagraph(bodyElementsIterator, ((XWPFParagraph)(tmpElement)), map);
                     break;
                 }
                 else {
@@ -174,13 +170,20 @@ public class DocxExtractor extends KnowledgeExtractor {
         }
     }
 
-    public <T>void handleParagraph_r(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
+    public <T>void handleParagraph(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
         if (!validText(para.getText())) return;
         // title of document
         if (!flag) {
-            titles0.get(0).title = para.getText();
-            titles0.get(0).level = 0;
-            titles0.get(0).serial = 0;
+            if(docType == 0) {
+                titles0.get(0).title = para.getText();
+                titles0.get(0).level = 0;
+                titles0.get(0).serial = 0;
+            }
+            else if(docType == 1) {
+                titles1.get(0).title = para.getText();
+                titles1.get(0).level = 0;
+                titles1.get(0).serial = 0;
+            }
             flag = true;
             return;
         }
@@ -191,17 +194,17 @@ public class DocxExtractor extends KnowledgeExtractor {
             titleLevel = Integer.parseInt(para.getStyleID());
         switch (titleLevel) {
             case 1: {
-                infoFill_r(1, para, map);
+                infoFill(1, para, map);
                 currentLevel = 1;
                 break;
             }
             case 2: {
-                infoFill_r(2, para, map);
+                infoFill(2, para, map);
                 currentLevel = 2;
                 break;
             }
             case 3: {
-                infoFill_r(3, para, map);
+                infoFill(3, para, map);
                 currentLevel = 3;
                 break;
             }
@@ -209,73 +212,26 @@ public class DocxExtractor extends KnowledgeExtractor {
                 // non-title: content attribute
                 if (currentLevel == 0) {
                     // content between titles0.get(0) and titles0.get(1)
-                    titles0.get(0).content.put(String.valueOf(++nums[0]), para.getText());
-                } else if (currentLevel == 1) {
-                    titles0.get(1).content.put(String.valueOf(++nums[1]), para.getText());
-                } else if (currentLevel == 2) {
-                    titles0.get(2).content.put(String.valueOf(++nums[2]), para.getText());
-                } else if (currentLevel == 3) {
+                    if(docType == 0) titles0.get(0).content.put(String.valueOf(++nums[0]), para.getText());
+                    else if(docType == 1) titles1.get(0).content.put(String.valueOf(++nums[0]), para.getText());
+                } 
+                else if (currentLevel == 1) {
+                    if(docType == 0) titles0.get(1).content.put(String.valueOf(++nums[1]), para.getText());
+                    else if(docType == 1) titles1.get(1).content.put(String.valueOf(++nums[1]), para.getText());
+                } 
+                else if (currentLevel == 2) {
+                    if(docType == 0) titles0.get(2).content.put(String.valueOf(++nums[2]), para.getText());
+                    else if(docType == 1) titles1.get(2).content.put(String.valueOf(++nums[2]), para.getText());
+                } 
+                else if (currentLevel == 3) {
                     if (titleLevel == 4) {
                         // level-4 title content
-                        handleTitle4(bodyElementsIterator, para, map);
+                        handleTitle(bodyElementsIterator, para, map);
                     }
                     else {
                         // normal text content
-                        titles0.get(3).content.put(String.valueOf(++nums[3]), para.getText());
-                    }
-                }
-            }
-        }
-    }
-
-    public <T>void handleParagraph_f(Iterator<IBodyElement> bodyElementsIterator, XWPFParagraph para, Map<String, T> map) throws JSONException {
-        if (!validText(para.getText())) return;
-        // title of document
-        if (!flag) {
-            titles1.get(0).title = para.getText();
-            titles1.get(0).level = 0;
-            titles1.get(0).serial = 0;
-            flag = true;
-            return;
-        }
-        int titleLevel;
-        if (para.getStyleID() == null || para.getStyleID().length() != 1)
-            titleLevel = -1;
-        else
-            titleLevel = Integer.parseInt(para.getStyleID());
-        switch (titleLevel) {
-            case 1: {
-                infoFill_f(1, para, map);
-                currentLevel = 1;
-                break;
-            }
-            case 2: {
-                infoFill_f(2, para, map);
-                currentLevel = 2;
-                break;
-            }
-            case 3: {
-                infoFill_f(3, para, map);
-                currentLevel = 3;
-                break;
-            }
-            default: {
-                // non-title: content attribute
-                if (currentLevel == 0) {
-                    // content between titles0.get(0) and titles0.get(1)
-                    titles1.get(0).content.put(String.valueOf(++nums[0]), para.getText());
-                } else if (currentLevel == 1) {
-                    titles1.get(1).content.put(String.valueOf(++nums[1]), para.getText());
-                } else if (currentLevel == 2) {
-                    titles1.get(2).content.put(String.valueOf(++nums[2]), para.getText());
-                } else if (currentLevel == 3) {
-                    if (titleLevel == 4) {
-                        // level-4 title content
-                        handleTitle4(bodyElementsIterator, para, map);
-                    }
-                    else {
-                        // normal text content
-                        titles1.get(3).content.put(String.valueOf(++nums[3]), para.getText());
+                        if(docType == 0) titles0.get(3).content.put(String.valueOf(++nums[3]), para.getText());
+                        else if(docType == 1) titles1.get(3).content.put(String.valueOf(++nums[3]), para.getText());
                     }
                 }
             }
@@ -311,7 +267,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                 handleTable(((XWPFTable) (bodyElement)));
             }
             else if(bodyElement instanceof XWPFParagraph) {
-                handleParagraph_r(bodyElementsIterator, ((XWPFParagraph) (bodyElement)), map);
+                handleParagraph(bodyElementsIterator, ((XWPFParagraph) (bodyElement)), map);
             }
         }
         for(int i = 0;i <= 3;i++) {
@@ -331,7 +287,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                 handleTable(((XWPFTable) (bodyElement)));
             }
             else if(bodyElement instanceof XWPFParagraph) {
-                handleParagraph_f(bodyElementsIterator, ((XWPFParagraph) (bodyElement)), map);
+                handleParagraph(bodyElementsIterator, ((XWPFParagraph) (bodyElement)), map);
             }
         }
         for(int i = 0;i <= 3;i++) {

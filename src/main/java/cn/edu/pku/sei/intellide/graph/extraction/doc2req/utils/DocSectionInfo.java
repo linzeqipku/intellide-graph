@@ -1,19 +1,17 @@
 package cn.edu.pku.sei.intellide.graph.extraction.doc2req.utils;
 
 import cn.edu.pku.sei.intellide.graph.extraction.doc2req.Doc2ReqExtractor;
+import cn.edu.pku.sei.intellide.graph.extraction.docx.DocxExtractor;
 import cn.edu.pku.sei.intellide.graph.extraction.json.RequirementExtractor;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.kernel.api.exceptions.Status;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,16 +39,36 @@ public class DocSectionInfo {
 
     public DocSectionInfo(Node node) {
         this.node = node;
-        extractContentFromNode();
+        //System.out.println("cp2 node title :" + node.getProperty("title"));
+        try {
+            extractContentFromNode();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         setIR = new HashSet<>();
         setSR = new HashSet<>();
         setAR = new HashSet<>();
     }
 
 
-    public void extractContentFromNode() {
-        // TODO : getProperty返回的是String吗; 改成WordExtractor.xxx
-        this.content = node.getProperty("title") + " " + node.getProperty("content") + " " + node.getProperty("table") + " ";
+    public void extractContentFromNode() throws JSONException {
+        // TODO : getProperty返回的是String吗;
+        StringBuilder s = new StringBuilder();
+        s.append(node.getProperty(DocxExtractor.TITLE)).append(" ");
+        JSONObject content = new JSONObject((String) node.getProperty(DocxExtractor.CONTENT));
+        for (Iterator it = content.keys(); it.hasNext(); ) {
+            String key = (String) it.next();
+            s.append(key).append(" ");
+            s.append(content.getString(key)).append(" ");
+        }
+        JSONArray tables = new JSONArray((String) node.getProperty(DocxExtractor.TABLE));
+        for (int i = 0; i < tables.length(); i++) {
+            JSONArray table = tables.getJSONArray(i);
+            for (int j = 0; j < table.length(); j++) {
+                s.append(table.getString(j)).append(" ");
+            }
+        }
+        this.content = s.toString();
     }
 
 
@@ -63,6 +81,7 @@ public class DocSectionInfo {
                 String ir_no = content.substring(irMatcher.start(), irMatcher.end());
                 Node ir = db.findNode(RequirementExtractor.IR, RequirementExtractor.BUSINESS_NO, ir_no);
                 if (ir != null) {
+                    //System.out.println("cp3 regex: " + ir.getProperty("business_no"));
                     setIR.add(ir);
                 }
             }
@@ -72,7 +91,8 @@ public class DocSectionInfo {
                 String sr_no = content.substring(srMatcher.start(), srMatcher.end());
                 Node sr = db.findNode(RequirementExtractor.SR, RequirementExtractor.BUSINESS_NO, sr_no);
                 if (sr != null) {
-                    setIR.add(sr);
+                    //System.out.println("cp3 regex: " + sr.getProperty("business_no"));
+                    setSR.add(sr);
                 }
             }
 
@@ -81,7 +101,8 @@ public class DocSectionInfo {
                 String ar_no = content.substring(arMatcher.start(), arMatcher.end());
                 Node ar = db.findNode(RequirementExtractor.AR, RequirementExtractor.BUSINESS_NO, ar_no);
                 if (ar != null) {
-                    setIR.add(ar);
+                    //System.out.println("cp3 regex: " + ar.getProperty("business_no"));
+                    setAR.add(ar);
                 }
             }
 
@@ -97,11 +118,20 @@ public class DocSectionInfo {
             for (String query : queryString) {
                 Node reqNode;
                 reqNode = db.findNode(RequirementExtractor.IR, RequirementExtractor.NAME, query);
-                if (reqNode != null) setIR.add(reqNode);
+                if (reqNode != null){
+                    //System.out.println("cp4 name: " + query + " " + reqNode.getProperty("business_no"));
+                    setIR.add(reqNode);
+                }
                 reqNode = db.findNode(RequirementExtractor.SR, RequirementExtractor.NAME, query);
-                if (reqNode != null) setSR.add(reqNode);
+                if (reqNode != null) {
+                    //System.out.println("cp4 name: " + query + " " + reqNode.getProperty("business_no"));
+                    setSR.add(reqNode);
+                }
                 reqNode = db.findNode(RequirementExtractor.AR, RequirementExtractor.NAME, query);
-                if (reqNode != null) setAR.add(reqNode);
+                if (reqNode != null) {
+                    //System.out.println("cp4 name: " + query + " " + reqNode.getProperty("business_no"));
+                    setAR.add(reqNode);
+                }
             }
             tx.success();
         }
@@ -155,18 +185,24 @@ public class DocSectionInfo {
 
 
     public void addRelationship(GraphDatabaseService db, int n) {
-        Set<Node> endNodes;
+        Set<Node> targetNodes;
+        Set<Node> sourceNodes;
         if (n == 2) {
-            endNodes = setSR;
+            sourceNodes = setIR;
+            targetNodes = setSR;
         }
         else if (n == 3) {
-            endNodes = setAR;
+            sourceNodes = setSR;
+            targetNodes = setAR;
         }
         else {
             return;
         }
         try (Transaction tx = db.beginTx()) {
-            for (Node endNode : endNodes) {
+//            for (Node endNode : sourceNodes) {
+//                this.node.createRelationshipTo(endNode, Doc2ReqExtractor.SOURCE);
+//            }
+            for (Node endNode : targetNodes) {
                 this.node.createRelationshipTo(endNode, Doc2ReqExtractor.TARGET);
             }
             tx.success();

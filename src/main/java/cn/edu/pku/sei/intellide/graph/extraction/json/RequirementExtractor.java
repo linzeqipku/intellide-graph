@@ -51,7 +51,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
                         // 建立需求实体
                         createReqNode(req, node);
                         // 建立需求到Person的链接关系
-                        // createReq2PersonRelationship(node, req.getString("designer"), RequirementExtractor.DESIGNER);
+                        createReq2PersonRelationship(node, req.getString("designer"), RequirementExtractor.DESIGNER);
 
                     }
                     tx.success();

@@ -28,7 +28,7 @@ public class DocxExtractor extends KnowledgeExtractor {
 
     public static final Label RequirementSection = Label.label("RequirementSection");
     public static final Label FeatureSection = Label.label("FeatureSection");
-    public static final RelationshipType PARENT = RelationshipType.withName("parent");
+    public static final RelationshipType SUB_DOCX_ELEMENT = RelationshipType.withName("subDocxElement");
     public static final String TITLE = "title";
     public static final String CONTENT = "content";
     public static final String TABLE = "table";
@@ -379,7 +379,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                 long childId = child.toNeo4j(inserter);
                 Map<String, Object> rMap = new HashMap<>();
                 rMap.put(DocxExtractor.SERIAL, i);
-                inserter.createRelationship(node, childId, DocxExtractor.PARENT, rMap);
+                inserter.createRelationship(node, childId, DocxExtractor.SUB_DOCX_ELEMENT, rMap);
             }
             return node;
         }
@@ -409,7 +409,7 @@ public class DocxExtractor extends KnowledgeExtractor {
                 long childId = child.toNeo4j(inserter);
                 Map<String, Object> rMap = new HashMap<>();
                 rMap.put(DocxExtractor.SERIAL, i);
-                inserter.createRelationship(node, childId, DocxExtractor.PARENT, rMap);
+                inserter.createRelationship(node, childId, DocxExtractor.SUB_DOCX_ELEMENT, rMap);
             }
             return node;
         }

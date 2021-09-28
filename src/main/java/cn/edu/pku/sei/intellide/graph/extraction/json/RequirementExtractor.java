@@ -5,10 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +27,8 @@ public class RequirementExtractor extends KnowledgeExtractor {
 
     @Override
     public void extraction() {
+        // 创建需求实体以及需求到人的关系
         for (File file : FileUtils.listFiles(new File(this.getDataDir()), new String[]{"json"}, true)) {
-            System.out.println(file.getName());
             String jsonContent = null;
             try {
                 jsonContent = FileUtils.readFileToString(file, "utf-8");
@@ -52,7 +49,6 @@ public class RequirementExtractor extends KnowledgeExtractor {
                         createReqNode(req, node);
                         // 建立需求到Person的链接关系
                         createReq2PersonRelationship(node, req.getString("designer"), RequirementExtractor.DESIGNER);
-
                     }
                     tx.success();
                 }
@@ -60,27 +56,29 @@ public class RequirementExtractor extends KnowledgeExtractor {
                 e.printStackTrace();
             }
         }
+
+        // 创建需求之间的层次关系
+        try (Transaction tx = this.getDb().beginTx()) {
+            createParentRelationship(this.getDb().findNodes(RequirementExtractor.AR), true);
+            createParentRelationship(this.getDb().findNodes(RequirementExtractor.SR), false);
+            tx.success();
+        }
+
     }
 
     public void createReqNode(JSONObject reqJson, Node node) throws JSONException {
         String reqType = reqJson.getString("requirement_type");
         String id = reqJson.getString("business_no");
         Node parentNode;
-        // TODO: 要不要再加一个Requirement标签
-        // TODO:
         switch (reqType) {
             case "IR":
                 node.addLabel(RequirementExtractor.IR);
                 break;
             case "SR Node" :
                 node.addLabel(RequirementExtractor.SR);
-                parentNode = findParentNode(id, false);
-                if (parentNode != null) node.createRelationshipTo(parentNode, RequirementExtractor.PARENT);
                 break;
             case "AR Node" :
                 node.addLabel(RequirementExtractor.AR);
-                parentNode = findParentNode(id, true);
-                if (parentNode != null) node.createRelationshipTo(parentNode, RequirementExtractor.PARENT);
                 break;
         }
         node.setProperty(RequirementExtractor.BUSINESS_NO, reqJson.getString("business_no"));
@@ -88,6 +86,18 @@ public class RequirementExtractor extends KnowledgeExtractor {
         node.setProperty(RequirementExtractor.DETAIL_DESC, reqJson.getString("detail_desc"));
         node.setProperty(RequirementExtractor.DETAILS_URL, reqJson.getString("details_url"));
 
+    }
+
+    public void createParentRelationship(ResourceIterator<Node> it, boolean isAR) {
+        if (it == null)     return;
+        Node parentNode;
+        while (it.hasNext()) {
+            Node node = it.next();
+            parentNode = findParentNode((String)node.getProperty(RequirementExtractor.BUSINESS_NO), isAR);
+            if (parentNode != null)  {
+                node.createRelationshipTo(parentNode, RequirementExtractor.PARENT);
+            }
+        }
     }
 
     public Node findParentNode(String id, boolean isAR) {
@@ -99,7 +109,7 @@ public class RequirementExtractor extends KnowledgeExtractor {
         parentNode = this.getDb().findNode(label, RequirementExtractor.BUSINESS_NO, id);
         if (parentNode == null && id.lastIndexOf(".") > 0){
             id = id.substring(0, id.lastIndexOf("."));
-            parentNode = this.getDb().findNode(label, "business_no", id);
+            parentNode = this.getDb().findNode(label, RequirementExtractor.BUSINESS_NO, id);
         }
         return parentNode;
     }
@@ -125,8 +135,8 @@ public class RequirementExtractor extends KnowledgeExtractor {
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);
-            personNode.setProperty("name", "");
-            personNode.setProperty("id", personId);
+            personNode.setProperty(PersonExtractor.NAME, "");
+            personNode.setProperty(PersonExtractor.ID, personId);
         }
         reqNode.createRelationshipTo(personNode, relationshipType);
     }

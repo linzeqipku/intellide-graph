@@ -6,16 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.unsafe.batchinsert.BatchInserter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class DTSExtractor extends KnowledgeExtractor {
 
@@ -78,8 +71,8 @@ public class DTSExtractor extends KnowledgeExtractor {
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);
-            personNode.setProperty("name", person[0]);
-            personNode.setProperty("id", person[1]);
+            personNode.setProperty(PersonExtractor.NAME, person[0]);
+            personNode.setProperty(PersonExtractor.ID, person[1]);
         }
         dtsNode.createRelationshipTo(personNode, relationshipType);
     }

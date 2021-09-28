@@ -99,7 +99,7 @@ public class MRExtractor extends KnowledgeExtractor {
             Node arNode = this.getDb().findNode(RequirementExtractor.AR, RequirementExtractor.BUSINESS_NO, ar_no);
             if(arNode != null) {
                 mrNode.createRelationshipTo(arNode, MRExtractor.REFERENCE);
-                System.out.println(ar_no);
+                //System.out.println(ar_no);
             }
         }
     }
@@ -114,15 +114,10 @@ public class MRExtractor extends KnowledgeExtractor {
         if (personNode == null){
             personNode = this.getDb().createNode();
             personNode.addLabel(PersonExtractor.PERSON);
-            personNode.setProperty("name", "");
-            personNode.setProperty("id", personId);
+            personNode.setProperty(PersonExtractor.NAME, "");
+            personNode.setProperty(PersonExtractor.ID, personId);
         }
         mrNode.createRelationshipTo(personNode, relationshipType);
     }
 
-    public static void main (String[] args) {
-        MRExtractor test = new MRExtractor();
-        test.setDataDir("D:/Data/TestData/MR");
-        test.extraction();
-    }
 }

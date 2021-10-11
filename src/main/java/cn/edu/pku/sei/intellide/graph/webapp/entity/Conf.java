@@ -12,7 +12,7 @@ public class Conf {
 
     @Getter
     @Setter
-    private String graphDir, dataDir, infoDir;
+    private String graphDir, dataDir, infoDir, counterDir;
 
 }
 

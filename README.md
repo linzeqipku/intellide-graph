@@ -5,6 +5,7 @@
 - [FAQ](https://github.com/linzeqipku/intellide-graph/blob/master/docs/FAQ.md)
 
 <a name="user-guide"></a>
+
 ## 基本功能概览
 
 - Onlie Demo: [http://106.75.143.22:3000/](http://106.75.143.22:3000/)
@@ -56,7 +57,6 @@
 1. [Java](https://www.java.com/download/) 1.8+ (用于知识图谱的自动构建与后端服务器的运行)
 2. [Node.js](https://www.npmjs.com/) (用于前端服务器的运行)
 3. [Maven](https://maven.apache.org/) 3.2+ (optional，用于从源代码开始编译构建)
-4. [Python](https://www.python.org/) 3 (optional，用于word文档数据的预处理)
 
 可以使用maven从源代码开始进行编译构建：
 
@@ -64,28 +64,19 @@
 mvn package
 ```
 
-或在[此处](https://github.com/linzeqipku/intellide-graph/releases)下载已编译好的jar包.
-
 ### 数据准备
 
-1. Java源代码数据
+1. JSON格式数据（DTS、需求、MR）
 
-    将整个项目的源代码统一解压到一个文件夹中即可.
+    将DTS、需求、MR的JSON数据文件分别放在3个文件夹中
 
-2. git版本库数据
+2. docx格式数据
 
-    给出该项目的.git文件夹即可.
+    将架构设计文档、需求分析文档、特性设计文档统一放在一个文件夹中
     
-    (SVN版本库数据的处理方式见FAQ)
-    
-3. html文档数据
+3. pdf文档数据
 
-    统一放在同一个文件夹中即可.
-    对于docx文档，可以使用[此python脚本](https://gist.github.com/linzeqipku/3cec0b90e9e51445a2ffc5e15cdf4ae0)将其预处理为html格式.
-    
-4. pptx演示文稿数据
-
-    统一放在同一个文件夹中即可.
+    将pdf格式的配置文档统一放在一个文件夹中
     
 ### 自动构建知识图谱
 
@@ -95,22 +86,21 @@ mvn package
     配置文件的示例如下：
     
     ```
-    graphDir: E:/graph.db  # 知识图谱的输出文件夹路径，如果需要中文支持，该路径需要由"-chinese"来结尾
+    graphDir: D:/Data/TestGraph-chinese  # 知识图谱的输出文件夹路径，如果需要中文支持，该路径需要由"-chinese"来结尾
     
     # 依次执行如下数据解析插件
-    cn.edu.pku.sei.intellide.graph.extraction.java.JavaExtractor: E:/data/src
-    cn.edu.pku.sei.intellide.graph.extraction.git.GitExtractor: E:/data/.git
-    cn.edu.pku.sei.intellide.graph.extraction.html.HtmlExtractor: E:/data/html
-    cn.edu.pku.sei.intellide.graph.extraction.pptx.PptxExtractor: E:/data/pptx
+    cn.edu.pku.sei.intellide.graph.extraction.json.DTSExtractor: D:/Data/TestData/DTS
+    cn.edu.pku.sei.intellide.graph.extraction.json.RequirementExtractor: D:/Data/TestData/Requirement
+    cn.edu.pku.sei.intellide.graph.extraction.json.MRExtractor: D:/Data/TestData/MR
+    cn.edu.pku.sei.intellide.graph.extraction.docx.DocxExtractor: D:/Data/TestData/Docx
+    cn.edu.pku.sei.intellide.graph.extraction.pdf.PDFExtractor: D:/Data/TestData/PDF
     
     # 依次执行如下知识关联与挖掘插件
-    cn.edu.pku.sei.intellide.graph.extraction.tokenization.TokenExtractor:
-    cn.edu.pku.sei.intellide.graph.extraction.code_mention.CodeMentionExtractor:
-    cn.edu.pku.sei.intellide.graph.extraction.doc_link.DocLinkExtractor:
+    cn.edu.pku.sei.intellide.graph.extraction.doc2req.Doc2ReqExtractor:
     ```
     
  2. 运行如下命令，自动生成知识图谱
- 
+
      ```
      java -jar intellide-graph.jar -gen {yml_config_path}
      ```
